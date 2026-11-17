@@ -25,6 +25,8 @@
     </array>
     <key>WFWorkflowInputContentItemClasses</key>
     <array>
+      <string>WFURLContentItem</string>
+      <string>WFStringContentItem</string>
       <string>WFSafariWebPageContentItem</string>
     </array>
     <key>WFWorkflowHasOutputFallback</key>
@@ -41,292 +43,21 @@
         <key>WFWorkflowActionParameters</key>
         <dict>
           <key>WFCommentActionText</key>
-          <string>Mở riêng bài đăng Facebook/Instagram/TikTok trong Safari → Chia sẻ → Media Saver. Chỉ tải tệp mà trang cung cấp; không ghép HLS/DASH, không quét trang cá nhân. Đọc hướng dẫn và giới hạn tại github.com/tungnv107/shortcut.</string>
+          <string>Media Saver 1.0.0-beta.3
+Facebook/TikTok/Instagram → Chia sẻ → Thêm/Khác → Media Saver. Chỉ dùng Phím tắt. Link bài đăng được gửi tới TikWM (TikTok), Siputzx/SSSInstagram (Instagram) hoặc VKrDownloader (Facebook); không gửi cookie/mật khẩu. Facebook hiện hỗ trợ video, chưa hỗ trợ album ảnh. github.com/tungnv107/shortcut</string>
+          <key>CustomOutputName</key>
+          <string>Media Saver 1.0.0-beta.3</string>
           <key>UUID</key>
-          <string>E83DF53D-9386-4467-A1D7-B1599F804A10</string>
+          <string>E63A7E01-0CA0-4DB0-AB4B-FC6B8A138619</string>
         </dict>
       </dict>
       <dict>
         <key>WFWorkflowActionIdentifier</key>
-        <string>is.workflow.actions.runjavascriptonwebpage</string>
+        <string>is.workflow.actions.setvariable</string>
         <key>WFWorkflowActionParameters</key>
         <dict>
-          <key>WFJavaScript</key>
-          <string>function collectMedia(document, pageURL, additionalData) {
-  &quot;use strict&quot;;
-  additionalData = additionalData || [];
-  const MAX_NODES = 60000;
-  const MAX_JSON = 12000000;
-  const deadline = Date.now() + 2500;
-  const warnings = new Set();
-  const media = new Map();
-  let scanned = 0;
-  let expected = 0;
-  let structured = false;
-  let inaccessibleVideos = 0;
-
-  function identify(raw) {
-    try {
-      const u = new URL(raw, pageURL);
-      const host = u.hostname.toLowerCase();
-      let platform = &quot;&quot;;
-      let id = &quot;&quot;;
-      if (/(^|\.)instagram\.com$/.test(host)) {
-        platform = &quot;Instagram&quot;;
-        id = (u.pathname.match(/\/(?:p|reels?|tv)\/([\w-]+)/) || [])[1] || &quot;&quot;;
-      } else if (/(^|\.)tiktok\.com$/.test(host)) {
-        platform = &quot;TikTok&quot;;
-        id = (u.pathname.match(/\/(?:video|photo)\/(\d+)/) || [])[1] || &quot;&quot;;
-      } else if (/(^|\.)facebook\.com$/.test(host) || host === &quot;fb.watch&quot;) {
-        platform = &quot;Facebook&quot;;
-        id = u.searchParams.get(&quot;fbid&quot;) || u.searchParams.get(&quot;story_fbid&quot;) || u.searchParams.get(&quot;v&quot;) ||
-          (u.pathname.match(/\/(?:reel|videos|posts)\/([^/?]+)/) || [])[1] ||
-          (u.pathname.match(/\/photos\/(?:[^/]+\/)*(\d+)\/?$/) || [])[1] || &quot;&quot;;
-      }
-      return { platform, id, url: u.href };
-    } catch (_) { return { platform: &quot;&quot;, id: &quot;&quot;, url: &quot;&quot; }; }
-  }
-
-  const target = identify(pageURL);
-  const baseResult = { platform: target.platform, pageURL, urls: [], items: [], expected: 0, complete: false };
-  if (!target.platform) return { ...baseResult, notice: &quot;Chỉ hỗ trợ bài đăng Facebook, Instagram và TikTok mở trong Safari.&quot; };
-  // Short URLs need to finish redirecting before extraction. Never scan a feed/profile.
-  if (!target.id) return { ...baseResult, notice: &quot;Hãy mở liên kết của một bài đăng cụ thể trong Safari và đợi trang tải xong. Không hỗ trợ quét toàn bộ trang cá nhân, bảng tin hay album phân trang.&quot; };
-
-  function cleanURL(raw) {
-    if (typeof raw !== &quot;string&quot; || !raw) return &quot;&quot;;
-    try {
-      const u = new URL(raw.replace(/&amp;amp;/g, &quot;&amp;&quot;), pageURL);
-      if (u.protocol !== &quot;https:&quot; || u.username || u.password) return &quot;&quot;;
-      if (/\.(?:m3u8|mpd)(?:$|[?#])/i.test(u.href)) {
-        warnings.add(&quot;Có luồng HLS/DASH không thể lưu trực tiếp bằng bản này.&quot;);
-        return &quot;&quot;;
-      }
-      return u.href;
-    } catch (_) { return &quot;&quot;; }
-  }
-
-  function urlsFrom(value) {
-    if (!value) return [];
-    if (typeof value === &quot;string&quot;) return [value];
-    if (Array.isArray(value)) return value.flatMap(urlsFrom);
-    if (typeof value === &quot;object&quot;) {
-      return urlsFrom(value.urlList || value.UrlList || value.url_list || value.url || value.src || value.uri);
-    }
-    return [];
-  }
-
-  function add(kind, values, id, width, height) {
-    const alternatives = [...new Set(urlsFrom(values).map(cleanURL).filter(Boolean))];
-    if (!alternatives.length) return false;
-    const key = kind + &quot;:&quot; + (id || alternatives[0]);
-    const score = Number(width || 0) * Number(height || 0);
-    const existing = media.get(key);
-    if (!existing || score &gt; existing.score) media.set(key, { kind, url: alternatives[0], id: String(id || &quot;&quot;), score });
-    return true;
-  }
-
-  function best(items) {
-    return [...(Array.isArray(items) ? items : [])].sort((a, b) =&gt;
-      Number(b.width || b.config_width || 0) * Number(b.height || b.config_height || 0) -
-      Number(a.width || a.config_width || 0) * Number(a.height || a.config_height || 0));
-  }
-
-  const skipKeys = /^(?:owner|author|authorInfo|user|users|actors|comments|edge_media_to_comment|edge_media_to_parent_comment|edge_related_profiles|recommendations|suggested|related|related_videos|viewer|feedback|music|avatar|profile_pic_url)$/;
-  function walk(root, callback, skip = false) {
-    const stack = [root];
-    const visited = new Set();
-    while (stack.length) {
-      if (++scanned &gt; MAX_NODES || Date.now() &gt; deadline) {
-        warnings.add(&quot;Dữ liệu trang quá lớn; chỉ đọc được một phần. Mở riêng bài đăng rồi thử lại.&quot;);
-        break;
-      }
-      const n = stack.pop();
-      if (!n || typeof n !== &quot;object&quot; || visited.has(n)) continue;
-      visited.add(n);
-      if (callback(n) === false) continue;
-      const entries = Array.isArray(n) ? n.map((v, i) =&gt; [String(i), v]) : Object.entries(n);
-      for (let i = entries.length - 1; i &gt;= 0; i--) {
-        const [key, value] = entries[i];
-        if (!skip || !skipKeys.test(key)) stack.push(value);
-      }
-    }
-  }
-
-  function matches(n) {
-    if ([n.shortcode, n.code, n.id, n.pk, n.post_id, n.video_id, n.aweme_id].some(v =&gt; v != null &amp;&amp; String(v) === target.id)) return true;
-    return [n.permalink_url, n.story_permalink, n.url].some(v =&gt; {
-      if (typeof v !== &quot;string&quot; || !/^https:\/\//.test(v)) return false;
-      const other = identify(v);
-      return other.platform === target.platform &amp;&amp; other.id === target.id;
-    });
-  }
-
-  function instagram(n, fallbackID) {
-    const children = n.carousel_media || (n.edge_sidecar_to_children &amp;&amp; n.edge_sidecar_to_children.edges.map(e =&gt; e.node));
-    if (Array.isArray(children) &amp;&amp; children.length) {
-      expected = Math.max(expected, Number(n.carousel_media_count || (n.edge_sidecar_to_children || {}).count || children.length));
-      children.forEach((child, i) =&gt; instagram(child, &quot;ig-child-&quot; + i));
-      return true;
-    }
-    const id = n.id || n.pk || fallbackID;
-    const versions = best(n.video_versions);
-    const isVideo = n.is_video === true || n.media_type === 2 || n.__typename === &quot;GraphVideo&quot; || !!n.video_url || versions.length &gt; 0;
-    if (isVideo) {
-      if (!add(&quot;video&quot;, versions.length ? versions : n.video_url, id)) inaccessibleVideos++;
-      return true;
-    }
-    const images = best((n.image_versions2 || {}).candidates || n.display_resources);
-    return add(&quot;image&quot;, images.length ? images : (n.display_url || n.display_src), id);
-  }
-
-  function tiktok(n) {
-    const images = (n.imagePost || n.image_post_info || {}).images;
-    if (Array.isArray(images) &amp;&amp; images.length) {
-      expected = Math.max(expected, images.length);
-      images.forEach((img, i) =&gt; add(&quot;image&quot;, img.imageURL || img.displayImage || img.display_image || img, &quot;tt-&quot; + i));
-      return true;
-    }
-    if (!n.video) return false;
-    const v = n.video;
-    if (!add(&quot;video&quot;, [v.playAddr, v.play_addr, v.downloadAddr, (v.download || {}).url, v.download_addr], n.id || n.aweme_id || target.id)) inaccessibleVideos++;
-    return true;
-  }
-
-  function facebook(root) {
-    let recognized = false;
-    walk(root, n =&gt; {
-      const video = n.__typename === &quot;Video&quot; || n.browser_native_hd_url || n.browser_native_sd_url || n.playable_url || n.playable_url_quality_hd;
-      if (video) {
-        let found = false;
-        walk(n, part =&gt; {
-          const progressive = best(part.progressive_urls).map(p =&gt; p.progressive_url);
-          const sources = [part.browser_native_hd_url, part.playable_url_quality_hd, progressive, part.browser_native_sd_url, part.playable_url];
-          if (add(&quot;video&quot;, sources, n.id || n.video_id || target.id)) found = true;
-        }, true);
-        if (!found) inaccessibleVideos++;
-        recognized = true;
-        return false;
-      }
-      if (n.__typename === &quot;Photo&quot;) {
-        const images = [n.image, n.photo_image, n.viewer_image, n.large_share_image].filter(Boolean);
-        if (add(&quot;image&quot;, best(images), n.id || n.fbid)) recognized = true;
-        return false;
-      }
-      const sub = n.all_subattachments || n.subattachments;
-      if (sub &amp;&amp; Number(sub.count)) expected = Math.max(expected, Number(sub.count));
-    }, true);
-    return recognized;
-  }
-
-  let jsonBytes = 0;
-  const scripts = additionalData.map(data =&gt; ({ textContent: JSON.stringify(data) })).concat([...document.querySelectorAll(&quot;script&quot;)]);
-  for (const script of scripts) {
-    let text = (script.textContent || &quot;&quot;).trim().replace(/^for\s*\(;;\);\s*/, &quot;&quot;);
-    if (!/^[\[{]/.test(text)) continue;
-    jsonBytes += text.length;
-    if (jsonBytes &gt; MAX_JSON) { warnings.add(&quot;Trang chứa quá nhiều dữ liệu; kết quả có thể chưa đầy đủ.&quot;); break; }
-    let root;
-    try { root = JSON.parse(text); } catch (_) { continue; }
-    walk(root, n =&gt; {
-      if (!matches(n)) return;
-      let handled = false;
-      if (target.platform === &quot;Instagram&quot;) handled = instagram(n, target.id);
-      if (target.platform === &quot;TikTok&quot;) handled = tiktok(n);
-      if (target.platform === &quot;Facebook&quot;) handled = facebook(n);
-      if (handled) { structured = true; return false; }
-    });
-  }
-
-  function attr(node, key) { return node &amp;&amp; node.getAttribute(key) || &quot;&quot;; }
-  function meta(key) { return attr(document.querySelector('meta[property=&quot;' + key + '&quot;]'), &quot;content&quot;); }
-  const canonical = identify(meta(&quot;og:url&quot;) || attr(document.querySelector('link[rel=&quot;canonical&quot;]'), &quot;href&quot;));
-  const validMetadata = canonical.platform === target.platform &amp;&amp; canonical.id === target.id;
-
-  // DOM fallback is deliberately limited to the matching post/article. A global
-  // img scan would download avatars, recommendations and video cover images.
-  if (!media.size &amp;&amp; !structured) {
-    const articles = [...document.querySelectorAll('article, [role=&quot;article&quot;]')];
-    let scope = articles.find(article =&gt; [...article.querySelectorAll(&quot;a[href]&quot;)].some(a =&gt; {
-      const link = identify(attr(a, &quot;href&quot;));
-      return link.platform === target.platform &amp;&amp; link.id === target.id;
-    }));
-    if (!scope &amp;&amp; articles.length === 1) scope = articles[0];
-    if (target.platform === &quot;TikTok&quot; &amp;&amp; !scope) scope = document.querySelector('[data-e2e=&quot;browse-video&quot;], [data-e2e=&quot;video-detail&quot;]');
-    let hasVideo = false;
-    if (scope) {
-      const videos = [...scope.querySelectorAll(&quot;video&quot;)];
-      hasVideo = videos.length &gt; 0;
-      videos.forEach((v, i) =&gt; {
-        const sources = [v.currentSrc, attr(v, &quot;src&quot;), ...[...v.querySelectorAll(&quot;source&quot;)].map(s =&gt; attr(s, &quot;src&quot;))];
-        if (!add(&quot;video&quot;, sources, &quot;dom-video-&quot; + i)) inaccessibleVideos++;
-      });
-      if (!hasVideo) {
-        [...scope.querySelectorAll(&quot;img&quot;)].forEach(img =&gt; {
-          const alt = attr(img, &quot;alt&quot;);
-          if (/avatar|profile|ảnh đại diện/i.test(alt)) return;
-          if (Number(img.naturalWidth) &lt; 240 || Number(img.naturalHeight) &lt; 240) return;
-          add(&quot;image&quot;, img.currentSrc || attr(img, &quot;src&quot;), null);
-        });
-      }
-    }
-    if (!media.size &amp;&amp; validMetadata) {
-      const ogVideo = meta(&quot;og:video:secure_url&quot;) || meta(&quot;og:video:url&quot;) || meta(&quot;og:video&quot;);
-      // Only direct files: og:video may be an HTML player URL.
-      if (ogVideo &amp;&amp; /\.mp4(?:$|[?#])/i.test(ogVideo)) add(&quot;video&quot;, ogVideo, target.id);
-      else if (!hasVideo &amp;&amp; !ogVideo &amp;&amp; !/video/i.test(meta(&quot;og:type&quot;)) &amp;&amp; target.platform !== &quot;TikTok&quot; &amp;&amp; !/\/(reel|reels|videos|tv)\//.test(pageURL)) {
-        add(&quot;image&quot;, meta(&quot;og:image:secure_url&quot;) || meta(&quot;og:image&quot;), target.id);
-      }
-    }
-    if (media.size) warnings.add(&quot;Chỉ đọc được media đang hiện trên trang; bài nhiều ảnh có thể thiếu. Lướt các ảnh còn lại rồi chạy lại.&quot;);
-  }
-
-  const seen = new Set();
-  const items = [...media.values()].filter(item =&gt; {
-    if (seen.has(item.url)) return false;
-    seen.add(item.url);
-    return true;
-  }).map(({ kind, url, id }) =&gt; ({ kind, url, id }));
-  if (inaccessibleVideos) warnings.add(&quot;Có video chưa lấy được tệp trực tiếp. Phát video, chờ tải rồi chạy lại; luồng blob/HLS/DASH không được ghép ở bản này.&quot;);
-  if (expected &gt; items.length) warnings.add(&quot;Trang mới cung cấp &quot; + items.length + &quot;/&quot; + expected + &quot; media; chưa lấy đủ bài đăng.&quot;);
-  const images = items.filter(x =&gt; x.kind === &quot;image&quot;).length;
-  const videos = items.length - images;
-  const notice = items.length
-    ? &quot;Tìm thấy &quot; + images + &quot; ảnh và &quot; + videos + &quot; video trên &quot; + target.platform + &quot;.\n&quot; +
-      &quot;Nhấn OK để tải và lưu vào Ảnh.\n&quot; + [...warnings].join(&quot;\n&quot;)
-    : &quot;Chưa tìm được tệp ảnh/video có thể tải. Mở đúng bài đăng, đăng nhập trong Safari nếu cần, phát video hoặc lướt ảnh rồi thử lại. Trang có thể chặn tải hoặc chỉ cung cấp luồng video.\n&quot; + [...warnings].join(&quot;\n&quot;);
-  return { ...baseResult, urls: items.map(x =&gt; x.url), items, expected, notice, extracted: items.length, structured, warnings: [...warnings] };
-}
-async function resolveMedia(document, pageURL, request = globalThis.fetch) {
-  const initial = collectMedia(document, pageURL);
-  if (initial.platform !== &quot;Instagram&quot; || (initial.structured &amp;&amp; initial.urls.length &amp;&amp; !initial.warnings.length) || typeof request !== &quot;function&quot;) return initial;
-  const url = new URL(pageURL);
-  const code = (url.pathname.match(/\/(?:p|reels?|tv)\/([\w-]+)/) || [])[1];
-  if (!code) return initial;
-  const alphabet = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_&quot;;
-  let mediaID = 0n;
-  for (const char of code) mediaID = mediaID * 64n + BigInt(alphabet.indexOf(char));
-  const controller = new AbortController();
-  const timer = setTimeout(() =&gt; controller.abort(), 3500);
-  try {
-    const response = await request(url.origin + &quot;/api/v1/media/&quot; + mediaID.toString() + &quot;/info/&quot;, {
-      method: &quot;GET&quot;, credentials: &quot;same-origin&quot;, signal: controller.signal,
-      headers: { Accept: &quot;application/json&quot;, &quot;X-IG-App-ID&quot;: &quot;936619743392459&quot; }
-    });
-    if (!response.ok) return initial;
-    const data = await response.json();
-    const items = (Array.isArray(data.items) ? data.items : []).filter(item =&gt;
-      item.code === code || String(item.pk || item.id || &quot;&quot;).split(&quot;_&quot;)[0] === mediaID.toString());
-    if (!items.length) return initial;
-    const enriched = collectMedia(document, pageURL, items.map(item =&gt; ({ ...item, shortcode: code })));
-    return enriched.structured &amp;&amp; enriched.urls.length ? enriched : initial;
-  } catch (_) { return initial; }
-  finally { clearTimeout(timer); }
-}
-resolveMedia(document, location.href).then(completion).catch(error =&gt; {
-  completion({urls: [], notice: &quot;Không đọc được trang: &quot; + String(error.message || error)});
-});
-</string>
+          <key>WFVariableName</key>
+          <string>Input</string>
           <key>WFInput</key>
           <dict>
             <key>Value</key>
@@ -337,77 +68,68 @@ resolveMedia(document, location.href).then(completion).catch(error =&gt; {
             <key>WFSerializationType</key>
             <string>WFTextTokenAttachment</string>
           </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt Input</string>
           <key>UUID</key>
-          <string>83D50B91-8039-4047-AE2B-0EBE36B54263</string>
+          <string>6F96B218-2134-4394-A83F-90EE79E51006</string>
         </dict>
       </dict>
       <dict>
         <key>WFWorkflowActionIdentifier</key>
-        <string>is.workflow.actions.getvalueforkey</string>
+        <string>is.workflow.actions.conditional</string>
         <key>WFWorkflowActionParameters</key>
         <dict>
+          <key>GroupingIdentifier</key>
+          <string>E68202B4-7AAA-450E-A533-E942977AB057</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>101</integer>
           <key>WFInput</key>
           <dict>
-            <key>Value</key>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
             <dict>
-              <key>Type</key>
-              <string>ActionOutput</string>
-              <key>OutputUUID</key>
-              <string>83D50B91-8039-4047-AE2B-0EBE36B54263</string>
-              <key>OutputName</key>
-              <string>Kết quả JavaScript</string>
-            </dict>
-            <key>WFSerializationType</key>
-            <string>WFTextTokenAttachment</string>
-          </dict>
-          <key>WFGetDictionaryValueType</key>
-          <string>Value</string>
-          <key>WFDictionaryKey</key>
-          <string>notice</string>
-          <key>UUID</key>
-          <string>A6E520F4-E13E-4911-AA65-1B2D1A0FC974</string>
-        </dict>
-      </dict>
-      <dict>
-        <key>WFWorkflowActionIdentifier</key>
-        <string>is.workflow.actions.alert</string>
-        <key>WFWorkflowActionParameters</key>
-        <dict>
-          <key>WFAlertActionTitle</key>
-          <string>Media Saver</string>
-          <key>WFAlertActionMessage</key>
-          <dict>
-            <key>Value</key>
-            <dict>
-              <key>string</key>
-              <string>￼</string>
-              <key>attachmentsByRange</key>
+              <key>Value</key>
               <dict>
-                <key>{0, 1}</key>
-                <dict>
-                  <key>Type</key>
-                  <string>ActionOutput</string>
-                  <key>OutputUUID</key>
-                  <string>A6E520F4-E13E-4911-AA65-1B2D1A0FC974</string>
-                  <key>OutputName</key>
-                  <string>Lấy notice</string>
-                </dict>
+                <key>Type</key>
+                <string>Variable</string>
+                <key>VariableName</key>
+                <string>Input</string>
               </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
             </dict>
-            <key>WFSerializationType</key>
-            <string>WFTextTokenString</string>
           </dict>
-          <key>WFAlertActionCancelButtonShown</key>
-          <true/>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
           <key>UUID</key>
-          <string>C56D4F5F-9B13-4EA1-A775-5FDFAB2A14D1</string>
+          <string>C96921FF-3743-4266-AB34-858EBB8D07A7</string>
         </dict>
       </dict>
       <dict>
         <key>WFWorkflowActionIdentifier</key>
-        <string>is.workflow.actions.getvalueforkey</string>
+        <string>is.workflow.actions.ask</string>
         <key>WFWorkflowActionParameters</key>
         <dict>
+          <key>WFAskActionPrompt</key>
+          <string>Dán link bài Facebook, Instagram hoặc TikTok. Bạn cũng có thể dùng Chia sẻ → Media Saver trong ứng dụng.</string>
+          <key>WFInputType</key>
+          <string>URL</string>
+          <key>CustomOutputName</key>
+          <string>Dán liên kết bài đăng</string>
+          <key>UUID</key>
+          <string>5974513F-A73A-4DE4-A8AF-E99DEA9814E4</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>Input</string>
           <key>WFInput</key>
           <dict>
             <key>Value</key>
@@ -415,24 +137,37 @@ resolveMedia(document, location.href).then(completion).catch(error =&gt; {
               <key>Type</key>
               <string>ActionOutput</string>
               <key>OutputUUID</key>
-              <string>83D50B91-8039-4047-AE2B-0EBE36B54263</string>
+              <string>5974513F-A73A-4DE4-A8AF-E99DEA9814E4</string>
               <key>OutputName</key>
-              <string>Kết quả JavaScript</string>
+              <string>Dán liên kết bài đăng</string>
             </dict>
             <key>WFSerializationType</key>
             <string>WFTextTokenAttachment</string>
           </dict>
-          <key>WFGetDictionaryValueType</key>
-          <string>Value</string>
-          <key>WFDictionaryKey</key>
-          <string>pageURL</string>
+          <key>CustomOutputName</key>
+          <string>Đặt Input</string>
           <key>UUID</key>
-          <string>70BB7BBF-EA8A-4EDB-A9D2-24B1029B310B</string>
+          <string>FDD27371-DB85-4CED-ADAB-74A231B581C3</string>
         </dict>
       </dict>
       <dict>
         <key>WFWorkflowActionIdentifier</key>
-        <string>is.workflow.actions.getvalueforkey</string>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>E68202B4-7AAA-450E-A533-E942977AB057</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>216814A2-A1F7-4BFA-AB78-3C4BC5A4189A</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.detect.link</string>
         <key>WFWorkflowActionParameters</key>
         <dict>
           <key>WFInput</key>
@@ -440,21 +175,55 @@ resolveMedia(document, location.href).then(completion).catch(error =&gt; {
             <key>Value</key>
             <dict>
               <key>Type</key>
-              <string>ActionOutput</string>
-              <key>OutputUUID</key>
-              <string>83D50B91-8039-4047-AE2B-0EBE36B54263</string>
-              <key>OutputName</key>
-              <string>Kết quả JavaScript</string>
+              <string>Variable</string>
+              <key>VariableName</key>
+              <string>Input</string>
             </dict>
             <key>WFSerializationType</key>
             <string>WFTextTokenAttachment</string>
           </dict>
-          <key>WFGetDictionaryValueType</key>
-          <string>Value</string>
-          <key>WFDictionaryKey</key>
-          <string>urls</string>
+          <key>CustomOutputName</key>
+          <string>Liên kết được chia sẻ</string>
           <key>UUID</key>
-          <string>EE825458-5CA8-421E-A9A6-867F3A5B07D2</string>
+          <string>B17D4235-FED8-4FDE-ADBB-A1754E7280E3</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.nothing</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Xóa giá trị SupportedLinks</string>
+          <key>UUID</key>
+          <string>872AD15D-F8AC-4256-AFCA-0661D99CCE8D</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>SupportedLinks</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>872AD15D-F8AC-4256-AFCA-0661D99CCE8D</string>
+              <key>OutputName</key>
+              <string>Xóa giá trị SupportedLinks</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt SupportedLinks</string>
+          <key>UUID</key>
+          <string>99375A1F-A401-423C-ABAD-A03617DC7368</string>
         </dict>
       </dict>
       <dict>
@@ -469,19 +238,3520 @@ resolveMedia(document, location.href).then(completion).catch(error =&gt; {
               <key>Type</key>
               <string>ActionOutput</string>
               <key>OutputUUID</key>
-              <string>EE825458-5CA8-421E-A9A6-867F3A5B07D2</string>
+              <string>B17D4235-FED8-4FDE-ADBB-A1754E7280E3</string>
               <key>OutputName</key>
-              <string>Lấy urls</string>
+              <string>Liên kết được chia sẻ</string>
             </dict>
             <key>WFSerializationType</key>
             <string>WFTextTokenAttachment</string>
           </dict>
           <key>GroupingIdentifier</key>
-          <string>657B3551-C72C-4737-A576-16D62168EA31</string>
+          <string>12CDE20D-4F92-4520-A600-59A6BCB1A640</string>
           <key>WFControlFlowMode</key>
           <integer>0</integer>
+          <key>CustomOutputName</key>
+          <string>Lặp từng mục</string>
           <key>UUID</key>
-          <string>791FFC06-EA33-4EA6-A5AD-C1AB412BA81F</string>
+          <string>148394D1-FEBE-4E6D-A0E1-3C86EE82FCF1</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.text.match</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>text</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>Variable</string>
+                  <key>VariableName</key>
+                  <string>Repeat Item</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFMatchTextPattern</key>
+          <string>^https://(?:(?:[a-z0-9-]+\.)?(?:facebook\.com|fb\.com|fb\.watch|instagram\.com|tiktok\.com))/[^\s]+$</string>
+          <key>WFMatchTextCaseSensitive</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Khớp văn bản</string>
+          <key>UUID</key>
+          <string>71E67533-06B1-488B-A4DB-6B6E63D70C24</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>99BAD097-63CC-407E-A059-B437DDD5E57A</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>100</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>71E67533-06B1-488B-A4DB-6B6E63D70C24</string>
+                <key>OutputName</key>
+                <string>Khớp văn bản</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>ECE861BF-A9BE-4D95-AA2B-2692FD0354AC</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.appendvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>SupportedLinks</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>Variable</string>
+              <key>VariableName</key>
+              <string>Repeat Item</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Thêm vào SupportedLinks</string>
+          <key>UUID</key>
+          <string>1BBB2F1D-E29D-4073-A60E-1DF88539A85D</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>99BAD097-63CC-407E-A059-B437DDD5E57A</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>80AF00F5-3641-4FE3-A40D-B104A893A517</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.repeat.each</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>12CDE20D-4F92-4520-A600-59A6BCB1A640</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc lặp</string>
+          <key>UUID</key>
+          <string>CF203980-9065-4ABF-AC92-9B2ADFFFD0A5</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>7793EF5D-E7DE-436E-AB75-B89328601052</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>101</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>Variable</string>
+                <key>VariableName</key>
+                <string>SupportedLinks</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>16DA9E50-5AAE-4010-A79E-5151DDC13B8E</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <string>Chưa nhận được link HTTPS của Facebook, Instagram hoặc TikTok. Trong ứng dụng, mở một bài → Chia sẻ → Thêm/Khác → Media Saver.</string>
+          <key>WFAlertActionCancelButtonShown</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Không tải được</string>
+          <key>UUID</key>
+          <string>C274E3CF-93AE-4F06-A516-D1ACAF697CDE</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.exit</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Dừng phím tắt</string>
+          <key>UUID</key>
+          <string>EFBD1C6C-AC65-4138-A408-046434583C2E</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>7793EF5D-E7DE-436E-AB75-B89328601052</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>5175C7B9-3E36-4DBB-ABB0-1D1E554372D0</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.count</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>Input</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>Variable</string>
+              <key>VariableName</key>
+              <string>SupportedLinks</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFCountType</key>
+          <string>Items</string>
+          <key>CustomOutputName</key>
+          <string>Số lượng</string>
+          <key>UUID</key>
+          <string>74B8EBEC-2464-42BE-AB93-81689493B61E</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>E0194DBE-845E-4383-A652-171B44C0DCC1</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>2</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>74B8EBEC-2464-42BE-AB93-81689493B61E</string>
+                <key>OutputName</key>
+                <string>Số lượng</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>WFNumberValue</key>
+          <integer>1</integer>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>9451F065-EAC9-42CF-A33F-529A7425476F</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.choosefromlist</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>Variable</string>
+              <key>VariableName</key>
+              <string>SupportedLinks</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFChooseFromListActionPrompt</key>
+          <string>Chọn một bài để tải</string>
+          <key>WFChooseFromListActionSelectMultiple</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Chọn bài đăng</string>
+          <key>UUID</key>
+          <string>B6102389-A06B-48D1-A348-BCFED0C67FFA</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>PostURL</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>B6102389-A06B-48D1-A348-BCFED0C67FFA</string>
+              <key>OutputName</key>
+              <string>Chọn bài đăng</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt PostURL</string>
+          <key>UUID</key>
+          <string>C7307F5C-DDFC-4068-A9A5-81A9F7291430</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>E0194DBE-845E-4383-A652-171B44C0DCC1</string>
+          <key>WFControlFlowMode</key>
+          <integer>1</integer>
+          <key>CustomOutputName</key>
+          <string>Nếu không</string>
+          <key>UUID</key>
+          <string>640A666D-16B4-4638-A961-78FF1262E429</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getitemfromlist</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>Variable</string>
+              <key>VariableName</key>
+              <string>SupportedLinks</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFItemSpecifier</key>
+          <string>First Item</string>
+          <key>CustomOutputName</key>
+          <string>Mục đầu tiên</string>
+          <key>UUID</key>
+          <string>3E59AE17-A8C9-47E6-A0E0-EFE5BCEE7474</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>PostURL</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>3E59AE17-A8C9-47E6-A0E0-EFE5BCEE7474</string>
+              <key>OutputName</key>
+              <string>Mục đầu tiên</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt PostURL</string>
+          <key>UUID</key>
+          <string>BB7F1D8B-AF13-4DCA-A22C-E7B423FEE4E7</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>E0194DBE-845E-4383-A652-171B44C0DCC1</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>D189A1B7-9BAC-4BA9-A756-F35BB2C4308A</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.urlencode</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>Variable</string>
+                  <key>VariableName</key>
+                  <string>PostURL</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFEncodeMode</key>
+          <string>Encode</string>
+          <key>CustomOutputName</key>
+          <string>Mã hóa liên kết</string>
+          <key>UUID</key>
+          <string>0D2292BE-EDE1-45ED-A2B9-A213412D05D0</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.geturlcomponent</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFURL</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>Variable</string>
+                  <key>VariableName</key>
+                  <string>PostURL</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFURLComponent</key>
+          <string>Host</string>
+          <key>CustomOutputName</key>
+          <string>Tên miền bài đăng</string>
+          <key>UUID</key>
+          <string>17D65174-C9F6-46B1-AAFD-11A272586A90</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.nothing</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Xóa giá trị MediaURLs</string>
+          <key>UUID</key>
+          <string>BBEA3523-72C7-4A41-AD72-85F9F3D672A8</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>MediaURLs</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>BBEA3523-72C7-4A41-AD72-85F9F3D672A8</string>
+              <key>OutputName</key>
+              <string>Xóa giá trị MediaURLs</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt MediaURLs</string>
+          <key>UUID</key>
+          <string>3F1762DC-B066-4856-AFA2-15D2ED5FF269</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.nothing</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Xóa giá trị SavedURLs</string>
+          <key>UUID</key>
+          <string>B0D192FA-FE3D-4E54-A269-4AB03CC71152</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>SavedURLs</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>B0D192FA-FE3D-4E54-A269-4AB03CC71152</string>
+              <key>OutputName</key>
+              <string>Xóa giá trị SavedURLs</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt SavedURLs</string>
+          <key>UUID</key>
+          <string>3F400443-76C6-42B1-AC52-A5C781094C14</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.text.match</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>text</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>17D65174-C9F6-46B1-AAFD-11A272586A90</string>
+                  <key>OutputName</key>
+                  <string>Tên miền bài đăng</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFMatchTextPattern</key>
+          <string>(^|\.)tiktok\.com$</string>
+          <key>WFMatchTextCaseSensitive</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Khớp văn bản</string>
+          <key>UUID</key>
+          <string>C1DA0ECC-22ED-4244-AEF7-5D599CBFFD32</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>7DB3576B-85E7-4C8C-A3DC-306B76FE72BB</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>100</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>C1DA0ECC-22ED-4244-AEF7-5D599CBFFD32</string>
+                <key>OutputName</key>
+                <string>Khớp văn bản</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>E359E94B-E218-4973-A198-847113C4FC5A</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.gettext</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFTextActionText</key>
+          <string>https://www.tikwm.com/</string>
+          <key>CustomOutputName</key>
+          <string>Văn bản</string>
+          <key>UUID</key>
+          <string>7C76A75B-8258-434D-AD02-17CB4A7E2F39</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>Referer</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>7C76A75B-8258-434D-AD02-17CB4A7E2F39</string>
+              <key>OutputName</key>
+              <string>Văn bản</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt Referer</string>
+          <key>UUID</key>
+          <string>21067CCD-A4E5-4C33-AFC0-238A8E1782B3</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.gettext</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFTextActionText</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>https://www.tikwm.com/api/?hd=1&amp;url=￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{36, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>0D2292BE-EDE1-45ED-A2B9-A213412D05D0</string>
+                  <key>OutputName</key>
+                  <string>Mã hóa liên kết</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Văn bản</string>
+          <key>UUID</key>
+          <string>CC034C4D-B96D-4807-A7F7-D00F37004337</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.downloadurl</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFURL</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>CC034C4D-B96D-4807-A7F7-D00F37004337</string>
+                  <key>OutputName</key>
+                  <string>Văn bản</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFHTTPMethod</key>
+          <string>GET</string>
+          <key>CustomOutputName</key>
+          <string>Nội dung URL</string>
+          <key>UUID</key>
+          <string>BC025141-87F2-43BD-AFCC-A20F394C062E</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>BC025141-87F2-43BD-AFCC-A20F394C062E</string>
+              <key>OutputName</key>
+              <string>Nội dung URL</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFDictionaryKey</key>
+          <string>code</string>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>CustomOutputName</key>
+          <string>Lấy code</string>
+          <key>UUID</key>
+          <string>EA24E43D-0048-4A76-AB2E-14F939BA8FEA</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.gettext</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFTextActionText</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>EA24E43D-0048-4A76-AB2E-14F939BA8FEA</string>
+                  <key>OutputName</key>
+                  <string>Lấy code</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Văn bản</string>
+          <key>UUID</key>
+          <string>3182EBE0-6EF4-47B8-A132-5A921951D0C8</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>828794CC-6A6F-41A3-AA39-EE8C9C068C10</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>5</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>3182EBE0-6EF4-47B8-A132-5A921951D0C8</string>
+                <key>OutputName</key>
+                <string>Văn bản</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>WFConditionalActionString</key>
+          <string>0</string>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>A17AAB92-F72D-4F0D-A476-178B797E977B</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <string>Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.</string>
+          <key>WFAlertActionCancelButtonShown</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Không tải được</string>
+          <key>UUID</key>
+          <string>148C6D12-4D8A-4D09-AB54-6B4AA58DCCF9</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.exit</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Dừng phím tắt</string>
+          <key>UUID</key>
+          <string>3DA98DAD-912A-496E-A13B-0F556A872A15</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>828794CC-6A6F-41A3-AA39-EE8C9C068C10</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>9F477F9F-D917-44EF-A326-4C6BC3131930</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>BC025141-87F2-43BD-AFCC-A20F394C062E</string>
+              <key>OutputName</key>
+              <string>Nội dung URL</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFDictionaryKey</key>
+          <string>data</string>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>CustomOutputName</key>
+          <string>Lấy data</string>
+          <key>UUID</key>
+          <string>BD1FEFD9-52DA-43CD-A4BC-54B670CCC34C</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>0B75DC4D-C694-4171-AAF9-F1EA83196017</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>101</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>BD1FEFD9-52DA-43CD-A4BC-54B670CCC34C</string>
+                <key>OutputName</key>
+                <string>Lấy data</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>0FFAE1ED-8D41-4547-A81E-FA4B02BF190A</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <string>Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.</string>
+          <key>WFAlertActionCancelButtonShown</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Không tải được</string>
+          <key>UUID</key>
+          <string>32314232-8F37-4AFD-A6C6-727DBD57A82D</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.exit</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Dừng phím tắt</string>
+          <key>UUID</key>
+          <string>3306FC4E-549D-425C-A7DE-C69FCA44FA19</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>0B75DC4D-C694-4171-AAF9-F1EA83196017</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>D837BE39-8158-4E6C-AC71-EE9D4F7DFAD5</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>BD1FEFD9-52DA-43CD-A4BC-54B670CCC34C</string>
+              <key>OutputName</key>
+              <string>Lấy data</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFDictionaryKey</key>
+          <string>images</string>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>CustomOutputName</key>
+          <string>Lấy images</string>
+          <key>UUID</key>
+          <string>3D022D26-C365-4541-AA45-4FFDB538A86E</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>96F65092-AD08-4F9D-AC53-05E552F4FCEC</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>100</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>3D022D26-C365-4541-AA45-4FFDB538A86E</string>
+                <key>OutputName</key>
+                <string>Lấy images</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>C325F7AC-A40C-4799-A3A5-1EE81A7752C8</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>MediaURLs</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>3D022D26-C365-4541-AA45-4FFDB538A86E</string>
+              <key>OutputName</key>
+              <string>Lấy images</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt MediaURLs</string>
+          <key>UUID</key>
+          <string>EB666506-191B-4C7C-ACEA-4F16A4E2F512</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>96F65092-AD08-4F9D-AC53-05E552F4FCEC</string>
+          <key>WFControlFlowMode</key>
+          <integer>1</integer>
+          <key>CustomOutputName</key>
+          <string>Nếu không</string>
+          <key>UUID</key>
+          <string>51472B7F-19DE-489E-A992-261BE271531E</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>BD1FEFD9-52DA-43CD-A4BC-54B670CCC34C</string>
+              <key>OutputName</key>
+              <string>Lấy data</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFDictionaryKey</key>
+          <string>hdplay</string>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>CustomOutputName</key>
+          <string>Lấy hdplay</string>
+          <key>UUID</key>
+          <string>F75A6F84-0606-4ED2-A1A3-7C5BDDC69346</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>8EB8DC74-F993-4D04-AFF6-9A258EE3E559</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>100</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>F75A6F84-0606-4ED2-A1A3-7C5BDDC69346</string>
+                <key>OutputName</key>
+                <string>Lấy hdplay</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>6DB01D25-8CE7-49DD-A426-9F33F48C5853</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>MediaURLs</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>F75A6F84-0606-4ED2-A1A3-7C5BDDC69346</string>
+              <key>OutputName</key>
+              <string>Lấy hdplay</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt MediaURLs</string>
+          <key>UUID</key>
+          <string>11B22D2B-4E28-4238-A80A-ED1B76325495</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>8EB8DC74-F993-4D04-AFF6-9A258EE3E559</string>
+          <key>WFControlFlowMode</key>
+          <integer>1</integer>
+          <key>CustomOutputName</key>
+          <string>Nếu không</string>
+          <key>UUID</key>
+          <string>43E711C7-116F-4EA0-A274-2D6317ECF336</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>BD1FEFD9-52DA-43CD-A4BC-54B670CCC34C</string>
+              <key>OutputName</key>
+              <string>Lấy data</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFDictionaryKey</key>
+          <string>play</string>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>CustomOutputName</key>
+          <string>Lấy play</string>
+          <key>UUID</key>
+          <string>281639F8-4526-4C44-ABF0-0D82E19E46C9</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>MediaURLs</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>281639F8-4526-4C44-ABF0-0D82E19E46C9</string>
+              <key>OutputName</key>
+              <string>Lấy play</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt MediaURLs</string>
+          <key>UUID</key>
+          <string>C7F2DBAD-6C6E-4544-A5FF-BD018691F2BB</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>8EB8DC74-F993-4D04-AFF6-9A258EE3E559</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>822BD23D-A540-48F9-A124-355FCC3B6423</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>96F65092-AD08-4F9D-AC53-05E552F4FCEC</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>75681C1F-60DD-4D85-A699-34E05DFB8ADA</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>7DB3576B-85E7-4C8C-A3DC-306B76FE72BB</string>
+          <key>WFControlFlowMode</key>
+          <integer>1</integer>
+          <key>CustomOutputName</key>
+          <string>Nếu không</string>
+          <key>UUID</key>
+          <string>1EF139F8-78F7-470E-A652-C2FEB6135E47</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.text.match</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>text</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>17D65174-C9F6-46B1-AAFD-11A272586A90</string>
+                  <key>OutputName</key>
+                  <string>Tên miền bài đăng</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFMatchTextPattern</key>
+          <string>(^|\.)instagram\.com$</string>
+          <key>WFMatchTextCaseSensitive</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Khớp văn bản</string>
+          <key>UUID</key>
+          <string>30B9E29A-5411-4053-AD0B-CB5C62D3E405</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>E94D2D03-35B3-4E88-A423-4009062DCD6C</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>100</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>30B9E29A-5411-4053-AD0B-CB5C62D3E405</string>
+                <key>OutputName</key>
+                <string>Khớp văn bản</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>1E4D9A5F-890A-414A-AFD0-260CDDFA56C7</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.text.match</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>text</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>Variable</string>
+                  <key>VariableName</key>
+                  <string>PostURL</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFMatchTextPattern</key>
+          <string>^https://(?:www\.)?instagram\.com/(?:p|reel|reels|tv)/[A-Za-z0-9_-]+(?:/|[?#]|$)</string>
+          <key>WFMatchTextCaseSensitive</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Khớp văn bản</string>
+          <key>UUID</key>
+          <string>45527F77-E96F-400D-A3FF-13CDF1AAFD2B</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>55DE9C2F-5A50-4D34-A4F9-0A71B3057DD4</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>101</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>45527F77-E96F-400D-A3FF-13CDF1AAFD2B</string>
+                <key>OutputName</key>
+                <string>Khớp văn bản</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>B7020DA5-47E3-4D7C-AD37-D8579B27EBEA</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <string>Hãy chia sẻ link bài đăng hoặc Reel Instagram. Bản này chưa hỗ trợ Stories, trang cá nhân hoặc link /share/.</string>
+          <key>WFAlertActionCancelButtonShown</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Không tải được</string>
+          <key>UUID</key>
+          <string>5B3C94AA-73D5-474B-AAA9-12DB559EAC09</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.exit</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Dừng phím tắt</string>
+          <key>UUID</key>
+          <string>E140EC5D-3F0B-418E-ACCC-261815BA27A2</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>55DE9C2F-5A50-4D34-A4F9-0A71B3057DD4</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>26AAC067-4CDF-4392-AA01-3EFA84C7BD12</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.gettext</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFTextActionText</key>
+          <string>https://sssinstagram.com/</string>
+          <key>CustomOutputName</key>
+          <string>Văn bản</string>
+          <key>UUID</key>
+          <string>8F8B63A8-CB16-4420-A01B-679469745A1B</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>Referer</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>8F8B63A8-CB16-4420-A01B-679469745A1B</string>
+              <key>OutputName</key>
+              <string>Văn bản</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt Referer</string>
+          <key>UUID</key>
+          <string>66D35D3B-A2A4-4526-A382-932F0707DE62</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.gettext</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFTextActionText</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>https://api.siputzx.my.id/api/d/sssinstagram?url=￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{49, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>0D2292BE-EDE1-45ED-A2B9-A213412D05D0</string>
+                  <key>OutputName</key>
+                  <string>Mã hóa liên kết</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Văn bản</string>
+          <key>UUID</key>
+          <string>9C0E7299-4C10-41FE-A457-4715DEF2B36B</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.downloadurl</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFURL</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>9C0E7299-4C10-41FE-A457-4715DEF2B36B</string>
+                  <key>OutputName</key>
+                  <string>Văn bản</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFHTTPMethod</key>
+          <string>GET</string>
+          <key>CustomOutputName</key>
+          <string>Nội dung URL</string>
+          <key>UUID</key>
+          <string>A50066A1-5356-4AE4-ACC8-FB03BE73C4AF</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>A50066A1-5356-4AE4-ACC8-FB03BE73C4AF</string>
+              <key>OutputName</key>
+              <string>Nội dung URL</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFDictionaryKey</key>
+          <string>error</string>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>CustomOutputName</key>
+          <string>Lấy error</string>
+          <key>UUID</key>
+          <string>9DBEA161-1EAF-47E9-AA75-6E37DE0B226E</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>DA9B3366-A290-4B37-ABB0-D076AB491156</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>100</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>9DBEA161-1EAF-47E9-AA75-6E37DE0B226E</string>
+                <key>OutputName</key>
+                <string>Lấy error</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>2CCD0239-25BD-41E2-ABAC-40B89443F93E</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <string>Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.</string>
+          <key>WFAlertActionCancelButtonShown</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Không tải được</string>
+          <key>UUID</key>
+          <string>CA3A6F67-90EC-45EA-A3D1-DCD92CC2020F</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.exit</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Dừng phím tắt</string>
+          <key>UUID</key>
+          <string>33AE3F56-B38D-42AC-A70B-19C58E0BF93C</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>DA9B3366-A290-4B37-ABB0-D076AB491156</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>D7E2B90D-3196-4384-A4D1-9B77CEADDEA1</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>A50066A1-5356-4AE4-ACC8-FB03BE73C4AF</string>
+              <key>OutputName</key>
+              <string>Nội dung URL</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFDictionaryKey</key>
+          <string>data</string>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>CustomOutputName</key>
+          <string>Lấy data</string>
+          <key>UUID</key>
+          <string>59DBE7A9-9F7C-48C8-AA05-A3671064ECE3</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>8457E890-BAFC-4A47-A3C1-8C8F7880EC54</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>101</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>59DBE7A9-9F7C-48C8-AA05-A3671064ECE3</string>
+                <key>OutputName</key>
+                <string>Lấy data</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>A31AD63F-2D63-4FB1-A4CB-750153A3ADA7</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <string>Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.</string>
+          <key>WFAlertActionCancelButtonShown</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Không tải được</string>
+          <key>UUID</key>
+          <string>CF427E82-48BF-4E19-AB96-89E4AA7058BD</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.exit</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Dừng phím tắt</string>
+          <key>UUID</key>
+          <string>346B31D6-FF0F-48A1-A309-62E5163006FD</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>8457E890-BAFC-4A47-A3C1-8C8F7880EC54</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>AF4925D0-1E0D-4EA0-A6B5-C98E68F7767A</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.repeat.each</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>59DBE7A9-9F7C-48C8-AA05-A3671064ECE3</string>
+              <key>OutputName</key>
+              <string>Lấy data</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>GroupingIdentifier</key>
+          <string>86FAE876-0FBF-4532-A688-9FE48EE5138C</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>CustomOutputName</key>
+          <string>Lặp từng mục</string>
+          <key>UUID</key>
+          <string>83D4BEC3-B4D2-4F57-ABA8-54A28AD169F0</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>Variable</string>
+              <key>VariableName</key>
+              <string>Repeat Item</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFDictionaryKey</key>
+          <string>url</string>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>CustomOutputName</key>
+          <string>Lấy url</string>
+          <key>UUID</key>
+          <string>FBD08337-6757-4559-A9EC-4CF8C395511B</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>CEEE4033-EB63-4012-A44B-57FC3D8ED4B4</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>101</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>FBD08337-6757-4559-A9EC-4CF8C395511B</string>
+                <key>OutputName</key>
+                <string>Lấy url</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>F9F47441-6D8B-469D-A22C-B01316781CF3</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <string>Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.</string>
+          <key>WFAlertActionCancelButtonShown</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Không tải được</string>
+          <key>UUID</key>
+          <string>5D12BB21-2B5D-4B96-A7CD-7C9391059763</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.exit</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Dừng phím tắt</string>
+          <key>UUID</key>
+          <string>7262B762-F431-42B7-A72F-89012639743E</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>CEEE4033-EB63-4012-A44B-57FC3D8ED4B4</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>1D337477-5417-4B9A-AE62-1C0470DBA24F</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getitemfromlist</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>FBD08337-6757-4559-A9EC-4CF8C395511B</string>
+              <key>OutputName</key>
+              <string>Lấy url</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFItemSpecifier</key>
+          <string>First Item</string>
+          <key>CustomOutputName</key>
+          <string>Mục đầu tiên</string>
+          <key>UUID</key>
+          <string>4726B544-6246-4536-A52B-DF71CF40B8E7</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>4726B544-6246-4536-A52B-DF71CF40B8E7</string>
+              <key>OutputName</key>
+              <string>Mục đầu tiên</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFDictionaryKey</key>
+          <string>ext</string>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>CustomOutputName</key>
+          <string>Lấy ext</string>
+          <key>UUID</key>
+          <string>7229DE7C-D145-46E2-A193-90DBF134A567</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.text.match</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>text</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>7229DE7C-D145-46E2-A193-90DBF134A567</string>
+                  <key>OutputName</key>
+                  <string>Lấy ext</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFMatchTextPattern</key>
+          <string>^(mp4|jpg|jpeg|png|webp|heic)$</string>
+          <key>WFMatchTextCaseSensitive</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Khớp văn bản</string>
+          <key>UUID</key>
+          <string>D008929E-F9C5-43B8-A1F3-E75FB12CFE88</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>73914C70-1A3C-4724-A2A7-0B0760AC0B36</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>101</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>D008929E-F9C5-43B8-A1F3-E75FB12CFE88</string>
+                <key>OutputName</key>
+                <string>Khớp văn bản</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>82243655-F77B-48BA-A299-E6CF76EDB59D</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <string>Dịch vụ trả về định dạng chưa được hỗ trợ. Chưa lưu media nào.</string>
+          <key>WFAlertActionCancelButtonShown</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Không tải được</string>
+          <key>UUID</key>
+          <string>973BDB9F-FC82-466F-A845-790FC22C3306</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.exit</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Dừng phím tắt</string>
+          <key>UUID</key>
+          <string>E2C7F0DE-53B6-42F6-A96B-5126917C2EE3</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>73914C70-1A3C-4724-A2A7-0B0760AC0B36</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>8EFC2354-DD9A-4046-AD33-9D9D5EE81295</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>4726B544-6246-4536-A52B-DF71CF40B8E7</string>
+              <key>OutputName</key>
+              <string>Mục đầu tiên</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFDictionaryKey</key>
+          <string>url</string>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>CustomOutputName</key>
+          <string>Lấy url</string>
+          <key>UUID</key>
+          <string>B65B3AA0-F174-428B-A3CA-9D1B3E7B37C4</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>5CC3320F-8B92-4014-A5A0-B40C8250C20C</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>101</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>B65B3AA0-F174-428B-A3CA-9D1B3E7B37C4</string>
+                <key>OutputName</key>
+                <string>Lấy url</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>39F2696A-9D89-4D7E-A836-E6F701CA83E4</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <string>Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.</string>
+          <key>WFAlertActionCancelButtonShown</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Không tải được</string>
+          <key>UUID</key>
+          <string>4F6462D2-5E85-4046-A22B-826CB4E33971</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.exit</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Dừng phím tắt</string>
+          <key>UUID</key>
+          <string>DE4C4AAB-4FDB-4B0F-AC49-543F76D46B10</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>5CC3320F-8B92-4014-A5A0-B40C8250C20C</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>A6A787D6-2DD7-4DDE-A625-E4D213DF630D</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.appendvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>MediaURLs</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>B65B3AA0-F174-428B-A3CA-9D1B3E7B37C4</string>
+              <key>OutputName</key>
+              <string>Lấy url</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Thêm vào MediaURLs</string>
+          <key>UUID</key>
+          <string>BC4EFAA7-BC00-45AE-A246-3BAE4CECAAF7</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.repeat.each</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>86FAE876-0FBF-4532-A688-9FE48EE5138C</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc lặp</string>
+          <key>UUID</key>
+          <string>604F25C6-E749-4975-A979-DC930131422C</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>E94D2D03-35B3-4E88-A423-4009062DCD6C</string>
+          <key>WFControlFlowMode</key>
+          <integer>1</integer>
+          <key>CustomOutputName</key>
+          <string>Nếu không</string>
+          <key>UUID</key>
+          <string>333A061C-3E47-4CA8-A717-6BA9ED391062</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.gettext</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFTextActionText</key>
+          <string>https://www.facebook.com/</string>
+          <key>CustomOutputName</key>
+          <string>Văn bản</string>
+          <key>UUID</key>
+          <string>F6D10BA1-B87B-4212-A208-8B3E3D2AA9DF</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>Referer</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>F6D10BA1-B87B-4212-A208-8B3E3D2AA9DF</string>
+              <key>OutputName</key>
+              <string>Văn bản</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt Referer</string>
+          <key>UUID</key>
+          <string>3A570514-EEBE-477A-A43B-5A869DD69F49</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.gettext</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFTextActionText</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>https://vkrdownloader.org/server/?api_key=vkrdownloader&amp;vkr=￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{60, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>0D2292BE-EDE1-45ED-A2B9-A213412D05D0</string>
+                  <key>OutputName</key>
+                  <string>Mã hóa liên kết</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Văn bản</string>
+          <key>UUID</key>
+          <string>3E1196E5-0115-4106-A4EB-977441D494E9</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.downloadurl</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFURL</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>3E1196E5-0115-4106-A4EB-977441D494E9</string>
+                  <key>OutputName</key>
+                  <string>Văn bản</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFHTTPMethod</key>
+          <string>GET</string>
+          <key>CustomOutputName</key>
+          <string>Nội dung URL</string>
+          <key>UUID</key>
+          <string>7EA267CF-0DB3-4C74-A5C0-E5FA78890514</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>7EA267CF-0DB3-4C74-A5C0-E5FA78890514</string>
+              <key>OutputName</key>
+              <string>Nội dung URL</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFDictionaryKey</key>
+          <string>error</string>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>CustomOutputName</key>
+          <string>Lấy error</string>
+          <key>UUID</key>
+          <string>051DCC6B-0EF8-4674-AB34-D3D7E0E85D94</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>D39D67AE-F6C8-4300-A8F9-698E14791FE0</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>100</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>051DCC6B-0EF8-4674-AB34-D3D7E0E85D94</string>
+                <key>OutputName</key>
+                <string>Lấy error</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>DCA90EF2-C727-4166-A023-E7692E41F420</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <string>Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.
+Facebook hiện chỉ hỗ trợ video; chưa tải album ảnh.</string>
+          <key>WFAlertActionCancelButtonShown</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Không tải được</string>
+          <key>UUID</key>
+          <string>972125C5-C3CE-487D-AE4D-9DF95D7634C2</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.exit</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Dừng phím tắt</string>
+          <key>UUID</key>
+          <string>A97F6DF4-9CE4-4550-A834-3DD29EA5A23D</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>D39D67AE-F6C8-4300-A8F9-698E14791FE0</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>67627347-DF77-4CBC-AEDE-94C61DF1CF03</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>7EA267CF-0DB3-4C74-A5C0-E5FA78890514</string>
+              <key>OutputName</key>
+              <string>Nội dung URL</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFDictionaryKey</key>
+          <string>data</string>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>CustomOutputName</key>
+          <string>Lấy data</string>
+          <key>UUID</key>
+          <string>70E1EA4C-ADFB-42F0-A132-D4C781E76873</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>55CF66D1-83E1-4A51-A8E6-E878FF2E162B</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>101</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>70E1EA4C-ADFB-42F0-A132-D4C781E76873</string>
+                <key>OutputName</key>
+                <string>Lấy data</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>E39A0049-725B-4A5F-A268-FBAF80C706F4</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <string>Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.</string>
+          <key>WFAlertActionCancelButtonShown</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Không tải được</string>
+          <key>UUID</key>
+          <string>6BD2E908-1703-44FD-A14E-EFFB0011BEE0</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.exit</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Dừng phím tắt</string>
+          <key>UUID</key>
+          <string>F7FBCA05-B6BF-4B6E-ABAA-358D2E881D15</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>55CF66D1-83E1-4A51-A8E6-E878FF2E162B</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>310D975B-C6F7-4000-A0E9-A7579FDCBC71</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>70E1EA4C-ADFB-42F0-A132-D4C781E76873</string>
+              <key>OutputName</key>
+              <string>Lấy data</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFDictionaryKey</key>
+          <string>downloads</string>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>CustomOutputName</key>
+          <string>Lấy downloads</string>
+          <key>UUID</key>
+          <string>F6B8BA54-DFBA-498B-A66D-4DDB0DD4A381</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>282E191D-8B30-44D6-AA3C-825C34777737</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>101</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>F6B8BA54-DFBA-498B-A66D-4DDB0DD4A381</string>
+                <key>OutputName</key>
+                <string>Lấy downloads</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>B4DEE4B4-1B27-428F-A3D7-9FDA77AB0F56</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <string>Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.</string>
+          <key>WFAlertActionCancelButtonShown</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Không tải được</string>
+          <key>UUID</key>
+          <string>9BAA10FE-C771-44FF-ABCA-2FC857E4369B</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.exit</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Dừng phím tắt</string>
+          <key>UUID</key>
+          <string>384E3533-5617-469C-A973-A1FF4A185170</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>282E191D-8B30-44D6-AA3C-825C34777737</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>9424B5BE-1811-45F5-A2C2-07461AB2EAF2</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.repeat.each</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>F6B8BA54-DFBA-498B-A66D-4DDB0DD4A381</string>
+              <key>OutputName</key>
+              <string>Lấy downloads</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>GroupingIdentifier</key>
+          <string>D98C5AB4-BEF0-46AD-AB03-3FA9E71D7DF9</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>CustomOutputName</key>
+          <string>Lặp từng mục</string>
+          <key>UUID</key>
+          <string>2C2874FA-3A5F-4AE5-A20F-7734DC24D67C</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>Variable</string>
+              <key>VariableName</key>
+              <string>Repeat Item</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFDictionaryKey</key>
+          <string>ext</string>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>CustomOutputName</key>
+          <string>Lấy ext</string>
+          <key>UUID</key>
+          <string>CC0D2337-E6BA-4FFD-AE38-4280B52EEC56</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.gettext</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFTextActionText</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>CC0D2337-E6BA-4FFD-AE38-4280B52EEC56</string>
+                  <key>OutputName</key>
+                  <string>Lấy ext</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Văn bản</string>
+          <key>UUID</key>
+          <string>19DCE3C9-A529-4BB7-A4DE-F5F23F5782C8</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>91A8A032-827F-49A5-AEFD-841432A3F76C</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>4</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>19DCE3C9-A529-4BB7-A4DE-F5F23F5782C8</string>
+                <key>OutputName</key>
+                <string>Văn bản</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>WFConditionalActionString</key>
+          <string>mp4</string>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>B8FDB6F8-2F0C-4E28-AFB1-D51811D60BA1</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>76A67FBD-A609-4866-AF7C-D8F9C4B55D9B</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>101</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>Variable</string>
+                <key>VariableName</key>
+                <string>MediaURLs</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>B35534EA-9EAA-4DE5-A5B7-447A93195CE3</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>Variable</string>
+              <key>VariableName</key>
+              <string>Repeat Item</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFDictionaryKey</key>
+          <string>url</string>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>CustomOutputName</key>
+          <string>Lấy url</string>
+          <key>UUID</key>
+          <string>63304463-4F26-4476-A69E-C2CE60C11660</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>MediaURLs</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>63304463-4F26-4476-A69E-C2CE60C11660</string>
+              <key>OutputName</key>
+              <string>Lấy url</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt MediaURLs</string>
+          <key>UUID</key>
+          <string>B7C64B28-5DFA-4933-A5E9-3B1D9C8AE603</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>76A67FBD-A609-4866-AF7C-D8F9C4B55D9B</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>3596659B-B184-491B-A193-3163382ADDBC</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>91A8A032-827F-49A5-AEFD-841432A3F76C</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>36968893-8278-4B10-A3B3-5C63BBEBD198</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.repeat.each</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>D98C5AB4-BEF0-46AD-AB03-3FA9E71D7DF9</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc lặp</string>
+          <key>UUID</key>
+          <string>12E69E3E-7679-4749-A7EA-1CA90199553F</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>E94D2D03-35B3-4E88-A423-4009062DCD6C</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>EB01DD5C-5FD8-4AB9-A623-08C84F97F4BD</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>7DB3576B-85E7-4C8C-A3DC-306B76FE72BB</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>FD54E65E-596C-44B1-AFF0-0B1E01122078</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>B64EB082-2D4B-466E-ADEF-EF08FE44D320</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>101</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>Variable</string>
+                <key>VariableName</key>
+                <string>MediaURLs</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>FCD6E77F-67E3-4090-AFFE-F27C98F309D8</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <string>Không tìm thấy tệp ảnh/video tải được. Facebook hiện chỉ hỗ trợ video; chưa hỗ trợ ảnh hoặc album. Không lưu ảnh bìa thay cho video.</string>
+          <key>WFAlertActionCancelButtonShown</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Không tải được</string>
+          <key>UUID</key>
+          <string>E4FE7520-9404-4CCF-AA29-BBAECFB2AE2D</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.exit</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Dừng phím tắt</string>
+          <key>UUID</key>
+          <string>597B39C9-D0FD-4831-A266-42599E112ECB</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>B64EB082-2D4B-466E-ADEF-EF08FE44D320</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>80CE1710-F2B4-4D23-A321-6DEA5EB551EF</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.nothing</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Xóa giá trị ValidatedURLs</string>
+          <key>UUID</key>
+          <string>2635A5B2-66BB-4891-AEFD-E208DD89CA9D</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>ValidatedURLs</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>2635A5B2-66BB-4891-AEFD-E208DD89CA9D</string>
+              <key>OutputName</key>
+              <string>Xóa giá trị ValidatedURLs</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt ValidatedURLs</string>
+          <key>UUID</key>
+          <string>5C8C0A97-5DA7-4508-A4CB-1CD8E4241C91</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.repeat.each</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>Variable</string>
+              <key>VariableName</key>
+              <string>MediaURLs</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>GroupingIdentifier</key>
+          <string>1F8F9207-24B8-4C4C-AA81-29DDCA67028F</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>CustomOutputName</key>
+          <string>Lặp từng mục</string>
+          <key>UUID</key>
+          <string>E3A99C5D-3916-4029-A9FB-18699667B50E</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>CandidateURL</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>Variable</string>
+              <key>VariableName</key>
+              <string>Repeat Item</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt CandidateURL</string>
+          <key>UUID</key>
+          <string>A1830950-025B-4899-A493-0AB8EF536AEB</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.text.match</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>text</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>17D65174-C9F6-46B1-AAFD-11A272586A90</string>
+                  <key>OutputName</key>
+                  <string>Tên miền bài đăng</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFMatchTextPattern</key>
+          <string>(^|\.)tiktok\.com$</string>
+          <key>WFMatchTextCaseSensitive</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Khớp văn bản</string>
+          <key>UUID</key>
+          <string>BD70A414-B41D-4DD5-AF5B-5B5186E4B012</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>161FAD8B-82D6-4E1C-A656-5B22242715C0</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>100</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>BD70A414-B41D-4DD5-AF5B-5B5186E4B012</string>
+                <key>OutputName</key>
+                <string>Khớp văn bản</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>D4982303-D0D1-4279-AFFF-58DA34EDDEAD</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.text.replace</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>Variable</string>
+                  <key>VariableName</key>
+                  <string>Repeat Item</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFReplaceTextFind</key>
+          <string>^/(?!/)</string>
+          <key>WFReplaceTextReplace</key>
+          <string>https://www.tikwm.com/</string>
+          <key>WFReplaceTextRegularExpression</key>
+          <true/>
+          <key>WFReplaceTextCaseSensitive</key>
+          <true/>
+          <key>CustomOutputName</key>
+          <string>URL TikWM đầy đủ</string>
+          <key>UUID</key>
+          <string>DCC02799-5ED7-401B-A9D3-AF101F1C4FB9</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.setvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>CandidateURL</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>DCC02799-5ED7-401B-A9D3-AF101F1C4FB9</string>
+              <key>OutputName</key>
+              <string>URL TikWM đầy đủ</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Đặt CandidateURL</string>
+          <key>UUID</key>
+          <string>EE9F1F12-6A6A-46C3-A063-3544C344FF0D</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>161FAD8B-82D6-4E1C-A656-5B22242715C0</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>645D243C-57A6-4156-AB25-491BD66C5AB6</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.text.match</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>text</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>Variable</string>
+                  <key>VariableName</key>
+                  <string>CandidateURL</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFMatchTextPattern</key>
+          <string>^https://[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?/(?![^?#]*\.(?:m3u8|mpd)(?:[?#]|$))[^\s]*$</string>
+          <key>WFMatchTextCaseSensitive</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Khớp văn bản</string>
+          <key>UUID</key>
+          <string>8094A0BC-89F7-4328-A571-2245B00C1D03</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>4316AFA5-CFE7-452A-A1FC-5A4B733667BC</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>101</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>8094A0BC-89F7-4328-A571-2245B00C1D03</string>
+                <key>OutputName</key>
+                <string>Khớp văn bản</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Nếu</string>
+          <key>UUID</key>
+          <string>E963D7E0-3BF5-417D-ADE3-21F2CFC4BEE3</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <string>Dịch vụ trả về URL media không hợp lệ hoặc luồng chưa hỗ trợ. Chưa lưu media nào.</string>
+          <key>WFAlertActionCancelButtonShown</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Không tải được</string>
+          <key>UUID</key>
+          <string>A67C18C2-8148-4134-A276-F1F9985D2F5E</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.exit</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Dừng phím tắt</string>
+          <key>UUID</key>
+          <string>6A3361EF-872B-45EE-ABBA-894839C49951</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>4316AFA5-CFE7-452A-A1FC-5A4B733667BC</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc nếu</string>
+          <key>UUID</key>
+          <string>76FB948C-AB9F-4369-A478-2B263E993934</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.appendvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>ValidatedURLs</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>Variable</string>
+              <key>VariableName</key>
+              <string>CandidateURL</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Thêm vào ValidatedURLs</string>
+          <key>UUID</key>
+          <string>299B23A3-E5E2-4A7F-A133-8EFC86DBF500</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.repeat.each</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>1F8F9207-24B8-4C4C-AA81-29DDCA67028F</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc lặp</string>
+          <key>UUID</key>
+          <string>48CFEA09-3A70-4388-AB50-E2914EEE685B</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.repeat.each</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>Variable</string>
+              <key>VariableName</key>
+              <string>ValidatedURLs</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>GroupingIdentifier</key>
+          <string>9CAE9F3B-B4BA-4953-A794-424E653887DF</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>CustomOutputName</key>
+          <string>Lặp từng mục</string>
+          <key>UUID</key>
+          <string>5315904E-A5DB-43DF-A30B-C0F6784846D0</string>
         </dict>
       </dict>
       <dict>
@@ -526,6 +3796,10 @@ resolveMedia(document, location.href).then(completion).catch(error =&gt; {
                     <dict>
                       <key>string</key>
                       <string>Referer</string>
+                      <key>attachmentsByRange</key>
+                      <dict>
+
+                      </dict>
                     </dict>
                     <key>WFSerializationType</key>
                     <string>WFTextTokenString</string>
@@ -541,11 +3815,9 @@ resolveMedia(document, location.href).then(completion).catch(error =&gt; {
                         <key>{0, 1}</key>
                         <dict>
                           <key>Type</key>
-                          <string>ActionOutput</string>
-                          <key>OutputUUID</key>
-                          <string>70BB7BBF-EA8A-4EDB-A9D2-24B1029B310B</string>
-                          <key>OutputName</key>
-                          <string>Lấy pageURL</string>
+                          <string>Variable</string>
+                          <key>VariableName</key>
+                          <string>Referer</string>
                         </dict>
                       </dict>
                     </dict>
@@ -558,8 +3830,10 @@ resolveMedia(document, location.href).then(completion).catch(error =&gt; {
             <key>WFSerializationType</key>
             <string>WFDictionaryFieldValue</string>
           </dict>
+          <key>CustomOutputName</key>
+          <string>Nội dung URL</string>
           <key>UUID</key>
-          <string>2C770019-682C-49D4-AD07-ECF305B97D35</string>
+          <string>A42BA7BF-4102-46E3-A20F-D431DBC07947</string>
         </dict>
       </dict>
       <dict>
@@ -574,17 +3848,44 @@ resolveMedia(document, location.href).then(completion).catch(error =&gt; {
               <key>Type</key>
               <string>ActionOutput</string>
               <key>OutputUUID</key>
-              <string>2C770019-682C-49D4-AD07-ECF305B97D35</string>
+              <string>A42BA7BF-4102-46E3-A20F-D431DBC07947</string>
               <key>OutputName</key>
-              <string>Tệp tải về</string>
+              <string>Nội dung URL</string>
             </dict>
             <key>WFSerializationType</key>
             <string>WFTextTokenAttachment</string>
           </dict>
           <key>WFCameraRollSelectedGroup</key>
           <string>Recents</string>
+          <key>CustomOutputName</key>
+          <string>Lưu vào Ảnh</string>
           <key>UUID</key>
-          <string>026FFC2F-DD3E-4A71-AFFA-B479848B6914</string>
+          <string>BAA759BC-E823-4235-A670-1646F3F05EE9</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.appendvariable</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFVariableName</key>
+          <string>SavedURLs</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>Variable</string>
+              <key>VariableName</key>
+              <string>Repeat Item</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Thêm vào SavedURLs</string>
+          <key>UUID</key>
+          <string>449742B4-E3D1-42EE-AF6E-2E41DB58DC24</string>
         </dict>
       </dict>
       <dict>
@@ -593,11 +3894,75 @@ resolveMedia(document, location.href).then(completion).catch(error =&gt; {
         <key>WFWorkflowActionParameters</key>
         <dict>
           <key>GroupingIdentifier</key>
-          <string>657B3551-C72C-4737-A576-16D62168EA31</string>
+          <string>9CAE9F3B-B4BA-4953-A794-424E653887DF</string>
           <key>WFControlFlowMode</key>
           <integer>2</integer>
+          <key>CustomOutputName</key>
+          <string>Kết thúc lặp</string>
           <key>UUID</key>
-          <string>77B18136-B431-414B-AB85-77458B3135E1</string>
+          <string>1C2A6BD4-7417-49C7-AB52-93D278D46794</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.count</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>Input</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>Variable</string>
+              <key>VariableName</key>
+              <string>SavedURLs</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFCountType</key>
+          <string>Items</string>
+          <key>CustomOutputName</key>
+          <string>Số lượng</string>
+          <key>UUID</key>
+          <string>C4A2F1FE-401B-4C9F-ACE9-9AD9FACE59FD</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.notification</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFNotificationActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFNotificationActionBody</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>Đã lưu ￼ tệp vào Ảnh.</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{7, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>C4A2F1FE-401B-4C9F-ACE9-9AD9FACE59FD</string>
+                  <key>OutputName</key>
+                  <string>Số lượng</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFNotificationActionSound</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Đã lưu media</string>
+          <key>UUID</key>
+          <string>3A6D36BE-0CF8-4373-AD1F-63A0FBF76BB9</string>
         </dict>
       </dict>
     </array>

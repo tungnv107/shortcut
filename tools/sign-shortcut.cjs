@@ -15,7 +15,7 @@ async function main() {
   form.append('file', new Blob([source], { type: 'application/x-plist' }), 'Media-Saver.shortcut');
   const response = await fetch('https://sign.shortcuty.app/api/v1/sign?response=json', {
     method: 'POST', body: form, signal: AbortSignal.timeout(90000),
-    headers: { 'User-Agent': 'Media-Saver-iOS/1.0.0-beta.2 (github.com/tungnv107/shortcut)' }
+    headers: { 'User-Agent': `Media-Saver-iOS/${require('../package.json').version} (github.com/tungnv107/shortcut)` }
   });
   if (!response.ok) {
     const error = (await response.text()).slice(0, 600);

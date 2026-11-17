@@ -1,0 +1,31 @@
+{
+  "success": true,
+  "data": {
+    "downloads": [
+      {
+        "url": "https://cdn.example.test/facebook-0.jpg",
+        "format_id": "4k",
+        "ext": "jpg",
+        "size": null,
+        "quality": "4k",
+        "source": "scontent-bom2-1.xx.fbcdn.net"
+      },
+      {
+        "url": "https://cdn.example.test/facebook-1.mp4",
+        "format_id": "hd",
+        "ext": "mp4",
+        "size": null,
+        "quality": "hd",
+        "source": "video-bom5-1.xx.fbcdn.net"
+      },
+      {
+        "url": "https://cdn.example.test/facebook-2.mp4",
+        "format_id": "hd",
+        "ext": "mp4",
+        "size": null,
+        "quality": "hd",
+        "source": "video-bom5-1.xx.fbcdn.net"
+      }
+    ]
+  }
+}

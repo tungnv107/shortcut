@@ -1,0 +1,44 @@
+{
+  "status": true,
+  "data": [
+    {
+      "url": [
+        {
+          "url": "https://cdn.example.test/instagram-videos-0-0.mp4",
+          "name": "MP4",
+          "type": "mp4",
+          "ext": "mp4",
+          "quality": 720,
+          "subname": "720p"
+        }
+      ],
+      "thumb": "https://cdn.example.test/thumb-0.jpg"
+    },
+    {
+      "url": [
+        {
+          "url": "https://cdn.example.test/instagram-videos-1-0.mp4",
+          "name": "MP4",
+          "type": "mp4",
+          "ext": "mp4",
+          "quality": 720,
+          "subname": "720p"
+        }
+      ],
+      "thumb": "https://cdn.example.test/thumb-1.jpg"
+    },
+    {
+      "url": [
+        {
+          "url": "https://cdn.example.test/instagram-videos-2-0.mp4",
+          "name": "MP4",
+          "type": "mp4",
+          "ext": "mp4",
+          "quality": 720,
+          "subname": "720p"
+        }
+      ],
+      "thumb": "https://cdn.example.test/thumb-2.jpg"
+    }
+  ]
+}

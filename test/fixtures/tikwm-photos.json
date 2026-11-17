@@ -1,0 +1,23 @@
+{
+  "code": 0,
+  "data": {
+    "images": [
+      "https://cdn.example.test/tiktok-0.jpg",
+      "https://cdn.example.test/tiktok-1.jpg",
+      "https://cdn.example.test/tiktok-2.jpg",
+      "https://cdn.example.test/tiktok-3.jpg",
+      "https://cdn.example.test/tiktok-4.jpg",
+      "https://cdn.example.test/tiktok-5.jpg",
+      "https://cdn.example.test/tiktok-6.jpg",
+      "https://cdn.example.test/tiktok-7.jpg",
+      "https://cdn.example.test/tiktok-8.jpg",
+      "https://cdn.example.test/tiktok-9.jpg",
+      "https://cdn.example.test/tiktok-10.jpg",
+      "https://cdn.example.test/tiktok-11.jpg",
+      "https://cdn.example.test/tiktok-12.jpg",
+      "https://cdn.example.test/tiktok-13.jpg",
+      "https://cdn.example.test/tiktok-14.jpg",
+      "https://cdn.example.test/tiktok-15.jpg"
+    ]
+  }
+}

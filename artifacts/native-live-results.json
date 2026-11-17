@@ -1,0 +1,72 @@
+{
+  "version": "1.0.0-beta.3",
+  "deviceTested": false,
+  "scope": "Public API responses plus 1 KiB of one selected file per case. Not full downloads, playback, audio, photo-library saves, or iOS execution.",
+  "results": [
+    {
+      "name": "TikTok video",
+      "postURL": "https://www.tiktok.com/@patroxofficial/video/6742501081818877190",
+      "provider": "TikWM",
+      "itemCount": 1,
+      "probedItems": 1,
+      "httpStatus": 206,
+      "contentType": "video/mp4",
+      "bytesReceived": 1024,
+      "fileSignature": "ISO BMFF ftyp",
+      "checkedAt": "2026-11-17T01:05:35.749Z"
+    },
+    {
+      "name": "TikTok photos",
+      "postURL": "https://www.tiktok.com/@chillezy/photo/7240568259186019630",
+      "provider": "TikWM",
+      "itemCount": 16,
+      "probedItems": 1,
+      "httpStatus": 206,
+      "contentType": "image/jpeg",
+      "bytesReceived": 1024,
+      "fileSignature": "JPEG FF D8 FF",
+      "checkedAt": "2026-11-17T01:12:57.602Z"
+    },
+    {
+      "name": "Instagram videos",
+      "postURL": "https://www.instagram.com/p/BQ0eAlwhDrw/",
+      "provider": "Siputzx / SSSInstagram",
+      "itemCount": 3,
+      "probedItems": 1,
+      "httpStatus": 206,
+      "contentType": "video/mp4",
+      "bytesReceived": 1024,
+      "fileSignature": "ISO BMFF ftyp",
+      "checkedAt": "2026-11-17T01:10:21.738Z"
+    },
+    {
+      "name": "Instagram photos",
+      "postURL": "https://www.instagram.com/p/BoHk1haB5tM/",
+      "provider": "Siputzx / SSSInstagram",
+      "itemCount": 5,
+      "probedItems": 1,
+      "httpStatus": 206,
+      "contentType": "image/jpeg",
+      "bytesReceived": 1024,
+      "fileSignature": "JPEG FF D8 FF",
+      "checkedAt": "2026-11-17T01:12:57.905Z"
+    },
+    {
+      "name": "Facebook video",
+      "postURL": "https://www.facebook.com/cnn/videos/10155529876156509/",
+      "provider": "VKrDownloader",
+      "itemCount": 1,
+      "probedItems": 1,
+      "httpStatus": 206,
+      "contentType": "video/mp4",
+      "bytesReceived": 1024,
+      "fileSignature": "ISO BMFF ftyp",
+      "checkedAt": "2026-11-17T01:08:03.562Z"
+    }
+  ],
+  "limitations": [
+    "Facebook photo/album unsupported.",
+    "Private posts, Stories and livestreams unsupported.",
+    "Service/CDN availability and rate limits can change."
+  ]
+}

@@ -1,65 +1,58 @@
-# Media Saver cho iOS — bản thử nghiệm
+# Media Saver cho iPhone — beta.3
 
-Shortcut dùng Safari để tìm ảnh/video thuộc **một bài đăng** Facebook, Instagram hoặc TikTok, sau đó tải từng tệp và lưu vào Ảnh. Không cần backend riêng hoặc ứng dụng phụ. Cần kết nối Internet.
+**Facebook / TikTok / Instagram → Chia sẻ → Thêm/Khác → Media Saver → lưu vào Ảnh.**
 
-**Chưa phải bản đã xác nhận chạy đầy đủ trên iPhone.** Bộ phân tích và quy trình tạo tệp đã được kiểm thử; kiểm tra website thực tế chỉ tải được ảnh Instagram mẫu, TikTok trả 403 và Facebook chưa lấy được tệp. Không có tuyên bố tải được mọi media hay mọi tài khoản.
+Chỉ cần ứng dụng **Phím tắt**. Bản beta.3 nhận URL hoặc văn bản từ bảng chia sẻ iOS và dùng tác vụ gốc để tải tệp. Không cần Scriptable, Mac, chép mã hay tự dựng VPS. Khi sử dụng, link bài đăng được gửi tới các dịch vụ tải công khai; cần Internet.
 
-## Tải và cài trên iPhone
+**[Tải Media Saver beta.3 đã ký để cài](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.3/Media-Saver.shortcut)** · [Hướng dẫn iPhone](HUONG-DAN-IPHONE.md) · [Bản phát hành](https://github.com/tungnv107/shortcut/releases/tag/v1.0.0-beta.3)
 
-**[Tải Media Saver đã ký để cài](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.2/Media-Saver.shortcut)** · **[Hướng dẫn](HUONG-DAN-IPHONE.md)** · **[Bản phát hành beta.2](https://github.com/tungnv107/shortcut/releases/tag/v1.0.0-beta.2)**
+## Cài hoặc cập nhật
 
-1. Bấm **Tải Media Saver đã ký để cài** bằng Safari trên iPhone.
-2. Mở tệp `Media-Saver.shortcut` vừa tải (trong mục tải về của Safari hoặc **Tệp → Tải về**).
-3. Khi Phím tắt mở màn hình nhập, bấm **Thêm phím tắt / Add Shortcut**.
+1. Mở link tải trên bằng Safari, rồi mở tệp `Media-Saver.shortcut` vừa tải.
+2. Bấm **Thêm phím tắt**. Nếu đã có Media Saver, chọn **Thay thế** khi iOS hỏi. Nếu iOS tạo bản trùng, xóa bản cũ beta.2 để tránh chạy nhầm.
+3. Trong ứng dụng mạng xã hội, mở bài → **Chia sẻ → Thêm/Khác → Media Saver**. Cấp quyền kết nối và thêm vào Ảnh khi iOS hỏi lần đầu.
 
-Không cần Mac, chép mã hoặc tự tạo các tác vụ. iOS vẫn yêu cầu bạn xác nhận thêm phím tắt và cấp quyền khi chạy lần đầu. Bản ký dùng chế độ `anyone`; chưa thử nhập trên iPhone thật trong môi trường phát triển này.
+`Thêm/Khác` dùng để mở **bảng chia sẻ của iOS**; tên/vị trí nút tùy phiên bản ứng dụng. Cuộn xuống danh sách tác vụ để thấy Media Saver. Shortcut đã bật hiển thị trong bảng chia sẻ và nhận **URL, Văn bản, Trang web Safari**. Không cần bật quyền chạy JavaScript.
 
-Sau khi cài, bật **Cho phép chạy tập lệnh** trong cài đặt Phím tắt nếu iOS yêu cầu. Mở bài đăng bằng Safari → **Chia sẻ → Media Saver**. Không chạy từ ô phím tắt khi chưa có trang Safari làm đầu vào.
+## Phạm vi hiện tại
 
-[Tải gói ZIP đầy đủ](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.2/Media-Saver-iPhone.zip) · [Mã TXT](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.2/Safari-Media-Saver.txt)
+| Nền tảng | Nội dung được xử lý | Kết quả kiểm tra thực tế trên máy tính |
+|---|---|---|
+| TikTok | Video hoặc tất cả ảnh mà API trả về cho một bài | Nhận 1 video; bài ảnh nhận 16 ảnh. Tệp video và ảnh mẫu tải được. |
+| Instagram | Ảnh, Reel, bài nhiều ảnh/video | Nhận đủ danh sách 5 ảnh và 3 video từ hai bài mẫu; tải được tệp mẫu của mỗi loại. |
+| Facebook | Một video/Reel; chọn một bản MP4, bỏ ảnh bìa và các bản chất lượng trùng | Video công khai mẫu tải được. **Chưa hỗ trợ ảnh/album Facebook.** |
 
-| Tệp | Mục đích |
-|---|---|
-| `Media-Saver.shortcut` trong Release | Tệp đã ký để mở trong ứng dụng Phím tắt và thêm trực tiếp. |
-| `dist/Safari-Media-Saver.txt` | Sao chép toàn bộ vào tác vụ JavaScript trong Phím tắt. |
-| `dist/Safari-Media-Saver.js` | Cùng nội dung ở dạng JavaScript. |
-| `dist/Media-Saver.unsigned.shortcut` | Bản nguồn plist, phải ký trước khi nhập trực tiếp. |
-| `dist/workflow.json` | Các tác vụ và liên kết biến để kiểm tra. |
-| `src/collector.js` | Bộ trích xuất có thể bảo trì và kiểm thử. |
-| `KIEM-THU.md` | Kết quả thực tế và phần chưa được xác nhận. |
+Kiểm tra mạng dùng 1.024 byte đầu của một tệp cho mỗi trường hợp: HTTP 206, MIME và dấu hiệu JPEG/MP4 hợp lệ. **Chưa kiểm thử nhập/chạy beta.3 và lưu vào Ảnh trên iPhone thật**, cũng chưa kiểm tra phát hết video/âm thanh. [Báo cáo chi tiết](KIEM-THU.md).
 
-## Cách hoạt động
+Không cam kết tải mọi bài hoặc chất lượng gốc. Bài riêng tư, Stories, livestream, toàn bộ trang cá nhân, album Facebook và luồng HLS/DASH chưa được hỗ trợ. Một lần chạy xử lý một bài; nếu nhận nhiều link sẽ hỏi chọn bài. Lỗi tải/lưu giữa chừng làm dừng Shortcut; các tệp đã lưu vẫn còn. Chạy lại có thể tạo bản sao.
 
-1. Chỉ nhận trang Safari của một bài đăng; từ chối bảng tin/trang cá nhân và tên miền giả.
-2. So khớp ID/shortcode của bài đăng trong JSON nhúng; lấy carousel/ảnh/video theo nền tảng.
-3. Nếu cần, Instagram được hỏi qua GET cùng tên miền, dùng phiên Safari sẵn có. Không đọc/xuất cookie, mật khẩu, token tài khoản; không gửi dữ liệu đến dịch vụ tải hộ.
-4. Nếu không có dữ liệu cấu trúc, đọc media của phần bài đăng trong DOM hoặc metadata đúng bài; đánh dấu có thể thiếu. Không quét toàn bộ ảnh trên trang.
-5. Phím tắt tải từng URL với Referer của trang nguồn và đưa kết quả vào tác vụ Save to Photo Album. URL media có thể bị CDN chặn dù Safari đang phát được.
+## Dịch vụ và dữ liệu gửi đi
 
-Không có giới hạn số lượng tệp tùy ý, nhưng có giới hạn dữ liệu JSON và thời gian đọc để tránh treo tiện ích iOS. Không tự cuộn/truy cập bài khác; không ghép luồng HLS/DASH, âm thanh riêng hoặc hỗ trợ tải tiếp.
+| Nền tảng | Dịch vụ nhận link | Cách chọn tệp |
+|---|---|---|
+| TikTok | [TikWM](https://www.tikwm.com/) | Dùng danh sách `images`; với video ưu tiên `hdplay`, dự phòng `play`. |
+| Instagram | [Siputzx](https://app.siputzx.my.id/) qua endpoint SSSInstagram | Lặp từng media, lấy một biến thể tải; bỏ `thumb`. [OpenAPI công khai](https://api.siputzx.my.id/api/openapi.json). |
+| Facebook | [VKrDownloader](https://github.com/theofficialvkr/VKrDownloader) | Chọn MP4 đầu tiên, không chọn JPEG dù dịch vụ gắn nhãn “4K”. |
 
-## Phát triển và kiểm thử
+Shortcut gửi đầy đủ link bạn chia sẻ tới dịch vụ tương ứng rồi tải từ URL dịch vụ trả về. Không đọc/gửi cookie, mật khẩu, token tài khoản hoặc thư viện Ảnh. Không dùng phiên đăng nhập Facebook/Instagram/TikTok trên iPhone. Các dịch vụ có thể đổi API, giới hạn lượt gọi hoặc ngừng hoạt động.
 
-Không cần cài npm package. Yêu cầu Node.js 20+ cho công cụ phát triển; iPhone không cần Node.js.
+## Mã nguồn và kiểm thử
+
+Node.js 20+ chỉ cần trên máy phát triển; iPhone không cần Node.js hay npm package.
 
 ```powershell
 npm.cmd run verify
-npm.cmd run test:browser
+node tools/sign-shortcut.cjs
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/package.ps1
 ```
 
-`verify` tạo lại các tệp trong `dist` và chạy kiểm thử logic. `test:browser` chạy Chrome/Edge headless với một hồ sơ tạm riêng, kiểm tra DOM của năm trang mẫu. Có thể đặt `MEDIA_SAVER_BROWSER` nếu trình duyệt nằm ở đường dẫn khác. Lệnh headless không mở hồ sơ trình duyệt đang sử dụng.
+- `src/native-workflow.cjs`: tạo các tác vụ Phím tắt gốc cho beta.3.
+- `dist/workflow.json`, `dist/Media-Saver.unsigned.shortcut`: nguồn có thể kiểm tra; bản unsigned không dùng để cài trực tiếp.
+- `test/native-workflow.test.cjs`: kiểm tra đầu vào chia sẻ, album, loại ảnh bìa, lỗi mạng/API, URL và các nhánh xử lý bằng mô hình tác vụ. Mô hình này không phải runtime iOS.
+- `test/fixtures`: cấu trúc rút gọn từ phản hồi API thật, URL tạm được thay bằng tên miền thử nghiệm.
+- `artifacts/native-live-results.json`: báo cáo kiểm tra API và mẫu tệp của beta.3.
+- `src/collector.js`, `dist/Safari-Media-Saver.*`: bộ trích xuất Safari cũ để tham khảo/bảo trì; **không được chạy trong Shortcut beta.3**. Các báo cáo `browser-results.json` và `live-probe-results.json` thuộc cách cũ.
 
-Để ký lại bản nguồn công khai: chạy `node tools/sign-shortcut.cjs`. Lệnh gửi riêng tệp workflow đến [API Shortcuty](https://github.com/Shortcuty/Signing-Server-API-Documentation), nhận bản ký `anyone`, kiểm tra dấu hiệu `AEA1`, kích thước và SHA-256 đầu vào/đầu ra. Không thêm mật khẩu/token cá nhân vào workflow trước khi gửi. Bước này chỉ diễn ra khi phát hành; Shortcut đã cài không cần gọi Shortcuty để tải media.
+Công cụ ký gửi nguồn workflow công khai tới [Shortcuty](https://github.com/Shortcuty/Signing-Server-API-Documentation), nhận tệp `AEA1` chế độ `anyone` và đối chiếu kích thước, SHA-256. Chưa xác minh chữ ký độc lập trên thiết bị. Shortcut đã cài không gọi Shortcuty khi tải media. Công cụ đóng gói từ chối bản ký không khớp nguồn.
 
-`tools/package.ps1` đóng gói ZIP và bảng SHA-256; nếu có bản ký, công cụ chỉ đóng gói khi hash của nguồn/bản ký khớp báo cáo. Tệp ký được phát hành qua GitHub Releases, không lưu trong lịch sử Git.
-
-`node tools/browser-check.cjs --live` đọc các bản HTML công khai đã lưu trong `artifacts/live`. `node tools/probe-live.cjs` kiểm tra một phần tệp media tìm được. Những lệnh này không chứng minh Safari/iOS đã chạy thành công. HTML, URL CDN tạm và hồ sơ kiểm thử được bỏ qua bởi `.gitignore`.
-
-Các test dùng dữ liệu dựng theo cấu trúc tham khảo, không phải toàn bộ dữ liệu phản hồi thật của nền tảng. Dữ liệu thật có thể thay đổi.
-
-## Tài liệu tham khảo
-
-- [Apple Shortcuts](https://support.apple.com/en-asia/guide/shortcuts/apdb71a01d93/ios).
-- [yt-dlp: Instagram](https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/extractor/instagram.py), [Facebook](https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/extractor/facebook.py), [TikTok](https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/extractor/tiktok.py): đối chiếu trường dữ liệu và URL mẫu, không dùng yt-dlp làm backend.
-- [gallery-dl: TikTok](https://github.com/mikf/gallery-dl/blob/master/gallery_dl/extractor/tiktok.py): đối chiếu cấu trúc bài ảnh.
-- [Cherri: tác vụ Web](https://github.com/electrikmilk/cherri/blob/main/actions/web.cherri), [Photos](https://github.com/electrikmilk/cherri/blob/main/actions/photos.cherri): đối chiếu định danh/tham số Shortcut. Mã của dự án được viết riêng.
+[Tải gói ZIP](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.3/Media-Saver-iPhone.zip) · [Apple: chạy Shortcut từ ứng dụng khác](https://support.apple.com/en-gb/guide/shortcuts/apd163eb9f95/ios) · [Cherri: cấu trúc tác vụ](https://github.com/electrikmilk/cherri/blob/main/shortcutgen.go)

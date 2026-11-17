@@ -1,28 +1,35 @@
-# Kết quả kiểm thử — 17/11/2026 (Asia/Saigon)
+# Kiểm thử Media Saver beta.3 — 17/11/2026
 
-Đây là báo cáo về kết quả đã quan sát, không phải xác nhận ứng dụng hoạt động đầy đủ trên iOS.
+## Mã và luồng tác vụ
 
-| Kiểm tra | Kết quả |
-|---|---|
-| `npm.cmd run verify` | 25/25 test thành công: carousel hỗn hợp, bài ảnh TikTok, video/ảnh Facebook, dữ liệu thiếu, lọc bài khác, URL không hợp lệ, luồng không hỗ trợ, API Instagram, đầu ra completion và liên kết các tác vụ. |
-| Chrome headless + DOMParser | 5/5 trang HTML mẫu thành công. Có JSON và DOM thật để kiểm tra selector, không chỉ mock. Đây không phải Safari. |
-| Plist XML | PowerShell đọc được tệp `.unsigned.shortcut` thành XML. Chưa xác nhận Apple chấp nhận chữ ký/nhập tệp. |
-| Bản ký beta.2 | Shortcuty trả tệp 29.602 byte, định dạng `AEA1`, chế độ `anyone`. SHA-256 nguồn và tệp nhận được khớp metadata dịch vụ. Chưa xác minh chữ ký độc lập hoặc thử nhập trên iPhone. Báo cáo `SIGNING-VERIFICATION.json` đi kèm Release. |
-| Instagram bài `BQ0eAlwhDrw` | HTML công khai trả một ảnh qua metadata. Tải 1.024 byte thành công: HTTP 206, `image/jpeg`, đúng dấu hiệu JPEG. Bài có nhiều media nhưng chưa lấy đủ. |
-| Instagram API của bài đó, không đăng nhập | Sau chuyển hướng trả HTML thay vì JSON; fallback giữ kết quả một ảnh và cảnh báo thiếu. Chưa kiểm tra API bằng phiên Safari đã đăng nhập. |
-| TikTok video `6742501081818877190` | Tìm được dữ liệu video và URL trực tiếp. Cả thử nguồn tải và nguồn phát đều bị CDN trả HTTP 403 với nội dung HTML. **Chưa tải thành công video thực tế.** |
-| Facebook video CNN `10155529876156509` | HTML HTTP 200 có tiêu đề bài nhưng không có nguồn media trực tiếp mà bộ phân tích đọc được. **Chưa tải thành công media Facebook thực tế.** |
-| iPhone / iOS Photos | Không có iPhone kết nối trong môi trường này. **Chưa kiểm tra nhập Shortcut, quyền Safari, tải tệp đầy đủ và lưu vào Ảnh.** |
+`npm.cmd run verify`: **41/41 test đạt**. Gồm 16 kiểm thử mới cho luồng gốc và 25 kiểm thử cũ/kiểm tra liên kết tác vụ.
 
-Kết quả máy đọc: `artifacts/browser-results.json` và `artifacts/live-probe-results.json`.
+Luồng mới có 163 tác vụ: nhận URL/văn bản từ Share Sheet, phân loại nền tảng, gọi API, chọn media, kiểm tra URL, tải và lưu. Không có tác vụ JavaScript, mở Safari, Scriptable hay đọc clipboard. Nguồn là `src/native-workflow.cjs`; đầu ra kiểm tra được là `dist/workflow.json` và plist XML.
 
-## Kiểm tra còn cần trên iPhone
+Test mới kiểm tra: ảnh TikTok theo thứ tự; Instagram album ảnh/video và cấu trúc hỗn hợp; chỉ chọn một chất lượng mỗi media; loại ảnh bìa Facebook; dữ liệu lỗi/rỗng; tên miền giả; URL có thông tin đăng nhập; luồng HLS/DASH; nhiều link; chạy không có đầu vào; dừng khi lưu lỗi. Fixtures rút gọn từ phản hồi thật, thay URL bằng tên miền thử nghiệm.
 
-- Tạo theo hướng dẫn và xác nhận nhận đúng đầu vào Trang web Safari.
-- Ảnh Instagram đơn; carousel trộn ảnh/video trong phiên đã đăng nhập.
-- TikTok video và bài ảnh; kiểm tra cả hình lẫn âm thanh, số lượng ảnh.
-- Facebook ảnh, bài nhiều ảnh, video và Reel mà tài khoản hiện tại xem được.
-- Bài bị chặn/không còn tồn tại; xác nhận không lưu HTML hoặc ảnh bìa thay video.
-- Quyền thêm ảnh, video lớn, mất mạng và lỗi giữa vòng lặp.
+Mô hình `test/helpers/native-runner.cjs` chỉ mô phỏng tập tác vụ được dùng. Test đạt **không chứng minh iOS chạy thành công**. Cấu trúc điều kiện/biến được đối chiếu [mã Cherri](https://github.com/electrikmilk/cherri/blob/main/shortcutgen.go).
 
-Nếu thử trên iPhone vẫn bị chặn, cần mẫu liên kết cụ thể và thông báo lỗi để tiếp tục điều chỉnh. Không thể suy ra thành công trên thiết bị từ các test mô phỏng.
+## Kiểm tra mạng thực tế
+
+Các yêu cầu dùng bài công khai, không có cookie hoặc tài khoản cá nhân. Với mỗi hàng, API trả danh sách media; tải thử **1.024 byte đầu của một tệp**. Đối chiếu HTTP, MIME và dấu hiệu tệp; chưa tải toàn bộ album.
+
+| Trường hợp | Danh sách nhận được | Mẫu tệp kiểm tra |
+|---|---|---|
+| TikTok video `6742501081818877190` qua TikWM | 1 video | HTTP 206, `video/mp4`, `ftyp` |
+| TikTok ảnh `7240568259186019630` qua TikWM | 16 ảnh | HTTP 206, `image/jpeg`, `FF D8 FF` |
+| Instagram `BQ0eAlwhDrw` qua Siputzx/SSSInstagram | 3 video | HTTP 206, `video/mp4`, `ftyp` |
+| Instagram `BoHk1haB5tM` qua Siputzx/SSSInstagram | 5 ảnh | HTTP 206, `image/jpeg`, `FF D8 FF` |
+| Facebook CNN `10155529876156509` qua VKrDownloader | 1 video được chọn từ các chất lượng | HTTP 206, `video/mp4`, `ftyp` |
+
+VKrDownloader trả một JPEG được gắn nhãn “4K” trước các MP4; luồng bỏ JPEG đó. Dịch vụ này không lấy được các bài Instagram đã thử, nên luồng Instagram dùng Siputzx/SSSInstagram. Endpoint FastDL được thử nhưng trả 503 và không được dùng trong bản phát hành.
+
+Báo cáo máy đọc: `artifacts/native-live-results.json`. URL CDN tạm, dữ liệu phản hồi đầy đủ và các byte media không đưa vào Git. `tools/report-native-probes.cjs` tổng hợp và kiểm tra các bản ghi cục bộ; nó không tự gọi lại mạng.
+
+## Ký, đóng gói và phần chưa xác nhận
+
+Tệp phát hành được Shortcuty ký `anyone`. Công cụ kiểm tra marker `AEA1`, kích thước, SHA-256 nguồn/đầu ra theo phản hồi dịch vụ. Báo cáo đi kèm là `SIGNING-VERIFICATION.json`; chưa xác minh chữ ký độc lập bằng thiết bị Apple. Công cụ đóng gói từ chối tệp ký cũ hoặc bị thay đổi.
+
+**Chưa có iPhone kết nối để xác nhận** việc nhập beta.3, hiện trong bảng chia sẻ thực tế của từng ứng dụng, các hộp cấp quyền, chạy toàn bộ tác vụ và lưu vào Ảnh. Chưa xác nhận tải đủ tệp lớn, phát hết video hoặc có âm thanh. Môi trường kiểm thử mạng là Windows, không phải mạng của iPhone.
+
+Facebook ảnh/album chưa hỗ trợ. Bài riêng tư, Stories, livestream và nội dung cần đăng nhập chưa hỗ trợ. Dịch vụ có thể thay đổi hoặc giới hạn lượt gọi. Các báo cáo Safari cũ (`browser-results.json`, `live-probe-results.json`) không đại diện cho luồng beta.3.

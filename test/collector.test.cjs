@@ -176,6 +176,6 @@ test('generated workflow wires every output to an earlier action and closes loop
     assert.ok(!seen.has(p.UUID)); seen.add(p.UUID);
   }
   assert.equal(groups.length,0);
-  assert.deepEqual(flow.WFWorkflowInputContentItemClasses,['WFSafariWebPageContentItem']);
+  assert.deepEqual(flow.WFWorkflowInputContentItemClasses,['WFURLContentItem','WFStringContentItem','WFSafariWebPageContentItem']);
   assert.equal(flow.WFWorkflowActions.filter(a=>a.WFWorkflowActionIdentifier.endsWith('.savetocameraroll')).length,1);
 });

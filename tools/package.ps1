@@ -8,7 +8,8 @@ try {
     foreach ($taskDoc in @('HUONG-DAN-IPHONE.md', 'KIEM-THU.md')) {
         Copy-Item -LiteralPath (Join-Path $taskRoot $taskDoc) -Destination (Join-Path $taskDist $taskDoc)
     }
-    $taskNames = @('Safari-Media-Saver.txt', 'Safari-Media-Saver.js', 'Media-Saver.unsigned.shortcut', 'HUONG-DAN-IPHONE.md', 'KIEM-THU.md')
+    Copy-Item -LiteralPath (Join-Path $taskRoot 'artifacts/native-live-results.json') -Destination (Join-Path $taskDist 'NATIVE-LIVE-RESULTS.json')
+    $taskNames = @('Media-Saver.unsigned.shortcut', 'workflow.json', 'HUONG-DAN-IPHONE.md', 'KIEM-THU.md', 'NATIVE-LIVE-RESULTS.json')
     $taskSignedPath = Join-Path $taskDist 'Media-Saver.shortcut'
     if (Test-Path -LiteralPath $taskSignedPath) {
         $taskReportPath = Join-Path $taskRoot 'artifacts/signing/verification.json'

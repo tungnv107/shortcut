@@ -1,0 +1,60 @@
+{
+  "status": true,
+  "data": [
+    {
+      "url": [
+        {
+          "url": "https://cdn.example.test/instagram-photos-0-0.jpg",
+          "name": "JPG",
+          "type": "jpg",
+          "ext": "jpg"
+        }
+      ],
+      "thumb": "https://cdn.example.test/thumb-0.jpg"
+    },
+    {
+      "url": [
+        {
+          "url": "https://cdn.example.test/instagram-photos-1-0.jpg",
+          "name": "JPG",
+          "type": "jpg",
+          "ext": "jpg"
+        }
+      ],
+      "thumb": "https://cdn.example.test/thumb-1.jpg"
+    },
+    {
+      "url": [
+        {
+          "url": "https://cdn.example.test/instagram-photos-2-0.jpg",
+          "name": "JPG",
+          "type": "jpg",
+          "ext": "jpg"
+        }
+      ],
+      "thumb": "https://cdn.example.test/thumb-2.jpg"
+    },
+    {
+      "url": [
+        {
+          "url": "https://cdn.example.test/instagram-photos-3-0.jpg",
+          "name": "JPG",
+          "type": "jpg",
+          "ext": "jpg"
+        }
+      ],
+      "thumb": "https://cdn.example.test/thumb-3.jpg"
+    },
+    {
+      "url": [
+        {
+          "url": "https://cdn.example.test/instagram-photos-4-0.jpg",
+          "name": "JPG",
+          "type": "jpg",
+          "ext": "jpg"
+        }
+      ],
+      "thumb": "https://cdn.example.test/thumb-4.jpg"
+    }
+  ]
+}
