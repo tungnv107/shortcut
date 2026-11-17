@@ -28,7 +28,7 @@ function getKey(key, from) {
   return action('getvalueforkey', 'Lấy ' + key, { WFInput: token(from), WFGetDictionaryValueType: 'Value', WFDictionaryKey: key });
 }
 
-action('comment', 'Hướng dẫn', { WFCommentActionText: 'Mở riêng bài đăng Facebook/Instagram/TikTok trong Safari → Chia sẻ → Media Saver. Chỉ tải tệp mà trang cung cấp; không ghép HLS/DASH, không quét trang cá nhân. Đọc hướng dẫn đi kèm. Bản nguồn này cần ký trên macOS trước khi nhập.' });
+action('comment', 'Hướng dẫn', { WFCommentActionText: 'Mở riêng bài đăng Facebook/Instagram/TikTok trong Safari → Chia sẻ → Media Saver. Chỉ tải tệp mà trang cung cấp; không ghép HLS/DASH, không quét trang cá nhân. Đọc hướng dẫn và giới hạn tại github.com/tungnv107/shortcut.' });
 const result = action('runjavascriptonwebpage', 'Kết quả JavaScript', { WFJavaScript: javascript, WFInput: token({ Type: 'ExtensionInput' }) });
 const notice = getKey('notice', result);
 action('alert', 'Thông tin media', { WFAlertActionTitle: 'Media Saver', WFAlertActionMessage: textToken(notice), WFAlertActionCancelButtonShown: true });

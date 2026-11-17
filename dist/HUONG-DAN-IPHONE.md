@@ -4,9 +4,25 @@ Bản thử nghiệm chạy bằng **Safari + Phím tắt (Shortcuts)**, không 
 
 **Trạng thái:** đã kiểm thử mã và DOM trên Windows; chưa kiểm thử việc nhập/chạy/lưu vào Ảnh trên iPhone thật. Không bảo đảm lấy đủ mọi bài. Xem kết quả thực tế ở `KIEM-THU.md`.
 
-## 1. Chuẩn bị
+## Cài nhanh — không cần Mac, không cần chép mã
 
-1. Trên Safari của iPhone, [tải Media-Saver-iPhone.zip](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.1/Media-Saver-iPhone.zip). Mở **Tệp → Tải về**, chạm tệp ZIP để giải nén. Mở `Safari-Media-Saver.txt`, chọn toàn bộ rồi sao chép. Trong mã nguồn GitHub, tệp này nằm trong thư mục `dist`; tệp `.txt` và `.js` có nội dung giống nhau. Bạn cũng có thể [mở mã trực tiếp dạng văn bản](https://raw.githubusercontent.com/tungnv107/shortcut/v1.0.0-beta.1/dist/Safari-Media-Saver.txt) để sao chép.
+1. Trên Safari của iPhone, bấm **[Tải Media-Saver.shortcut đã ký](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.2/Media-Saver.shortcut)**.
+2. Mở tệp vừa tải từ nút tải về của Safari hoặc **Tệp → Tải về**. Nếu đang mở link trong trình duyệt của ứng dụng khác, chọn mở bằng Safari trước.
+3. Khi ứng dụng **Phím tắt** hiện màn hình nhập, bấm **Thêm phím tắt / Add Shortcut**. Không cần tạo lại các tác vụ.
+
+Sau khi thêm, vào **Cài đặt → Phím tắt → Nâng cao**, bật **Cho phép chạy tập lệnh / Allow Running Scripts** nếu iOS yêu cầu. Tùy phiên bản iOS, mục Phím tắt nằm trong **Cài đặt → Ứng dụng**.
+
+Để dùng: mở bài đăng trong Safari → **Chia sẻ → Media Saver**. Cấp quyền truy cập trang, tải tệp và thêm vào Ảnh khi iOS hỏi lần đầu. iOS vẫn yêu cầu bạn xác nhận cài; link tải không tự bỏ qua bước xác nhận.
+
+Tên tệp cần mở là **`Media-Saver.shortcut`**. `Media-Saver.unsigned.shortcut` là bản nguồn dành cho phát triển, không phải bản cài.
+
+Tệp đã được Shortcuty ký ở chế độ `anyone`; đã kiểm tra định dạng và SHA-256. Việc nhập/chạy trên iPhone thật chưa được xác nhận trong môi trường hiện tại. Nếu iOS báo lỗi nhập, giữ nguyên thông báo lỗi để kiểm tra tiếp.
+
+**Phần dưới chỉ là phương án cài thủ công dự phòng. Bạn có thể bỏ qua khi đã thêm được bản ký.**
+
+## 1. Chuẩn bị (cài thủ công dự phòng)
+
+1. Trên Safari của iPhone, [tải Media-Saver-iPhone.zip](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.2/Media-Saver-iPhone.zip). Mở **Tệp → Tải về**, chạm tệp ZIP để giải nén. Mở `Safari-Media-Saver.txt`, chọn toàn bộ rồi sao chép. Trong mã nguồn GitHub, tệp này nằm trong thư mục `dist`; tệp `.txt` và `.js` có nội dung giống nhau.
 2. Mở **Cài đặt**, tìm **Phím tắt / Shortcuts → Nâng cao / Advanced**, bật **Cho phép chạy tập lệnh / Allow Running Scripts**. Tùy iOS, Phím tắt có thể nằm trong mục **Ứng dụng**.
 3. Mở **Phím tắt**, bấm **+**, đặt tên **Media Saver**.
 4. Mở phần **Chi tiết** của phím tắt, bật **Hiển thị trong bảng chia sẻ / Show in Share Sheet**.
@@ -67,7 +83,7 @@ Không cần thêm tác vụ **Lấy hình ảnh từ đầu vào**: tác vụ �
 
 ## Tệp `.shortcut` đi kèm
 
-`dist/Media-Saver.unsigned.shortcut` là **bản nguồn CHƯA KÝ**, không phải tệp bấm là nhập được. Với iPhone, dùng cách tạo 9 bước bên trên; không cần Mac hoặc dịch vụ ký.
+`Media-Saver.shortcut` trong Release beta.2 là **bản đã ký** để cài theo phần Cài nhanh. `dist/Media-Saver.unsigned.shortcut` vẫn là **bản nguồn CHƯA KÝ**, dùng để bảo trì/tự ký lại.
 
 Nếu sau này có Mac, có thể ký bản nguồn bằng Terminal:
 
@@ -75,7 +91,7 @@ Nếu sau này có Mac, có thể ký bản nguồn bằng Terminal:
 shortcuts sign --mode anyone --input "Media-Saver.unsigned.shortcut" --output "Media-Saver.shortcut"
 ```
 
-Sau đó chuyển tệp đã ký sang iPhone, mở bằng Phím tắt, xem các tác vụ rồi thêm. Chưa kiểm chứng việc ký/nhập trên Mac trong môi trường hiện tại. Không có liên kết iCloud được xuất bản trong dự án này.
+Sau đó chuyển tệp đã ký sang iPhone, mở bằng Phím tắt, xem các tác vụ rồi thêm. Bản phát hành hiện tại đã được ký qua Shortcuty nên bạn không cần thực hiện lệnh này. Không có liên kết iCloud được xuất bản trong dự án này; link tải là GitHub Release.
 
 ## Nguồn đối chiếu
 

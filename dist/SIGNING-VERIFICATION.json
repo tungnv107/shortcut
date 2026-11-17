@@ -1,0 +1,13 @@
+{
+  "checkedAt": "2026-11-17T00:52:56.615Z",
+  "signer": "https://sign.shortcuty.app/api/v1/sign",
+  "signingMode": "anyone",
+  "format": "AEA1",
+  "inputSHA256": "9376e3c70b85dabf1d0679cab6d70d76bcb7a84e479b5ee468d39a2573ee7e1d",
+  "outputSHA256": "46066ef357e04f0b9427f1595bcadedf4b74576757ac3ce5f080397cb692e701",
+  "size": 29602,
+  "source": "dist/Media-Saver.unsigned.shortcut",
+  "output": "dist/Media-Saver.shortcut",
+  "deviceImportTested": false,
+  "note": "Validated file marker, size and service-reported hashes; not a device import or independent signature verification."
+}

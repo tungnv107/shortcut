@@ -7,6 +7,7 @@
 | `npm.cmd run verify` | 25/25 test thành công: carousel hỗn hợp, bài ảnh TikTok, video/ảnh Facebook, dữ liệu thiếu, lọc bài khác, URL không hợp lệ, luồng không hỗ trợ, API Instagram, đầu ra completion và liên kết các tác vụ. |
 | Chrome headless + DOMParser | 5/5 trang HTML mẫu thành công. Có JSON và DOM thật để kiểm tra selector, không chỉ mock. Đây không phải Safari. |
 | Plist XML | PowerShell đọc được tệp `.unsigned.shortcut` thành XML. Chưa xác nhận Apple chấp nhận chữ ký/nhập tệp. |
+| Bản ký beta.2 | Shortcuty trả tệp 29.602 byte, định dạng `AEA1`, chế độ `anyone`. SHA-256 nguồn và tệp nhận được khớp metadata dịch vụ. Chưa xác minh chữ ký độc lập hoặc thử nhập trên iPhone. Báo cáo `SIGNING-VERIFICATION.json` đi kèm Release. |
 | Instagram bài `BQ0eAlwhDrw` | HTML công khai trả một ảnh qua metadata. Tải 1.024 byte thành công: HTTP 206, `image/jpeg`, đúng dấu hiệu JPEG. Bài có nhiều media nhưng chưa lấy đủ. |
 | Instagram API của bài đó, không đăng nhập | Sau chuyển hướng trả HTML thay vì JSON; fallback giữ kết quả một ảnh và cảnh báo thiếu. Chưa kiểm tra API bằng phiên Safari đã đăng nhập. |
 | TikTok video `6742501081818877190` | Tìm được dữ liệu video và URL trực tiếp. Cả thử nguồn tải và nguồn phát đều bị CDN trả HTTP 403 với nội dung HTML. **Chưa tải thành công video thực tế.** |

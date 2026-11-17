@@ -6,19 +6,21 @@ Shortcut dùng Safari để tìm ảnh/video thuộc **một bài đăng** Faceb
 
 ## Tải và cài trên iPhone
 
-**[Tải bộ cài ZIP](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.1/Media-Saver-iPhone.zip)** · **[Hướng dẫn cài từng bước](HUONG-DAN-IPHONE.md)** · **[Xem bản phát hành](https://github.com/tungnv107/shortcut/releases/tag/v1.0.0-beta.1)**
+**[Tải Media Saver đã ký để cài](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.2/Media-Saver.shortcut)** · **[Hướng dẫn](HUONG-DAN-IPHONE.md)** · **[Bản phát hành beta.2](https://github.com/tungnv107/shortcut/releases/tag/v1.0.0-beta.2)**
 
-1. Mở link tải ZIP bằng Safari trên iPhone, lưu vào **Tệp**, chạm tệp ZIP để giải nén.
-2. Mở `Safari-Media-Saver.txt`, sao chép toàn bộ mã.
-3. Tạo **Media Saver** trong ứng dụng **Phím tắt** theo [9 bước trong hướng dẫn](HUONG-DAN-IPHONE.md#2-thêm-các-tác-vụ-theo-đúng-thứ-tự).
-4. Mở bài đăng bằng Safari → **Chia sẻ → Media Saver**.
+1. Bấm **Tải Media Saver đã ký để cài** bằng Safari trên iPhone.
+2. Mở tệp `Media-Saver.shortcut` vừa tải (trong mục tải về của Safari hoặc **Tệp → Tải về**).
+3. Khi Phím tắt mở màn hình nhập, bấm **Thêm phím tắt / Add Shortcut**.
 
-**Bản này cài thủ công.** Tệp `Media-Saver.unsigned.shortcut` chưa ký nên không nhập trực tiếp được. Không cần Mac, VPS hoặc ứng dụng phụ cho cách cài ở trên.
+Không cần Mac, chép mã hoặc tự tạo các tác vụ. iOS vẫn yêu cầu bạn xác nhận thêm phím tắt và cấp quyền khi chạy lần đầu. Bản ký dùng chế độ `anyone`; chưa thử nhập trên iPhone thật trong môi trường phát triển này.
 
-Nếu chỉ cần mã: [tải tệp TXT](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.1/Safari-Media-Saver.txt) hoặc [mở mã dạng văn bản](https://raw.githubusercontent.com/tungnv107/shortcut/v1.0.0-beta.1/dist/Safari-Media-Saver.txt).
+Sau khi cài, bật **Cho phép chạy tập lệnh** trong cài đặt Phím tắt nếu iOS yêu cầu. Mở bài đăng bằng Safari → **Chia sẻ → Media Saver**. Không chạy từ ô phím tắt khi chưa có trang Safari làm đầu vào.
+
+[Tải gói ZIP đầy đủ](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.2/Media-Saver-iPhone.zip) · [Mã TXT](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.2/Safari-Media-Saver.txt)
 
 | Tệp | Mục đích |
 |---|---|
+| `Media-Saver.shortcut` trong Release | Tệp đã ký để mở trong ứng dụng Phím tắt và thêm trực tiếp. |
 | `dist/Safari-Media-Saver.txt` | Sao chép toàn bộ vào tác vụ JavaScript trong Phím tắt. |
 | `dist/Safari-Media-Saver.js` | Cùng nội dung ở dạng JavaScript. |
 | `dist/Media-Saver.unsigned.shortcut` | Bản nguồn plist, phải ký trước khi nhập trực tiếp. |
@@ -46,6 +48,10 @@ npm.cmd run test:browser
 ```
 
 `verify` tạo lại các tệp trong `dist` và chạy kiểm thử logic. `test:browser` chạy Chrome/Edge headless với một hồ sơ tạm riêng, kiểm tra DOM của năm trang mẫu. Có thể đặt `MEDIA_SAVER_BROWSER` nếu trình duyệt nằm ở đường dẫn khác. Lệnh headless không mở hồ sơ trình duyệt đang sử dụng.
+
+Để ký lại bản nguồn công khai: chạy `node tools/sign-shortcut.cjs`. Lệnh gửi riêng tệp workflow đến [API Shortcuty](https://github.com/Shortcuty/Signing-Server-API-Documentation), nhận bản ký `anyone`, kiểm tra dấu hiệu `AEA1`, kích thước và SHA-256 đầu vào/đầu ra. Không thêm mật khẩu/token cá nhân vào workflow trước khi gửi. Bước này chỉ diễn ra khi phát hành; Shortcut đã cài không cần gọi Shortcuty để tải media.
+
+`tools/package.ps1` đóng gói ZIP và bảng SHA-256; nếu có bản ký, công cụ chỉ đóng gói khi hash của nguồn/bản ký khớp báo cáo. Tệp ký được phát hành qua GitHub Releases, không lưu trong lịch sử Git.
 
 `node tools/browser-check.cjs --live` đọc các bản HTML công khai đã lưu trong `artifacts/live`. `node tools/probe-live.cjs` kiểm tra một phần tệp media tìm được. Những lệnh này không chứng minh Safari/iOS đã chạy thành công. HTML, URL CDN tạm và hồ sơ kiểm thử được bỏ qua bởi `.gitignore`.
 

@@ -9,6 +9,18 @@ try {
         Copy-Item -LiteralPath (Join-Path $taskRoot $taskDoc) -Destination (Join-Path $taskDist $taskDoc)
     }
     $taskNames = @('Safari-Media-Saver.txt', 'Safari-Media-Saver.js', 'Media-Saver.unsigned.shortcut', 'HUONG-DAN-IPHONE.md', 'KIEM-THU.md')
+    $taskSignedPath = Join-Path $taskDist 'Media-Saver.shortcut'
+    if (Test-Path -LiteralPath $taskSignedPath) {
+        $taskReportPath = Join-Path $taskRoot 'artifacts/signing/verification.json'
+        $taskReport = Get-Content -LiteralPath $taskReportPath -Raw | ConvertFrom-Json
+        $taskInputHash = (Get-FileHash -LiteralPath (Join-Path $taskDist 'Media-Saver.unsigned.shortcut') -Algorithm SHA256).Hash.ToLowerInvariant()
+        $taskSignedHash = (Get-FileHash -LiteralPath $taskSignedPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($taskReport.inputSHA256 -ne $taskInputHash -or $taskReport.outputSHA256 -ne $taskSignedHash) {
+            throw 'Signed shortcut is stale or changed. Sign the current source before packaging.'
+        }
+        Copy-Item -LiteralPath $taskReportPath -Destination (Join-Path $taskDist 'SIGNING-VERIFICATION.json')
+        $taskNames += @('Media-Saver.shortcut', 'SIGNING-VERIFICATION.json')
+    }
     $taskFiles = $taskNames | ForEach-Object { Join-Path $taskDist $_ }
     Compress-Archive -LiteralPath $taskFiles -DestinationPath (Join-Path $taskRoot 'Media-Saver-iPhone.zip') -Force
     $taskReleaseFiles = @((Join-Path $taskRoot 'Media-Saver-iPhone.zip')) + $taskFiles

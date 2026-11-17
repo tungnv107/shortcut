@@ -41,7 +41,7 @@
         <key>WFWorkflowActionParameters</key>
         <dict>
           <key>WFCommentActionText</key>
-          <string>Mở riêng bài đăng Facebook/Instagram/TikTok trong Safari → Chia sẻ → Media Saver. Chỉ tải tệp mà trang cung cấp; không ghép HLS/DASH, không quét trang cá nhân. Đọc hướng dẫn đi kèm. Bản nguồn này cần ký trên macOS trước khi nhập.</string>
+          <string>Mở riêng bài đăng Facebook/Instagram/TikTok trong Safari → Chia sẻ → Media Saver. Chỉ tải tệp mà trang cung cấp; không ghép HLS/DASH, không quét trang cá nhân. Đọc hướng dẫn và giới hạn tại github.com/tungnv107/shortcut.</string>
           <key>UUID</key>
           <string>E83DF53D-9386-4467-A1D7-B1599F804A10</string>
         </dict>

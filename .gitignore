@@ -4,3 +4,4 @@ artifacts/browser-check/
 *.signed.shortcut
 dist/Media-Saver.shortcut
 artifacts/github/
+artifacts/signing/

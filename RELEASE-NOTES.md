@@ -1,22 +1,28 @@
-# Media Saver v1.0.0-beta.1 — cài thủ công trên iPhone
+# Media Saver v1.0.0-beta.2 — tệp đã ký để cài trên iPhone
 
-Bản thử nghiệm dùng Safari + Phím tắt để lấy ảnh/video từ một bài đăng Facebook, Instagram hoặc TikTok. Không cần VPS hoặc ứng dụng phụ.
+**[Tải Media-Saver.shortcut đã ký](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.2/Media-Saver.shortcut)**
 
-## Tải và cài
+## Cài trong ứng dụng Phím tắt
 
-1. Tải **Media-Saver-iPhone.zip** trong phần Assets bên dưới bằng Safari trên iPhone.
-2. Mở ứng dụng **Tệp**, chạm ZIP để giải nén, mở **Safari-Media-Saver.txt** và sao chép toàn bộ.
-3. Làm theo [hướng dẫn cài 9 bước](https://github.com/tungnv107/shortcut/blob/v1.0.0-beta.1/HUONG-DAN-IPHONE.md).
-4. Mở bài đăng trong Safari → **Chia sẻ → Media Saver** để chạy.
+1. Mở link trên bằng Safari của iPhone.
+2. Mở tệp `Media-Saver.shortcut` vừa tải trong Safari hoặc **Tệp → Tải về**.
+3. Khi Phím tắt hiện màn hình nhập, bấm **Thêm phím tắt / Add Shortcut**.
 
-**Đây là bản cài thủ công.** Tệp `Media-Saver.unsigned.shortcut` chưa ký, chưa thể chạm để nhập trực tiếp. Không có yêu cầu đăng nhập vào dịch vụ ký hoặc dùng Mac cho cách cài thủ công.
+Không cần Mac, chép mã hoặc tạo từng tác vụ. iOS vẫn yêu cầu xác nhận thêm và cấp quyền khi chạy. Xem [hướng dẫn](https://github.com/tungnv107/shortcut/blob/v1.0.0-beta.2/HUONG-DAN-IPHONE.md).
 
-## Trạng thái kiểm thử
+Sau khi cài, mở bài đăng bằng Safari → **Chia sẻ → Media Saver**. Bật **Cho phép chạy tập lệnh** trong cài đặt Phím tắt nếu iOS yêu cầu.
 
-- 25 kiểm thử logic và 5 kiểm thử DOM trên máy tính đạt.
-- Instagram tải được phần đầu của ảnh mẫu; chưa lấy đủ carousel thực tế.
-- TikTok tìm được URL video nhưng CDN mẫu trả 403.
-- Mẫu Facebook chưa lấy được tệp media.
-- Chưa kiểm thử trên iPhone thật. Không cam kết tải mọi bài, nội dung riêng tư, Stories, livestream hoặc video HLS/DASH.
+## Thay đổi so với beta.1
 
-Xem [báo cáo kiểm thử](https://github.com/tungnv107/shortcut/blob/v1.0.0-beta.1/KIEM-THU.md). File **SHA256SUMS.txt** đi kèm dùng để kiểm tra tính toàn vẹn của gói tải.
+- Bổ sung `Media-Saver.shortcut` được Shortcuty ký ở chế độ `anyone`.
+- Kiểm tra định dạng `AEA1`, kích thước và SHA-256 đầu vào/đầu ra.
+- Bổ sung công cụ ký lại và báo cáo xác minh; gói ZIP kèm cả bản ký lẫn nguồn.
+- Giữ nguyên logic tải media. Không có dịch vụ tải hộ mới trong quá trình sử dụng.
+
+## Kiểm thử và giới hạn
+
+25 kiểm thử logic và 5 kiểm thử DOM trên máy tính đạt. Chưa kiểm thử nhập hoặc chạy trên iPhone thật. Việc ký giúp tạo tệp để nhập, không khắc phục các giới hạn tải của nền tảng: Instagram mẫu chỉ lấy được một phần carousel; TikTok mẫu trả 403; Facebook mẫu chưa lấy được media. Không cam kết tải mọi bài, Stories, livestream hoặc luồng HLS/DASH.
+
+[Báo cáo kiểm thử](https://github.com/tungnv107/shortcut/blob/v1.0.0-beta.2/KIEM-THU.md) · [Tài liệu dịch vụ ký Shortcuty](https://github.com/Shortcuty/Signing-Server-API-Documentation)
+
+`Media-Saver.unsigned.shortcut` là bản nguồn; hãy chọn **Media-Saver.shortcut** để cài. `SHA256SUMS.txt` và `SIGNING-VERIFICATION.json` dùng để đối chiếu tệp.
