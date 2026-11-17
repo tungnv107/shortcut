@@ -43,12 +43,12 @@
         <key>WFWorkflowActionParameters</key>
         <dict>
           <key>WFCommentActionText</key>
-          <string>Media Saver 1.0.0-beta.3
+          <string>Media Saver 1.0.0-beta.4
 Facebook/TikTok/Instagram → Chia sẻ → Thêm/Khác → Media Saver. Chỉ dùng Phím tắt. Link bài đăng được gửi tới TikWM (TikTok), Siputzx/SSSInstagram (Instagram) hoặc VKrDownloader (Facebook); không gửi cookie/mật khẩu. Facebook hiện hỗ trợ video, chưa hỗ trợ album ảnh. github.com/tungnv107/shortcut</string>
           <key>CustomOutputName</key>
-          <string>Media Saver 1.0.0-beta.3</string>
+          <string>Media Saver 1.0.0-beta.4</string>
           <key>UUID</key>
-          <string>E63A7E01-0CA0-4DB0-AB4B-FC6B8A138619</string>
+          <string>BE6BDC51-42A8-431E-A903-C6E0193A62E7</string>
         </dict>
       </dict>
       <dict>
@@ -174,13 +174,21 @@ Facebook/TikTok/Instagram → Chia sẻ → Thêm/Khác → Media Saver. Chỉ d
           <dict>
             <key>Value</key>
             <dict>
-              <key>Type</key>
-              <string>Variable</string>
-              <key>VariableName</key>
-              <string>Input</string>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>Variable</string>
+                  <key>VariableName</key>
+                  <string>Input</string>
+                </dict>
+              </dict>
             </dict>
             <key>WFSerializationType</key>
-            <string>WFTextTokenAttachment</string>
+            <string>WFTextTokenString</string>
           </dict>
           <key>CustomOutputName</key>
           <string>Liên kết được chia sẻ</string>

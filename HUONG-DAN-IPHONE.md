@@ -1,14 +1,16 @@
-# Media Saver beta.3 — dùng trực tiếp từ bảng chia sẻ
+# Media Saver beta.4 — dùng trực tiếp từ bảng chia sẻ
 
 Chỉ cần ứng dụng **Phím tắt** có sẵn trên iPhone và Internet. Không cần Mac, Scriptable, chép mã hoặc tự thêm tác vụ. Link bài đăng sẽ được gửi tới dịch vụ tải công khai.
 
 ## Cài bản mới
 
-1. Bấm **[Tải Media Saver beta.3 đã ký](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.3/Media-Saver.shortcut)** bằng Safari trên iPhone.
+1. Bấm **[Tải Media Saver beta.4 đã ký](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.4/Media-Saver.shortcut)** bằng Safari trên iPhone.
 2. Mở tệp vừa tải trong mục tải về của Safari hoặc **Tệp → Tải về**.
-3. Bấm **Thêm phím tắt**. Nếu đã có Media Saver, chọn **Thay thế** khi iOS hỏi. Nếu xuất hiện hai bản, xóa bản cũ beta.2; giữ bản có dòng ghi chú `Media Saver 1.0.0-beta.3`.
+3. Bấm **Thêm phím tắt**. Nếu đã có Media Saver, chọn **Thay thế** khi iOS hỏi. Nếu xuất hiện hai bản, xóa bản cũ beta.2/beta.3; giữ bản có dòng ghi chú `Media Saver 1.0.0-beta.4`.
 
 Bản cũ beta.2 chỉ nhận Trang web Safari nên không xuất hiện khi các ứng dụng gửi link. Bản mới nhận URL và Văn bản, đã bật hiển thị trong bảng chia sẻ. iOS vẫn yêu cầu xác nhận cài đặt.
+
+Nếu đang dùng **beta.3** và gặp “Chưa nhận được link HTTPS” dù chia sẻ đúng từ ứng dụng, hãy thay bằng beta.4. Bản cũ ghi sai định dạng đầu vào của tác vụ Lấy URL; bạn không cần sửa các tác vụ thủ công.
 
 ## Dùng hằng ngày
 
@@ -30,7 +32,7 @@ Chưa hỗ trợ bài riêng tư, nội dung cần phiên đăng nhập, livestr
 
 ## Không thấy Media Saver
 
-1. Kiểm tra đã cài **beta.3**, không còn chạy nhầm bản Safari beta.2.
+1. Kiểm tra đã cài **beta.4**, không còn chạy nhầm beta.3 hoặc bản Safari beta.2.
 2. Mở **bảng chia sẻ iOS** bằng nút Thêm/Khác của ứng dụng. Media Saver nằm trong danh sách tác vụ bên dưới, không nhất thiết nằm ở hàng biểu tượng ứng dụng.
 3. Nếu vẫn chưa có: vào **Phím tắt → Media Saver → … → Chi tiết (ⓘ hoặc menu tên) → Hiển thị trong bảng chia sẻ**, bật tùy chọn đó. Đầu vào phải cho phép **URL** và **Văn bản**.
 4. Đóng rồi mở lại bảng chia sẻ. Có thể dùng **Sửa tác vụ / Edit Actions** để đưa Media Saver lên đầu nếu tùy chọn xuất hiện.
@@ -48,4 +50,4 @@ Chưa hỗ trợ bài riêng tư, nội dung cần phiên đăng nhập, livestr
 
 TikTok dùng **TikWM**; Instagram dùng **Siputzx/SSSInstagram**; Facebook dùng **VKrDownloader**. Shortcut gửi link bài bạn chọn, rồi tải tệp từ các tên miền được trả về. Không đọc cookie, mật khẩu, token đăng nhập hoặc ảnh sẵn có trong điện thoại. Bạn không phải tự vận hành máy chủ.
 
-Tệp cài đã được dịch vụ Shortcuty ký ở chế độ `anyone`. Môi trường phát triển chưa có iPhone để thử nhập/chạy beta.3; xem [kết quả đã kiểm chứng](https://github.com/tungnv107/shortcut/blob/v1.0.0-beta.3/KIEM-THU.md).
+Tệp cài đã được dịch vụ Shortcuty ký ở chế độ `anyone`. Môi trường phát triển chưa có iPhone để thử nhập/chạy beta.4; xem [kết quả đã kiểm chứng](https://github.com/tungnv107/shortcut/blob/v1.0.0-beta.4/KIEM-THU.md).

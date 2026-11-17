@@ -72,7 +72,9 @@ function buildNativeWorkflow() {
     const prompted = action('ask', 'Dán liên kết bài đăng', { WFAskActionPrompt: 'Dán link bài Facebook, Instagram hoặc TikTok. Bạn cũng có thể dùng Chia sẻ → Media Saver trong ứng dụng.', WFInputType: 'URL' });
     set('Input', prompted);
   });
-  const links = action('detect.link', 'Liên kết được chia sẻ', { WFInput: token(shared) });
+  // Get URLs has a text slot: a bare WFTextTokenAttachment can import blank on iOS.
+  // Keep the placeholder and attachment map, even for a single variable.
+  const links = action('detect.link', 'Liên kết được chia sẻ', { WFInput: text(shared) });
   clear('SupportedLinks');
   each(links, item => {
     const valid = match(item, inputPattern);

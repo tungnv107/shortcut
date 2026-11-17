@@ -22,9 +22,9 @@
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.comment",
       "WFWorkflowActionParameters": {
-        "WFCommentActionText": "Media Saver 1.0.0-beta.3\nFacebook/TikTok/Instagram → Chia sẻ → Thêm/Khác → Media Saver. Chỉ dùng Phím tắt. Link bài đăng được gửi tới TikWM (TikTok), Siputzx/SSSInstagram (Instagram) hoặc VKrDownloader (Facebook); không gửi cookie/mật khẩu. Facebook hiện hỗ trợ video, chưa hỗ trợ album ảnh. github.com/tungnv107/shortcut",
-        "CustomOutputName": "Media Saver 1.0.0-beta.3",
-        "UUID": "E63A7E01-0CA0-4DB0-AB4B-FC6B8A138619"
+        "WFCommentActionText": "Media Saver 1.0.0-beta.4\nFacebook/TikTok/Instagram → Chia sẻ → Thêm/Khác → Media Saver. Chỉ dùng Phím tắt. Link bài đăng được gửi tới TikWM (TikTok), Siputzx/SSSInstagram (Instagram) hoặc VKrDownloader (Facebook); không gửi cookie/mật khẩu. Facebook hiện hỗ trợ video, chưa hỗ trợ album ảnh. github.com/tungnv107/shortcut",
+        "CustomOutputName": "Media Saver 1.0.0-beta.4",
+        "UUID": "BE6BDC51-42A8-431E-A903-C6E0193A62E7"
       }
     },
     {
@@ -100,10 +100,15 @@
       "WFWorkflowActionParameters": {
         "WFInput": {
           "Value": {
-            "Type": "Variable",
-            "VariableName": "Input"
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "Variable",
+                "VariableName": "Input"
+              }
+            }
           },
-          "WFSerializationType": "WFTextTokenAttachment"
+          "WFSerializationType": "WFTextTokenString"
         },
         "CustomOutputName": "Liên kết được chia sẻ",
         "UUID": "B17D4235-FED8-4FDE-ADBB-A1754E7280E3"

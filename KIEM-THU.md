@@ -1,8 +1,8 @@
-# Kiểm thử Media Saver beta.3 — 17/11/2026
+# Kiểm thử Media Saver beta.4 — 17/11/2026
 
 ## Mã và luồng tác vụ
 
-`npm.cmd run verify`: **41/41 test đạt**. Gồm 16 kiểm thử mới cho luồng gốc và 25 kiểm thử cũ/kiểm tra liên kết tác vụ.
+`npm.cmd run verify`: **44/44 test đạt**. Gồm 19 kiểm thử mới cho luồng gốc và 25 kiểm thử cũ/kiểm tra liên kết tác vụ.
 
 Luồng mới có 163 tác vụ: nhận URL/văn bản từ Share Sheet, phân loại nền tảng, gọi API, chọn media, kiểm tra URL, tải và lưu. Không có tác vụ JavaScript, mở Safari, Scriptable hay đọc clipboard. Nguồn là `src/native-workflow.cjs`; đầu ra kiểm tra được là `dist/workflow.json` và plist XML.
 
@@ -10,7 +10,15 @@ Test mới kiểm tra: ảnh TikTok theo thứ tự; Instagram album ảnh/video
 
 Mô hình `test/helpers/native-runner.cjs` chỉ mô phỏng tập tác vụ được dùng. Test đạt **không chứng minh iOS chạy thành công**. Cấu trúc điều kiện/biến được đối chiếu [mã Cherri](https://github.com/electrikmilk/cherri/blob/main/shortcutgen.go).
 
-## Kiểm tra mạng thực tế
+## Sửa lỗi nhận link trên iPhone
+
+Ảnh người dùng gửi cho thấy beta.3 đã chạy trong Instagram nhưng dừng ở thông báo “Chưa nhận được link HTTPS”. Kiểm tra nguồn phát hiện tác vụ Get URLs dùng `WFTextTokenAttachment` cho ô đầu vào văn bản. Bản beta.4 đổi sang `WFTextTokenString` với ký tự thay thế và bảng tham chiếu biến. Đối chiếu [tham khảo định dạng Get URLs](https://github.com/viticci/shortcuts-playground-plugin/blob/main/codex/skills/shortcuts-playground/BEST_PRACTICES.md) và kiểu tham số text trong [Cherri web.cherri](https://github.com/electrikmilk/cherri/blob/main/actions/web.cherri).
+
+Bổ sung ba test: xác nhận cấu trúc đầu vào đúng; đưa cấu trúc beta.3 vào mô hình để tái hiện lỗi mất URL; kiểm tra link Instagram đơn và link kèm chú thích. Mô hình cũ đọc mọi kiểu tham chiếu như nhau nên đã bỏ sót khác biệt này. Chưa thể xác nhận đây là nguyên nhân duy nhất trên iPhone của người dùng, vì chưa nhận được chính link bài bị lỗi hoặc kiểm thử bản sửa trên thiết bị.
+
+## Kiểm tra mạng thực tế (từ beta.3, cùng ngày)
+
+Phần gọi dịch vụ và chọn media không đổi trong beta.4. Báo cáo mạng dưới đây giữ nguyên kết quả đã quan sát lúc phát hành beta.3, không ghi thành một lần kiểm tra mới.
 
 Các yêu cầu dùng bài công khai, không có cookie hoặc tài khoản cá nhân. Với mỗi hàng, API trả danh sách media; tải thử **1.024 byte đầu của một tệp**. Đối chiếu HTTP, MIME và dấu hiệu tệp; chưa tải toàn bộ album.
 
@@ -30,6 +38,6 @@ Báo cáo máy đọc: `artifacts/native-live-results.json`. URL CDN tạm, dữ
 
 Tệp phát hành được Shortcuty ký `anyone`. Công cụ kiểm tra marker `AEA1`, kích thước, SHA-256 nguồn/đầu ra theo phản hồi dịch vụ. Báo cáo đi kèm là `SIGNING-VERIFICATION.json`; chưa xác minh chữ ký độc lập bằng thiết bị Apple. Công cụ đóng gói từ chối tệp ký cũ hoặc bị thay đổi.
 
-**Chưa có iPhone kết nối để xác nhận** việc nhập beta.3, hiện trong bảng chia sẻ thực tế của từng ứng dụng, các hộp cấp quyền, chạy toàn bộ tác vụ và lưu vào Ảnh. Chưa xác nhận tải đủ tệp lớn, phát hết video hoặc có âm thanh. Môi trường kiểm thử mạng là Windows, không phải mạng của iPhone.
+**Chưa có iPhone kết nối để xác nhận** việc nhập beta.4, hiện trong bảng chia sẻ thực tế của từng ứng dụng, các hộp cấp quyền, chạy toàn bộ tác vụ và lưu vào Ảnh. Chưa xác nhận tải đủ tệp lớn, phát hết video hoặc có âm thanh. Môi trường kiểm thử mạng là Windows, không phải mạng của iPhone.
 
-Facebook ảnh/album chưa hỗ trợ. Bài riêng tư, Stories, livestream và nội dung cần đăng nhập chưa hỗ trợ. Dịch vụ có thể thay đổi hoặc giới hạn lượt gọi. Các báo cáo Safari cũ (`browser-results.json`, `live-probe-results.json`) không đại diện cho luồng beta.3.
+Facebook ảnh/album chưa hỗ trợ. Bài riêng tư, Stories, livestream và nội dung cần đăng nhập chưa hỗ trợ. Dịch vụ có thể thay đổi hoặc giới hạn lượt gọi. Các báo cáo Safari cũ (`browser-results.json`, `live-probe-results.json`) không đại diện cho luồng beta.4.

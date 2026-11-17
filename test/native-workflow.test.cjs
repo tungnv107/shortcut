@@ -38,6 +38,33 @@ test('share sheet accepts URLs and text and requires no companion app or Safari 
     }
   }
 });
+test('Get URLs uses the iOS text-slot envelope and a connected Input placeholder', () => {
+  // Independent wire-format reference, not inferred from our generic token resolver:
+  // https://github.com/viticci/shortcuts-playground-plugin/blob/main/codex/skills/shortcuts-playground/BEST_PRACTICES.md
+  // Cherri also declares getURLs input as text: actions/web.cherri.
+  const actions=workflow.WFWorkflowActions.filter(a=>a.WFWorkflowActionIdentifier==='is.workflow.actions.detect.link');
+  assert.equal(actions.length,1);
+  assert.deepEqual(actions[0].WFWorkflowActionParameters.WFInput,{
+    WFSerializationType:'WFTextTokenString',
+    Value:{string:'\uFFFC',attachmentsByRange:{'{0, 1}':{Type:'Variable',VariableName:'Input'}}}
+  });
+});
+test('beta.3 bare-attachment regression loses share input in the text-slot model',async()=>{
+  const oldShape=structuredClone(workflow);
+  const action=oldShape.WFWorkflowActions.find(a=>a.WFWorkflowActionIdentifier==='is.workflow.actions.detect.link');
+  action.WFWorkflowActionParameters.WFInput={WFSerializationType:'WFTextTokenAttachment',Value:{Type:'Variable',VariableName:'Input'}};
+  const r=await runWorkflow(oldShape,{input:ig,request:()=>assert.fail('Must not reach the downloader')});
+  assert.equal(r.saved.length,0);
+  assert.match(r.alerts[0],/Chưa nhận được link HTTPS/);
+});
+test('Instagram URL and caption shared by the app both reach the downloader',async()=>{
+  for(const input of [ig,'📸 Before training, there’s always the walk in 💛\n'+ig]) {
+    const r=await run(input,fixture('instagram-photos'));
+    assert.equal(r.alerts.length,0);
+    assert.equal(r.saved.length,5);
+    assert.equal(new URL(r.requests[0].url).searchParams.get('url'),ig);
+  }
+});
 test('TikTok share text selects one HD video without cover/music/watermarked copies', async () => {
   const result=await run('Xem video này '+tt,{code:0,data:{hdplay:'/video/media/hdplay/123.mp4',play:media('sd.mp4'),wmplay:media('wm.mp4'),cover:media('cover.jpg'),music:media('music.mp3')}});
   assert.deepEqual(result.saved,[{url:'https://www.tikwm.com/video/media/hdplay/123.mp4',referer:'https://www.tikwm.com/'}]);

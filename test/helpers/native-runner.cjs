@@ -6,6 +6,10 @@ async function runWorkflow(workflow, { input, prompt, choose = items => items[0]
   const actions = workflow.WFWorkflowActions;
   const array = value => value == null || value === '' ? [] : Array.isArray(value) ? value : [value];
   const stringify = value => array(value).map(v => typeof v === 'object' ? JSON.stringify(v) : String(v)).join('\n');
+  // Text slots do not accept every serialization that generic variable slots do.
+  // A bare attachment in Get URLs can appear disconnected after iOS import.
+  const textSlot = value => typeof value === 'string' || value?.WFSerializationType === 'WFTextTokenString'
+    ? stringify(resolve(value)) : '';
   function resolve(value) {
     if (value == null || typeof value !== 'object') return value;
     if (value.WFSerializationType === 'WFTextTokenAttachment') return resolve(value.Value);
@@ -51,7 +55,7 @@ async function runWorkflow(workflow, { input, prompt, choose = items => items[0]
         case 'appendvariable': out = [...array(variables.get(p.WFVariableName)),...array(resolve(p.WFInput))]; variables.set(p.WFVariableName,out); break;
         case 'gettext': out = resolve(p.WFTextActionText); break;
         case 'ask': out = prompt; break;
-        case 'detect.link': out = stringify(resolve(p.WFInput)).match(/https?:\/\/[^\s<>"\u201d]+/gi) || []; break;
+        case 'detect.link': out = textSlot(p.WFInput).match(/https?:\/\/[^\s<>"\u201d]+/gi) || []; break;
         case 'text.match': out = stringify(resolve(p.text)).match(new RegExp(p.WFMatchTextPattern,p.WFMatchTextCaseSensitive ? 'g':'gi')) || []; break;
         case 'text.replace': out = stringify(resolve(p.WFInput)).replace(new RegExp(p.WFReplaceTextFind,p.WFReplaceTextCaseSensitive ? 'g':'gi'),resolve(p.WFReplaceTextReplace)); break;
         case 'getvalueforkey': out = resolve(p.WFInput)?.[p.WFDictionaryKey]; break;
