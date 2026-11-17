@@ -24,6 +24,23 @@ async function json(url,signal,accept){
   }
   throw failure;
 }
+function instagramURLs(data) {
+  // The provider uses one object for a Reel and an array of objects for a carousel.
+  // url[] holds quality variants of ONE media item; thumb/meta are not downloads.
+  const items=Array.isArray(data)?data:[data];
+  if(!items.length)throw new Error('Dịch vụ chưa trả về media cho bài Instagram này.');
+  return items.map(item=>{
+    if(!Array.isArray(item?.url))throw new Error('Dữ liệu media Instagram không hợp lệ.');
+    const variants=item.url.filter(x=>x&&typeof x.url==='string'&&['mp4','jpg','jpeg','png','webp'].includes(x.ext));
+    const video=variants.filter(x=>x.ext==='mp4');
+    const candidates=video.length?video:variants;
+    const best=candidates.toSorted((a,b)=>(parseFloat(b.quality)||0)-(parseFloat(a.quality)||0))[0];
+    if(!best)throw new Error('Dịch vụ chưa trả về tệp ảnh/video Instagram hỗ trợ.');
+    let u;try{u=new URL(best.url);}catch{throw new Error('Liên kết media Instagram không hợp lệ.');}
+    if(u.protocol!=='https:'||u.username||u.password||(u.port&&u.port!=='443'))throw new Error('Liên kết media Instagram không hợp lệ.');
+    return {url:u.toString(),ext:best.ext};
+  });
+}
 async function fallback(post,raw,config,signal) {
   const encoded=encodeURIComponent(post.url);let urls=[];
   if(post.platform==='tiktok'){
@@ -31,9 +48,8 @@ async function fallback(post,raw,config,signal) {
     if(r.code!==0)throw new Error('TikWM unavailable');
     urls=r.data.images?.length?r.data.images.map(url=>({url:new URL(url,'https://www.tikwm.com').toString(),ext:'jpg'})):[{url:new URL(r.data.hdplay||r.data.play,'https://www.tikwm.com').toString(),ext:'mp4'}];
   }else if(post.platform==='instagram'){
-    const r=await json('https://api.siputzx.my.id/api/d/sssinstagram?url='+encoded,signal,x=>x.status===true&&Array.isArray(x.data));
-    if(r.status!==true||!Array.isArray(r.data))throw new Error('Instagram provider unavailable');
-    urls=r.data.map(x=>x.url?.[0]).map(x=>{if(!x?.url||!['mp4','jpg','jpeg','png','webp'].includes(x.ext))throw new Error('Invalid media format');return x;});
+    const r=await json('https://api.siputzx.my.id/api/d/sssinstagram?url='+encoded,signal,x=>x.status===true&&(Array.isArray(x.data)||Array.isArray(x.data?.url)));
+    urls=instagramURLs(r.data);
   }else if(!post.photo){
     const r=await json('https://vkrdownloader.org/server/?api_key=vkrdownloader&vkr='+encoded,signal,x=>x.success&&Array.isArray(x.data?.downloads));
     const video=r.data?.downloads?.find(x=>x.ext==='mp4');if(video)urls=[video];
@@ -49,4 +65,4 @@ async function fallback(post,raw,config,signal) {
   }
   return {code:0,tail:'',provider:true};
 }
-module.exports={fallback};
+module.exports={fallback,instagramURLs};

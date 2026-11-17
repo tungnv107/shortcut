@@ -44,7 +44,11 @@ async function downloadPost({url,dir,config,signal,onChild}) {
   };
   const runVideo=()=>run('yt-dlp',ytArgs,{cwd:dir,signal,onChild});
   let result;
-  if(post.platform==='facebook'){
+  if(post.platform==='instagram'&&/\/(?:reels?|tv)\//.test(new URL(post.url).pathname)){
+    // Reels contain one video: yt-dlp can merge the separate video/audio tracks.
+    result=await runVideo();
+    if(!signal.aborted&&!await hasMedia())result=await runGallery();
+  }else if(post.platform==='facebook'){
     if(post.photo)result=await runGallery();
     else if(post.mixed){
       result=await (post.preferVideo?runVideo():runGallery());

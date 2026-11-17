@@ -1,0 +1,63 @@
+{
+  "checkedAt": "2026-11-17T03:54:30.047Z",
+  "shortcutVersion": "1.1.0-beta.3",
+  "backendSHA256": {
+    "downloader.cjs": "491e24980c2777e645a27e982ede40bc9856f30f7ef7c74b8d2528eb312a3116",
+    "fallback.cjs": "6acb066edf54f94d46e44b73ce6d188f531199f31da97a33ec8582ce7cfd362c"
+  },
+  "scope": "Server-only Instagram Reel fix; full authenticated HTTPS download and ffprobe for two previously failed jobs. iPhone execution not tested.",
+  "results": [
+    {
+      "case": "Previously failed Instagram Reel 1",
+      "status": "ready",
+      "message": "",
+      "provider": "direct",
+      "files": [
+        {
+          "name": "1.mp4",
+          "bytes": 7930611,
+          "mime": "video/mp4",
+          "sha256": "e41ef55bc904b334a3d0c824a1392ed7e2edd82fc411b249397972672a733e35",
+          "streams": [
+            {
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1920
+            },
+            {
+              "codec_name": "aac",
+              "codec_type": "audio"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "Previously failed Instagram Reel 2",
+      "status": "ready",
+      "message": "",
+      "provider": "direct",
+      "files": [
+        {
+          "name": "1.mp4",
+          "bytes": 8152575,
+          "mime": "video/mp4",
+          "sha256": "4f4fe75ffc86aaaaff8014dd1894203ac50c66a61952a7f26676c2bac357a057",
+          "streams": [
+            {
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1920
+            },
+            {
+              "codec_name": "aac",
+              "codec_type": "audio"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

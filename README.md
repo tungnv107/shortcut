@@ -4,6 +4,8 @@ Chia sẻ bài từ **Facebook / Instagram / TikTok → Thêm/Khác → Media Sa
 
 **Beta.3:** nhập tên album một lần cho mỗi lượt tải (mặc định **Media Saver**). Album cùng tên được dùng lại; nếu chưa có sẽ tạo mới. Không còn ghi cố định `Recents`. Link chia sẻ Facebook chuyển tới bài trong nhóm được nhận dạng; nội dung Facebook vẫn có thể yêu cầu đăng nhập.
 
+**Sửa máy chủ ngày 17/11/2026:** một số Instagram Reel bị báo “Dịch vụ dự phòng đang lỗi” vì nguồn trả một đối tượng media thay vì danh sách. Server nay nhận cả hai dạng và ưu tiên tải Reel trực tiếp bằng yt-dlp. Người dùng bản Shortcut hiện tại không cần cài lại hoặc đổi mã truy cập; chia sẻ lại bài sau bản sửa.
+
 ## Cài v1.1.0-beta.3
 
 Dùng **trang cài riêng** được quản trị viên gửi: sao chép mã truy cập → tải Shortcut → dán mã khi được hỏi → Thêm/Thay thế Media Saver cũ. Đây là thiết lập một lần. Trang cài và mã truy cập không được đăng lên GitHub.

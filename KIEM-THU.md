@@ -2,7 +2,17 @@
 
 ## Kiểm tra mã
 
-`npm run verify`: **60/60 test đạt** trên Node.js 24. Trong đó 7 test cho Shortcut VPS, 9 test HTTP/backend và 44 test giữ lại cho các luồng/collector trước. Test cũ không được tính là kiểm tra tải thực tế của VPS.
+`npm run verify`: **65/65 test đạt** trên Node.js 24 sau bản sửa server Instagram Reel. Trong đó 7 test cho Shortcut VPS, 9 test HTTP/backend, 5 test phản hồi Instagram và 44 test giữ lại cho các luồng/collector trước. Báo cáo đi kèm tệp Shortcut beta.3 giữ kết quả 60 test tại lúc phát hành; không cần phát hành lại tệp cài cho thay đổi chỉ ở server.
+
+## Sửa phản hồi Reel đơn trên máy chủ
+
+Hai tác vụ Reel lúc 10:37 và 10:39 ngày 17/11/2026 bị báo “Dịch vụ dự phòng đang lỗi”. Đối chiếu nguồn thật cho thấy HTTP 200, `status: true`, nhưng `data` là một đối tượng có `url[]`; carousel trả `data` dạng mảng. Mã cũ chỉ chấp nhận mảng, nên thử lại ba lần rồi báo lỗi dù phản hồi hợp lệ. VPS vẫn khỏe và các album ảnh khác vẫn tải được; không phải lỗi mã truy cập hay đầy bộ nhớ.
+
+Server nhận cả đối tượng đơn và danh sách. Mỗi media chọn một chất lượng phù hợp, ưu tiên video thay vì ảnh bìa trong cùng mục; bỏ `thumb`/`meta`; dữ liệu sai không được biến thành album thành công. Các bài `/reel/`, `/reels/`, `/tv/` thử yt-dlp trước để ghép luồng video/âm thanh, rồi mới gallery-dl và nguồn dự phòng. Luồng tải carousel giữ nguyên. Xem [cơ chế chọn định dạng yt-dlp](https://github.com/yt-dlp/yt-dlp#format-selection).
+
+Năm test mới bao gồm Reel đơn, carousel hỗn hợp đúng thứ tự, ảnh đơn, dữ liệu thiếu/sai và URL không hợp lệ. Phần chuẩn hóa media và hợp đồng API với Shortcut không thay đổi; mã truy cập và tệp cài beta.3 vẫn dùng tiếp.
+
+Sau khi đối chiếu SHA-256 mã backend đang chạy, đã gửi lại **đúng hai Reel từng lỗi**, tải đầy đủ tệp qua HTTPS có xác thực, so SHA-256 với tệp VPS và đọc codec bằng ffprobe. Cả hai trả `ready` qua bộ tải trực tiếp. Báo cáo [artifacts/instagram-reels-live-results.json](artifacts/instagram-reels-live-results.json) ghi kết quả và hash backend, không chứa URL bài người dùng, cookie hoặc token. Đây là kiểm tra server, không phải thao tác lưu thật trên iPhone.
 
 Luồng mới có **105 tác vụ Phím tắt gốc**: nhận URL/văn bản từ bảng chia sẻ, hỏi liên kết nếu mở trực tiếp, gửi POST JSON có Bearer token, theo dõi trạng thái, kiểm tra ID tệp rồi tải từ cùng VPS và lưu vào Ảnh. Một câu hỏi nhập mã được gắn vào tác vụ văn bản thứ ba. Cấu trúc import question được đối chiếu [Cherri shortcutgen.go](https://github.com/electrikmilk/cherri/blob/main/shortcutgen.go).
 
