@@ -57,7 +57,11 @@ async function runWorkflow(workflow, { input, prompt, albumName = 'Media Saver',
         case 'gettext': out = resolve(p.WFTextActionText); break;
         case 'ask': out = p.WFInputType==='Text'?albumName:prompt; break;
         case 'detect.link': out = textSlot(p.WFInput).match(/https?:\/\/[^\s<>"\u201d]+/gi) || []; break;
-        case 'text.match': out = stringify(resolve(p.text)).match(new RegExp(p.WFMatchTextPattern,p.WFMatchTextCaseSensitive ? 'g':'gi')) || []; break;
+        case 'text.match': {
+          // Apple uses ICU regex; JavaScript has no inline (?m) modifier.
+          const multiline=p.WFMatchTextPattern.startsWith('(?m)');
+          out=stringify(resolve(p.text)).match(new RegExp(p.WFMatchTextPattern.replace(/^\(\?m\)/,''),(p.WFMatchTextCaseSensitive?'g':'gi')+(multiline?'m':'')))||[];break;
+        }
         case 'text.replace': out = stringify(resolve(p.WFInput)).replace(new RegExp(p.WFReplaceTextFind,p.WFReplaceTextCaseSensitive ? 'g':'gi'),resolve(p.WFReplaceTextReplace)); break;
         case 'getvalueforkey': out = resolve(p.WFInput)?.[p.WFDictionaryKey]; break;
         case 'getitemfromlist': {
@@ -71,7 +75,7 @@ async function runWorkflow(workflow, { input, prompt, albumName = 'Media Saver',
         case 'geturlcomponent': out = new URL(resolve(p.WFURL)).hostname; break;
         case 'urlencode': out = encodeURIComponent(resolve(p.WFInput)); break;
         case 'count': out = array(resolve(p.Input)).length; break;
-        case 'choosefromlist': out = choose(array(resolve(p.WFInput))); break;
+        case 'choosefromlist': out = choose(array(resolve(p.WFInput)),p); break;
         case 'downloadurl': {
           const url = resolve(p.WFURL); const headers = {};
           for(const item of p.WFHTTPHeaders?.Value.WFDictionaryFieldValueItems || []) headers[resolve(item.WFKey)] = resolve(item.WFValue);

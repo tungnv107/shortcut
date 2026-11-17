@@ -81,15 +81,33 @@ function buildNativeWorkflow() {
     const manifest=asText(get(state,'fileIds'),'Danh sách mã tệp');
     requireValue(match(manifest,'^[a-f0-9]{32}(?:\\n[a-f0-9]{32}){0,499}$'),'VPS chưa trả về danh sách mã tệp hợp lệ. Hãy cập nhật dịch vụ Media Saver.');
     const files=set('MediaFileIds',match(manifest,'[a-f0-9]{32}'));
-    const total=count(files);
+    const available=count(files);
     when(status,4,()=>action('alert','Kết quả một phần',{WFAlertActionTitle:'Media Saver',WFAlertActionMessage:text(get(state,'message')),WFAlertActionCancelButtonShown:true}),undefined,'partial');
+    const positions=set('SelectedPositions',asText('1','Vị trí tệp duy nhất'));
+    when(available,2,()=>{
+      // Human-readable labels contain only an ordinal, media type and size, never file IDs.
+      // The ordinal is resolved against the validated ID manifest below.
+      const label='[1-9][0-9]{0,2} · (?:Ảnh|Video) · [0-9]+\\.[0-9]{2} MB';
+      const labels=asText(get(state,'fileChoices'),'Danh sách ảnh và video');
+      requireValue(match(labels,'^'+label+'(?:\\n'+label+'){1,499}$'),'VPS chưa trả về danh sách để chọn. Hãy cập nhật dịch vụ Media Saver.');
+      const options=match(asText(text('Tải tất cả\n',labels)),'(?m)^(?:Tải tất cả|'+label+')$');
+      const selected=action('choosefromlist','Chọn ảnh hoặc video',{WFInput:token(options),WFChooseFromListActionPrompt:'Chọn ảnh/video theo số thứ tự trong bài, rồi bấm Xong. Có thể chọn nhiều mục hoặc Tải tất cả.',WFChooseFromListActionSelectMultiple:true,WFChooseFromListActionSelectAll:false});
+      when(selected,101,()=>action('exit','Không chọn media'));
+      const selectedText=asText(selected,'Các mục đã chọn');
+      when(match(selectedText,'(?m)^Tải tất cả$'),100,
+        ()=>set('SelectedPositions',match(labels,'(?m)^[1-9][0-9]{0,2}(?= · )')),
+        ()=>set('SelectedPositions',match(selectedText,'(?m)^[1-9][0-9]{0,2}(?= · )')));
+      requireValue(positions,'Chưa chọn được ảnh hoặc video hợp lệ.');
+    },undefined,1);
+    const total=count(positions);
     const album=asText(action('ask','Chọn tên album',{WFAskActionPrompt:'Tên album để lưu. Nếu chưa có album này, Media Saver sẽ tạo mới.',WFInputType:'Text',WFAskActionDefaultAnswer:'Media Saver'}),'Album đích');
     requireValue(match(album,'\\S'),'Chưa nhập tên album để lưu.');
     // Explicit cursor: never depend on the scope/name of Repeat Item in the polling loop.
     const cursor=set('MediaIndex',action('number','Bắt đầu từ tệp đầu',{WFNumberActionNumber:'1'}));
     const downloads=uuid('download-files');
     action('repeat.count','Tải từng tệp',{GroupingIdentifier:downloads,WFControlFlowMode:0,WFRepeatCount:token(total)});
-      const id=asText(action('getitemfromlist','Lấy mã theo vị trí',{WFInput:token(files),WFItemSpecifier:'Item At Index',WFItemIndex:text(cursor)}),'Mã tệp hiện tại');
+      const position=asText(action('getitemfromlist','Lấy vị trí đã chọn',{WFInput:token(positions),WFItemSpecifier:'Item At Index',WFItemIndex:text(cursor)}),'Vị trí trong bài');
+      const id=asText(action('getitemfromlist','Lấy mã theo vị trí',{WFInput:token(files),WFItemSpecifier:'Item At Index',WFItemIndex:text(position)}),'Mã tệp hiện tại');
       requireValue(match(id,'^[a-f0-9]{32}$'),'Không đọc được mã tệp ở vị trí hiện tại.');
       const file=api(asText(text(base,'/v1/files/',job,'/',id)));
       // Apple's Create Photo Album action reuses an existing album with this name.

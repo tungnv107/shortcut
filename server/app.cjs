@@ -20,7 +20,10 @@ async function createService(config,{downloader=downloadPost}={}) {
   };
   // Plain text avoids Shortcuts coercing an array of JSON dictionaries inside a repeat.
   // Keep files unchanged for existing clients; IDs still require Bearer authentication.
-  const view=job=>({ok:true,id:job.id,status:job.status,message:job.message||'',provider:job.provider||'',fileIds:(job.files||[]).map(f=>f.id).join('\n'),files:(job.files||[]).map(f=>({id:f.id,name:f.name,mime:f.mime,size:f.size})),expiresAt:new Date(job.createdAt+config.ttlMs).toISOString()});
+  const view=job=>({ok:true,id:job.id,status:job.status,message:job.message||'',provider:job.provider||'',
+    fileIds:(job.files||[]).map(f=>f.id).join('\n'),
+    fileChoices:(job.files||[]).map((f,i)=>`${i+1} · ${f.mime.startsWith('video/')?'Video':'Ảnh'} · ${(f.size/1e6).toFixed(2)} MB`).join('\n'),
+    files:(job.files||[]).map(f=>({id:f.id,name:f.name,mime:f.mime,size:f.size})),expiresAt:new Date(job.createdAt+config.ttlMs).toISOString()});
   const usage=async()=>[...await walk(config.dataDir)].reduce((n,f)=>n+f.size,0);
   async function clean() {
     for(const job of jobs.values())if(!active.has(job.id)&&!queue.includes(job.id)&&Date.now()-job.createdAt>config.ttlMs) {

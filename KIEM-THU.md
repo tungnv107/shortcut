@@ -1,8 +1,28 @@
-# Kiểm thử Media Saver 1.1.0-beta.3 — 17/11/2026
+# Kiểm thử Media Saver 1.1.0-beta.4 — 17/11/2026
 
 ## Kiểm tra mã
 
-`npm run verify`: **65/65 test đạt** trên Node.js 24 sau bản sửa server Instagram Reel. Trong đó 7 test cho Shortcut VPS, 9 test HTTP/backend, 5 test phản hồi Instagram và 44 test giữ lại cho các luồng/collector trước. Báo cáo đi kèm tệp Shortcut beta.3 giữ kết quả 60 test tại lúc phát hành; không cần phát hành lại tệp cài cho thay đổi chỉ ở server.
+`npm run verify`: **69/69 test đạt** trên Node.js 24. Trong đó 11 test cho Shortcut VPS, 9 test HTTP/backend, 5 test phản hồi Instagram và 44 test giữ lại cho các luồng/collector trước.
+
+## Chọn ảnh/video trước khi tải về iPhone ở beta.4
+
+Bài có nhiều media dùng tác vụ **Choose from List**, bật chọn nhiều và tắt chọn sẵn tất cả. Mỗi dòng gồm số thứ tự, loại Ảnh/Video và dung lượng MB; mục **Tải tất cả** lấy toàn bộ, kể cả khi đồng thời đánh dấu một mục khác, không tải trùng. Danh sách chưa có ảnh xem trước. Hủy hoặc không chọn sẽ dừng trước khi hỏi album/tải tệp. Bài một media bỏ qua bộ chọn. Cấu hình hai tùy chọn được đối chiếu [catalog tác vụ Shortcuts](https://github.com/frontboat/shortcutkit/blob/main/data/builtin-actions.json).
+
+API bổ sung `fileChoices` dạng văn bản theo đúng thứ tự `fileIds`, không đổi các trường cũ. Shortcut trích số thứ tự đã chọn, tra trong danh sách ID được kiểm tra và chỉ gửi yêu cầu tải cho những mục đó. Vẫn dùng biến đếm riêng, không dùng `Repeat Item` hoặc `Repeat Index`. Thông báo hoàn tất đếm số tệp được chọn. Bản cũ vẫn dùng được với backend mới; backend cũ chưa có `fileChoices` sẽ được báo cần cập nhật khi bài có nhiều mục.
+
+Bốn test mới kiểm tra bài hỗn hợp ảnh/video chọn các vị trí không liền nhau, chọn một, tải tất cả cùng một mục khác, hủy, bài đơn, chọn link bài vẫn là lựa chọn đơn, metadata thiếu/sai và vị trí ngoài phạm vi không được tạo yêu cầu tải. Test API kiểm tra nhãn, dung lượng và thứ tự cho bài có cả ảnh/video. Các test 1/5/8/100 tệp được giữ để kiểm tra lựa chọn toàn bộ.
+
+Đã chạy workflow beta.4 trong mô hình tác vụ với **API HTTPS thật** và so SHA-256 toàn bộ tệp tải về với tệp trên VPS:
+
+| Ca kiểm tra | Media sẵn có | Đã chọn | Số tệp thực tải |
+|---|---:|---|---:|
+| Album ảnh | 5 | 2, 5 | 2 |
+| Album video | 3 | 2 | 1 |
+| Tải tất cả và một mục khác | 5 | Toàn bộ | 5 |
+| Không chọn | 5 | Không có | 0 |
+| Bài đơn | 1 | Tự lấy, không hiện bộ chọn | 1 |
+
+Probe chặn nếu workflow cố yêu cầu một tệp không thuộc lựa chọn. Báo cáo [artifacts/selection-live-results.json](artifacts/selection-live-results.json) ghi hash workflow/backend đang chạy và kết quả, không chứa URL riêng hoặc token. **Đây không phải kiểm thử giao diện chọn hoặc lưu vào Ảnh trên iPhone thật.** VPS vẫn xử lý toàn bộ media trước khi cho chọn, giữ nguyên TTL một giờ; lựa chọn không giảm dung lượng xử lý ban đầu trên máy chủ.
 
 ## Sửa phản hồi Reel đơn trên máy chủ
 
@@ -14,7 +34,7 @@ Năm test mới bao gồm Reel đơn, carousel hỗn hợp đúng thứ tự, �
 
 Sau khi đối chiếu SHA-256 mã backend đang chạy, đã gửi lại **đúng hai Reel từng lỗi**, tải đầy đủ tệp qua HTTPS có xác thực, so SHA-256 với tệp VPS và đọc codec bằng ffprobe. Cả hai trả `ready` qua bộ tải trực tiếp. Báo cáo [artifacts/instagram-reels-live-results.json](artifacts/instagram-reels-live-results.json) ghi kết quả và hash backend, không chứa URL bài người dùng, cookie hoặc token. Đây là kiểm tra server, không phải thao tác lưu thật trên iPhone.
 
-Luồng mới có **105 tác vụ Phím tắt gốc**: nhận URL/văn bản từ bảng chia sẻ, hỏi liên kết nếu mở trực tiếp, gửi POST JSON có Bearer token, theo dõi trạng thái, kiểm tra ID tệp rồi tải từ cùng VPS và lưu vào Ảnh. Một câu hỏi nhập mã được gắn vào tác vụ văn bản thứ ba. Cấu trúc import question được đối chiếu [Cherri shortcutgen.go](https://github.com/electrikmilk/cherri/blob/main/shortcutgen.go).
+Luồng hiện tại có **138 tác vụ Phím tắt gốc**: nhận URL/văn bản từ bảng chia sẻ, hỏi liên kết nếu mở trực tiếp, gửi POST JSON có Bearer token, theo dõi trạng thái, chọn media, kiểm tra ID tệp rồi tải từ cùng VPS và lưu vào Ảnh. Một câu hỏi nhập mã được gắn vào tác vụ văn bản thứ ba. Cấu trúc import question được đối chiếu [Cherri shortcutgen.go](https://github.com/electrikmilk/cherri/blob/main/shortcutgen.go).
 
 Các test mới kiểm tra: chỉ gửi mã tới VPS; tải theo đúng trạng thái; không lưu khi lỗi; chặn ID tệp có URL; giới hạn số lần chờ; xác thực API; URL giả/nội bộ; Range; gộp tác vụ trùng; giới hạn hàng đợi đồng thời; hết hạn tệp; kết quả một phần; trang cài riêng; loại cache codec cũ khi restart. Dùng downloader giả cho test API, không gọi nền tảng trong unit test.
 
@@ -36,7 +56,7 @@ Beta.2 bổ sung `fileIds` dạng văn bản, mỗi dòng một ID; vẫn giữ 
 
 Test mới bao gồm danh sách 1/5/8/100 tệp đúng thứ tự, metadata dictionary không dùng tới, danh sách thiếu/sai có URL lạ phải dừng trước khi tải, và hợp đồng `fileIds` khớp `files` của API. Đây là kiểm tra hướng xử lý mới, không phải mô phỏng đã chứng minh tái hiện chính xác lỗi runtime của beta.1.
 
-Đã chạy **workflow hiện tại trong mô hình tác vụ với API thật** trên VPS cho đúng hai bài Instagram vừa chia sẻ: **5/5 và 8/8 ảnh**. Tải toàn bộ 13 tệp qua HTTPS có Bearer, so số byte, dấu hiệu JPEG và SHA-256 với tệp trên VPS. Thông báo hoàn tất được đi tới trong mô hình; thao tác lưu chỉ được thu nhận trong bộ kiểm tra, **không lưu vào thư viện Ảnh trên iPhone**. Báo cáo [artifacts/shortcut-live-results.json](artifacts/shortcut-live-results.json) được cập nhật khi kiểm tra lại beta.3, không chứa URL bài cá nhân, token hoặc link cài riêng.
+Đã chạy **workflow beta.3 trong mô hình tác vụ với API thật** trên VPS cho đúng hai bài Instagram vừa chia sẻ: **5/5 và 8/8 ảnh**. Tải toàn bộ 13 tệp qua HTTPS có Bearer, so số byte, dấu hiệu JPEG và SHA-256 với tệp trên VPS. Thông báo hoàn tất được đi tới trong mô hình; thao tác lưu chỉ được thu nhận trong bộ kiểm tra, **không lưu vào thư viện Ảnh trên iPhone**. Báo cáo [artifacts/shortcut-live-results.json](artifacts/shortcut-live-results.json) được cập nhật khi kiểm tra lại beta.3, không chứa URL bài cá nhân, token hoặc link cài riêng.
 
 ## Tải thực tế trên VPS từ beta.1
 
@@ -65,6 +85,6 @@ Shortcut được Shortcuty ký chế độ `anyone`, kiểm tra marker `AEA1`, 
 
 ## Chưa xác nhận
 
-Chưa có iPhone kết nối để thử nhập bản 1.1.0-beta.3, câu hỏi mã truy cập, hiển thị trong bảng chia sẻ từng ứng dụng, quyền truy cập và lưu vào Ảnh. Kiểm tra codec không phải phát toàn bộ video trên iPhone. Ảnh lỗi beta.1 và metadata VPS xác nhận thiết bị đã nhận link, xác thực và đến bước đọc tệp; chưa xác nhận bước lưu sau bản sửa.
+Chưa có iPhone kết nối để thử nhập bản 1.1.0-beta.4, câu hỏi mã truy cập, hiển thị trong bảng chia sẻ từng ứng dụng, giao diện chọn nhiều media, quyền truy cập và lưu vào Ảnh. Kiểm tra codec không phải phát toàn bộ video trên iPhone. Ảnh lỗi beta.1 và metadata VPS xác nhận thiết bị đã nhận link, xác thực và đến bước đọc tệp; chưa xác nhận bước lưu sau bản sửa.
 
 Ảnh/album Facebook chưa đạt trong thử nghiệm; cookie có thể cần nhưng chưa được cung cấp hoặc kiểm tra. Nội dung riêng tư, Stories, livestream, bài bị giới hạn vùng và mọi dạng link rút gọn chưa được xác nhận. Cấu hình giới hạn 100 tệp/512 MiB mỗi bài và thời gian xử lý có thể khiến bài lớn không tải hết. Nguồn tải có thể thay đổi sau thời điểm kiểm tra.

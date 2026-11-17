@@ -47,11 +47,15 @@ test('job completes, file is streamed with Range, same URL is deduplicated',asyn
 });
 test('plain file manifest exactly matches the metadata IDs for a multi-file album',async t=>{
  const s=await service(t,async({dir})=>{
-  const files=[];for(let i=1;i<=5;i++){await fs.writeFile(path.join(dir,i+'.jpg'),'test-media');files.push({name:i+'.jpg',mime:'image/jpeg',size:10});}return {files};
+  const files=[];for(let i=1;i<=5;i++){
+   const name=i+(i%2?'.jpg':'.mp4'),bytes=Buffer.alloc(i*10000);
+   await fs.writeFile(path.join(dir,name),bytes);files.push({name,mime:i%2?'image/jpeg':'video/mp4',size:bytes.length});
+  }return {files};
  });
  const created=await(await s.call('/v1/jobs',{method:'POST',body:JSON.stringify({url:post})})).json();
  const job=await ready(s,created.id);assert.equal(job.fileIds.split('\n').length,5);
  assert.deepEqual(job.fileIds.split('\n'),job.files.map(f=>f.id));
+ assert.deepEqual(job.fileChoices.split('\n'),['1 · Ảnh · 0.01 MB','2 · Video · 0.02 MB','3 · Ảnh · 0.03 MB','4 · Video · 0.04 MB','5 · Ảnh · 0.05 MB']);
 });
 test('invalid URLs never start a worker; failed jobs expose no files',async t=>{
  let calls=0;const s=await service(t,async()=>{calls++;throw new Error('Need cookies');});

@@ -1,0 +1,120 @@
+{
+  "checkedAt": "2026-11-17T06:32:09.529Z",
+  "version": "1.1.0-beta.4",
+  "scope": "Shortcut action model against live authenticated HTTPS API; full selected files checked against VPS hashes; not an iPhone UI/Photos test.",
+  "workflowSHA256": "3859d13b3abb6cbcfcfa08534dfffbdb563601288fa42105faa28ef037472d04",
+  "backendSHA256": "d4695ac830db74996b6166fa5a2708b95a9301734b2e1d77cec03ea348e09d1b",
+  "results": [
+    {
+      "case": "Photo subset",
+      "status": "passed",
+      "availableFiles": 5,
+      "selectedPositions": [
+        2,
+        5
+      ],
+      "downloadedFiles": 2,
+      "files": [
+        {
+          "position": 2,
+          "bytes": 165163,
+          "mime": "image/jpeg",
+          "sha256": "066fc17552d63e84ff376283b12e3fac72cb9b48b7a6274862b7805a2c93e3a4"
+        },
+        {
+          "position": 5,
+          "bytes": 237646,
+          "mime": "image/jpeg",
+          "sha256": "7acb14bacaf75c51dcc853a10290f8a25b0bda0168b25bca78ae0d678b4cae43"
+        }
+      ]
+    },
+    {
+      "case": "Video subset",
+      "status": "passed",
+      "availableFiles": 3,
+      "selectedPositions": [
+        2
+      ],
+      "downloadedFiles": 1,
+      "files": [
+        {
+          "position": 2,
+          "bytes": 2526611,
+          "mime": "video/mp4",
+          "sha256": "59037a83d650a2a54d38b553b077a632a02e2d2d194b4ae7b6af5673fccc273c"
+        }
+      ]
+    },
+    {
+      "case": "Select all plus another item",
+      "status": "passed",
+      "availableFiles": 5,
+      "selectedPositions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "downloadedFiles": 5,
+      "files": [
+        {
+          "position": 1,
+          "bytes": 240006,
+          "mime": "image/jpeg",
+          "sha256": "ec41c38b4c08e230baece587e2c397500da48218072013508cb36a1b926172d5"
+        },
+        {
+          "position": 2,
+          "bytes": 165163,
+          "mime": "image/jpeg",
+          "sha256": "066fc17552d63e84ff376283b12e3fac72cb9b48b7a6274862b7805a2c93e3a4"
+        },
+        {
+          "position": 3,
+          "bytes": 255353,
+          "mime": "image/jpeg",
+          "sha256": "5efaae39ce53fca603049e3a12ad6dc9ead209b8e37327082b724b66cba0d0f5"
+        },
+        {
+          "position": 4,
+          "bytes": 131861,
+          "mime": "image/jpeg",
+          "sha256": "dcd52d1c722cbaf8151aadefd60dec7b4fdca278b507b27b2b1e590c6cc52fb0"
+        },
+        {
+          "position": 5,
+          "bytes": 237646,
+          "mime": "image/jpeg",
+          "sha256": "7acb14bacaf75c51dcc853a10290f8a25b0bda0168b25bca78ae0d678b4cae43"
+        }
+      ]
+    },
+    {
+      "case": "Cancelled selection",
+      "status": "passed",
+      "availableFiles": 5,
+      "selectedPositions": [],
+      "downloadedFiles": 0,
+      "files": []
+    },
+    {
+      "case": "Single media bypass",
+      "status": "passed",
+      "availableFiles": 1,
+      "selectedPositions": [
+        1
+      ],
+      "downloadedFiles": 1,
+      "files": [
+        {
+          "position": 1,
+          "bytes": 15119088,
+          "mime": "video/mp4",
+          "sha256": "95eb16a4e4bc936c55cc61bd3f51e8b9f6a99a2e5581dee43108d82d40e23196"
+        }
+      ]
+    }
+  ]
+}

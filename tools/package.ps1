@@ -11,7 +11,9 @@ try {
     Copy-Item -LiteralPath (Join-Path $taskRoot 'artifacts/server-live-results.json') -Destination (Join-Path $taskDist 'SERVER-LIVE-RESULTS.json')
     Copy-Item -LiteralPath (Join-Path $taskRoot 'artifacts/shortcut-live-results.json') -Destination (Join-Path $taskDist 'SHORTCUT-LIVE-RESULTS.json')
     Copy-Item -LiteralPath (Join-Path $taskRoot 'artifacts/facebook-live-results.json') -Destination (Join-Path $taskDist 'FACEBOOK-LIVE-RESULTS.json')
+    Copy-Item -LiteralPath (Join-Path $taskRoot 'artifacts/selection-live-results.json') -Destination (Join-Path $taskDist 'SELECTION-LIVE-RESULTS.json')
     $taskNames = @('Media-Saver.unsigned.shortcut', 'workflow.json', 'HUONG-DAN-IPHONE.md', 'DOCKER-VPS.md', 'KIEM-THU.md', 'SERVER-LIVE-RESULTS.json', 'SHORTCUT-LIVE-RESULTS.json', 'FACEBOOK-LIVE-RESULTS.json')
+    $taskNames += 'SELECTION-LIVE-RESULTS.json'
     $taskSignedPath = Join-Path $taskDist 'Media-Saver.shortcut'
     if (Test-Path -LiteralPath $taskSignedPath) {
         $taskReportPath = Join-Path $taskRoot 'artifacts/signing/verification.json'
