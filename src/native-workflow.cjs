@@ -83,6 +83,8 @@ function buildNativeWorkflow() {
     const files=set('MediaFileIds',match(manifest,'[a-f0-9]{32}'));
     const total=count(files);
     when(status,4,()=>action('alert','Kết quả một phần',{WFAlertActionTitle:'Media Saver',WFAlertActionMessage:text(get(state,'message')),WFAlertActionCancelButtonShown:true}),undefined,'partial');
+    const album=asText(action('ask','Chọn tên album',{WFAskActionPrompt:'Tên album để lưu. Nếu chưa có album này, Media Saver sẽ tạo mới.',WFInputType:'Text',WFAskActionDefaultAnswer:'Media Saver'}),'Album đích');
+    requireValue(match(album,'\\S'),'Chưa nhập tên album để lưu.');
     // Explicit cursor: never depend on the scope/name of Repeat Item in the polling loop.
     const cursor=set('MediaIndex',action('number','Bắt đầu từ tệp đầu',{WFNumberActionNumber:'1'}));
     const downloads=uuid('download-files');
@@ -90,10 +92,11 @@ function buildNativeWorkflow() {
       const id=asText(action('getitemfromlist','Lấy mã theo vị trí',{WFInput:token(files),WFItemSpecifier:'Item At Index',WFItemIndex:text(cursor)}),'Mã tệp hiện tại');
       requireValue(match(id,'^[a-f0-9]{32}$'),'Không đọc được mã tệp ở vị trí hiện tại.');
       const file=api(asText(text(base,'/v1/files/',job,'/',id)));
-      action('savetocameraroll','Lưu vào Ảnh',{WFInput:token(file),WFCameraRollSelectedGroup:'Recents'});
+      // Apple's Create Photo Album action reuses an existing album with this name.
+      action('photos.createalbum','Lưu vào album',{WFInput:token(file),AlbumName:text(album)});
       set('MediaIndex',action('math','Chuyển sang tệp tiếp theo',{WFInput:text(cursor),WFMathOperation:'+',WFMathOperand:'1'}));
     action('repeat.count','Kết thúc tải tệp',{GroupingIdentifier:downloads,WFControlFlowMode:2});
-    action('notification','Đã lưu media',{WFNotificationActionTitle:'Media Saver',WFNotificationActionBody:text('Đã lưu ',total,' tệp vào Ảnh.'),WFNotificationActionSound:false});
+    action('notification','Đã lưu media',{WFNotificationActionTitle:'Media Saver',WFNotificationActionBody:text('Đã lưu ',total,' tệp vào album ',album,'.'),WFNotificationActionSound:false});
     action('exit','Hoàn tất');
   });
   action('delay','Đợi hai giây',{WFDelayTime:2});

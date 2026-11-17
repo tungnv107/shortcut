@@ -56,9 +56,9 @@
           <key>WFCommentActionText</key>
           <string>Chia sẻ bài đăng → Media Saver. VPS tải và xử lý media; iPhone lưu vào Ảnh. Cấu hình một lần bằng mã truy cập riêng. Máy chủ giữ tệp tạm trong một giờ.</string>
           <key>CustomOutputName</key>
-          <string>Media Saver VPS 1.1.0-beta.2</string>
+          <string>Media Saver VPS 1.1.0-beta.3</string>
           <key>UUID</key>
-          <string>0FC819B0-FF32-43E4-A110-2751B4002260</string>
+          <string>BE546E01-300F-4117-A97A-BEBF37A18C08</string>
         </dict>
       </dict>
       <dict>
@@ -2065,6 +2065,168 @@
       </dict>
       <dict>
         <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.ask</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAskActionPrompt</key>
+          <string>Tên album để lưu. Nếu chưa có album này, Media Saver sẽ tạo mới.</string>
+          <key>WFInputType</key>
+          <string>Text</string>
+          <key>WFAskActionDefaultAnswer</key>
+          <string>Media Saver</string>
+          <key>CustomOutputName</key>
+          <string>Chọn tên album</string>
+          <key>UUID</key>
+          <string>D48CCFDB-ED36-467D-AA78-5594B69403D7</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.gettext</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFTextActionText</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>D48CCFDB-ED36-467D-AA78-5594B69403D7</string>
+                  <key>OutputName</key>
+                  <string>Chọn tên album</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>CustomOutputName</key>
+          <string>Album đích</string>
+          <key>UUID</key>
+          <string>4F1DED3F-8995-4407-A81B-F1D0F62CAF87</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.text.match</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>text</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>4F1DED3F-8995-4407-A81B-F1D0F62CAF87</string>
+                  <key>OutputName</key>
+                  <string>Album đích</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFMatchTextPattern</key>
+          <string>\S</string>
+          <key>WFMatchTextCaseSensitive</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Khớp văn bản</string>
+          <key>UUID</key>
+          <string>D27129DA-FEAB-4EFF-A42C-6C36526AF35F</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>4D3B76F7-7757-4C4F-AB74-FD32FDEB63AF</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>WFCondition</key>
+          <integer>101</integer>
+          <key>WFInput</key>
+          <dict>
+            <key>Type</key>
+            <string>Variable</string>
+            <key>Variable</key>
+            <dict>
+              <key>Value</key>
+              <dict>
+                <key>Type</key>
+                <string>ActionOutput</string>
+                <key>OutputUUID</key>
+                <string>D27129DA-FEAB-4EFF-A42C-6C36526AF35F</string>
+                <key>OutputName</key>
+                <string>Khớp văn bản</string>
+              </dict>
+              <key>WFSerializationType</key>
+              <string>WFTextTokenAttachment</string>
+            </dict>
+          </dict>
+          <key>UUID</key>
+          <string>D45639AA-7BD5-46B5-AF66-EC7AB578B672</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <string>Chưa nhập tên album để lưu.</string>
+          <key>WFAlertActionCancelButtonShown</key>
+          <false/>
+          <key>CustomOutputName</key>
+          <string>Không tải được</string>
+          <key>UUID</key>
+          <string>1F5A17BE-F301-4EB9-AAD2-79FF01E8A289</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.exit</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>CustomOutputName</key>
+          <string>Dừng phím tắt</string>
+          <key>UUID</key>
+          <string>9C6743DE-5F41-45A4-A7FA-F2DA1A554CF0</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.conditional</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>4D3B76F7-7757-4C4F-AB74-FD32FDEB63AF</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>UUID</key>
+          <string>3F5C38DF-2713-4C7B-AB26-10AE20408774</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
         <string>is.workflow.actions.number</string>
         <key>WFWorkflowActionParameters</key>
         <dict>
@@ -2073,7 +2235,7 @@
           <key>CustomOutputName</key>
           <string>Bắt đầu từ tệp đầu</string>
           <key>UUID</key>
-          <string>B1ECC4BB-8CEB-4884-A4B6-62A0049DD05F</string>
+          <string>5D43B687-903E-45D3-A5FC-4D75C5379272</string>
         </dict>
       </dict>
       <dict>
@@ -2090,7 +2252,7 @@
               <key>Type</key>
               <string>ActionOutput</string>
               <key>OutputUUID</key>
-              <string>B1ECC4BB-8CEB-4884-A4B6-62A0049DD05F</string>
+              <string>5D43B687-903E-45D3-A5FC-4D75C5379272</string>
               <key>OutputName</key>
               <string>Bắt đầu từ tệp đầu</string>
             </dict>
@@ -2100,7 +2262,7 @@
           <key>CustomOutputName</key>
           <string>Đặt MediaIndex</string>
           <key>UUID</key>
-          <string>05534F4E-ABEA-4EA9-A688-73C9C83ED94C</string>
+          <string>766EB7F0-FB69-48B2-A4FE-670FD8337EE7</string>
         </dict>
       </dict>
       <dict>
@@ -2127,7 +2289,7 @@
             <string>WFTextTokenAttachment</string>
           </dict>
           <key>UUID</key>
-          <string>D77A15D3-2047-46C2-AB40-5955FEE53F12</string>
+          <string>957EA220-6AB3-44F9-A281-69BAEBF029A9</string>
         </dict>
       </dict>
       <dict>
@@ -2172,7 +2334,7 @@
           <key>CustomOutputName</key>
           <string>Lấy mã theo vị trí</string>
           <key>UUID</key>
-          <string>06C87BA0-6574-4DAF-AEB1-8B1AFA1489E8</string>
+          <string>50AAF95A-2ACC-4B57-A4C4-4F5B8C7D9792</string>
         </dict>
       </dict>
       <dict>
@@ -2193,7 +2355,7 @@
                   <key>Type</key>
                   <string>ActionOutput</string>
                   <key>OutputUUID</key>
-                  <string>06C87BA0-6574-4DAF-AEB1-8B1AFA1489E8</string>
+                  <string>50AAF95A-2ACC-4B57-A4C4-4F5B8C7D9792</string>
                   <key>OutputName</key>
                   <string>Lấy mã theo vị trí</string>
                 </dict>
@@ -2205,7 +2367,7 @@
           <key>CustomOutputName</key>
           <string>Mã tệp hiện tại</string>
           <key>UUID</key>
-          <string>2003D2B0-BEF6-49F3-ACE4-D04F9ACED1A8</string>
+          <string>91A930C4-C639-49D5-A749-7E09B7D5E8A7</string>
         </dict>
       </dict>
       <dict>
@@ -2226,7 +2388,7 @@
                   <key>Type</key>
                   <string>ActionOutput</string>
                   <key>OutputUUID</key>
-                  <string>2003D2B0-BEF6-49F3-ACE4-D04F9ACED1A8</string>
+                  <string>91A930C4-C639-49D5-A749-7E09B7D5E8A7</string>
                   <key>OutputName</key>
                   <string>Mã tệp hiện tại</string>
                 </dict>
@@ -2242,7 +2404,7 @@
           <key>CustomOutputName</key>
           <string>Khớp văn bản</string>
           <key>UUID</key>
-          <string>4CF6D125-0F1C-44A4-AD45-7A23E8ADF46B</string>
+          <string>3567CDFF-D180-417B-AFDD-E4C02BC63E93</string>
         </dict>
       </dict>
       <dict>
@@ -2251,7 +2413,7 @@
         <key>WFWorkflowActionParameters</key>
         <dict>
           <key>GroupingIdentifier</key>
-          <string>27F3ED79-F59F-49FA-A8BC-C22B89E14AC4</string>
+          <string>DF3306FE-D3C0-4687-AF4D-2B95479F2001</string>
           <key>WFControlFlowMode</key>
           <integer>0</integer>
           <key>WFCondition</key>
@@ -2267,7 +2429,7 @@
                 <key>Type</key>
                 <string>ActionOutput</string>
                 <key>OutputUUID</key>
-                <string>4CF6D125-0F1C-44A4-AD45-7A23E8ADF46B</string>
+                <string>3567CDFF-D180-417B-AFDD-E4C02BC63E93</string>
                 <key>OutputName</key>
                 <string>Khớp văn bản</string>
               </dict>
@@ -2276,7 +2438,7 @@
             </dict>
           </dict>
           <key>UUID</key>
-          <string>A1F73797-324B-41EE-AFDA-3B0FA92B63FE</string>
+          <string>FB69977A-9706-4303-AA76-F1EB539B291C</string>
         </dict>
       </dict>
       <dict>
@@ -2293,7 +2455,7 @@
           <key>CustomOutputName</key>
           <string>Không tải được</string>
           <key>UUID</key>
-          <string>C14E7308-D0DC-4902-A277-F7A3D60863AD</string>
+          <string>80F17AF9-62B1-4F20-ADD1-AB80B2D2771C</string>
         </dict>
       </dict>
       <dict>
@@ -2304,7 +2466,7 @@
           <key>CustomOutputName</key>
           <string>Dừng phím tắt</string>
           <key>UUID</key>
-          <string>6101A9BD-D859-4FDD-AA30-7E11F492DB4C</string>
+          <string>4DE149AD-5169-4A52-AB76-46085B4C20ED</string>
         </dict>
       </dict>
       <dict>
@@ -2313,11 +2475,11 @@
         <key>WFWorkflowActionParameters</key>
         <dict>
           <key>GroupingIdentifier</key>
-          <string>27F3ED79-F59F-49FA-A8BC-C22B89E14AC4</string>
+          <string>DF3306FE-D3C0-4687-AF4D-2B95479F2001</string>
           <key>WFControlFlowMode</key>
           <integer>2</integer>
           <key>UUID</key>
-          <string>F2EFF31D-AF41-4773-A448-BC7860FE221A</string>
+          <string>C41176C5-3010-4785-A872-C7BB5572A0D4</string>
         </dict>
       </dict>
       <dict>
@@ -2356,7 +2518,7 @@
                   <key>Type</key>
                   <string>ActionOutput</string>
                   <key>OutputUUID</key>
-                  <string>2003D2B0-BEF6-49F3-ACE4-D04F9ACED1A8</string>
+                  <string>91A930C4-C639-49D5-A749-7E09B7D5E8A7</string>
                   <key>OutputName</key>
                   <string>Mã tệp hiện tại</string>
                 </dict>
@@ -2368,7 +2530,7 @@
           <key>CustomOutputName</key>
           <string>Văn bản</string>
           <key>UUID</key>
-          <string>A1848C0B-AD41-4675-A129-C2822A006EE6</string>
+          <string>84990099-2BFF-4AD4-A8C3-85B35FA12828</string>
         </dict>
       </dict>
       <dict>
@@ -2389,7 +2551,7 @@
                   <key>Type</key>
                   <string>ActionOutput</string>
                   <key>OutputUUID</key>
-                  <string>A1848C0B-AD41-4675-A129-C2822A006EE6</string>
+                  <string>84990099-2BFF-4AD4-A8C3-85B35FA12828</string>
                   <key>OutputName</key>
                   <string>Văn bản</string>
                 </dict>
@@ -2454,12 +2616,12 @@
           <key>CustomOutputName</key>
           <string>Lấy dữ liệu từ VPS</string>
           <key>UUID</key>
-          <string>B1E52D1A-FB5E-4480-A983-999D883607E4</string>
+          <string>560DE11D-E8EB-46BE-AA32-B98EEF68A8A5</string>
         </dict>
       </dict>
       <dict>
         <key>WFWorkflowActionIdentifier</key>
-        <string>is.workflow.actions.savetocameraroll</string>
+        <string>is.workflow.actions.photos.createalbum</string>
         <key>WFWorkflowActionParameters</key>
         <dict>
           <key>WFInput</key>
@@ -2469,19 +2631,39 @@
               <key>Type</key>
               <string>ActionOutput</string>
               <key>OutputUUID</key>
-              <string>B1E52D1A-FB5E-4480-A983-999D883607E4</string>
+              <string>560DE11D-E8EB-46BE-AA32-B98EEF68A8A5</string>
               <key>OutputName</key>
               <string>Lấy dữ liệu từ VPS</string>
             </dict>
             <key>WFSerializationType</key>
             <string>WFTextTokenAttachment</string>
           </dict>
-          <key>WFCameraRollSelectedGroup</key>
-          <string>Recents</string>
+          <key>AlbumName</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>4F1DED3F-8995-4407-A81B-F1D0F62CAF87</string>
+                  <key>OutputName</key>
+                  <string>Album đích</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
           <key>CustomOutputName</key>
-          <string>Lưu vào Ảnh</string>
+          <string>Lưu vào album</string>
           <key>UUID</key>
-          <string>74E99012-8C20-4509-AEB6-97681011A38E</string>
+          <string>0AAFE976-E4A6-4E2F-A587-7D2FE6B5C67B</string>
         </dict>
       </dict>
       <dict>
@@ -2516,7 +2698,7 @@
           <key>CustomOutputName</key>
           <string>Chuyển sang tệp tiếp theo</string>
           <key>UUID</key>
-          <string>1E42542F-536D-4A2E-A416-C3165CDED8CD</string>
+          <string>654758AE-6F27-4D63-AA81-A031F7B660F9</string>
         </dict>
       </dict>
       <dict>
@@ -2533,7 +2715,7 @@
               <key>Type</key>
               <string>ActionOutput</string>
               <key>OutputUUID</key>
-              <string>1E42542F-536D-4A2E-A416-C3165CDED8CD</string>
+              <string>654758AE-6F27-4D63-AA81-A031F7B660F9</string>
               <key>OutputName</key>
               <string>Chuyển sang tệp tiếp theo</string>
             </dict>
@@ -2543,7 +2725,7 @@
           <key>CustomOutputName</key>
           <string>Đặt MediaIndex</string>
           <key>UUID</key>
-          <string>33A1EF4A-AFC8-41F2-A386-73559B435F86</string>
+          <string>64F76961-AEED-40F4-A2F9-BEE22BA53816</string>
         </dict>
       </dict>
       <dict>
@@ -2556,7 +2738,7 @@
           <key>WFControlFlowMode</key>
           <integer>2</integer>
           <key>UUID</key>
-          <string>BC97C1C3-D98B-47D6-AD2B-B310166C8263</string>
+          <string>7189A724-8A3D-4ACB-A73E-FD76A5FCD031</string>
         </dict>
       </dict>
       <dict>
@@ -2571,7 +2753,7 @@
             <key>Value</key>
             <dict>
               <key>string</key>
-              <string>Đã lưu ￼ tệp vào Ảnh.</string>
+              <string>Đã lưu ￼ tệp vào album ￼.</string>
               <key>attachmentsByRange</key>
               <dict>
                 <key>{7, 1}</key>
@@ -2583,6 +2765,15 @@
                   <key>OutputName</key>
                   <string>Số lượng</string>
                 </dict>
+                <key>{23, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>4F1DED3F-8995-4407-A81B-F1D0F62CAF87</string>
+                  <key>OutputName</key>
+                  <string>Album đích</string>
+                </dict>
               </dict>
             </dict>
             <key>WFSerializationType</key>
@@ -2593,7 +2784,7 @@
           <key>CustomOutputName</key>
           <string>Đã lưu media</string>
           <key>UUID</key>
-          <string>4D7CF184-E93A-4869-AFA7-87B40B6A8214</string>
+          <string>0A8223E2-E350-411B-A142-E128D313F1E0</string>
         </dict>
       </dict>
       <dict>
@@ -2604,7 +2795,7 @@
           <key>CustomOutputName</key>
           <string>Hoàn tất</string>
           <key>UUID</key>
-          <string>7B0A51BD-1ECD-49C2-A2B2-FFEB508CA08A</string>
+          <string>B0E882A4-DED3-46F1-A640-93ACFF4491DC</string>
         </dict>
       </dict>
       <dict>
@@ -2617,7 +2808,7 @@
           <key>WFControlFlowMode</key>
           <integer>2</integer>
           <key>UUID</key>
-          <string>6947E684-7067-456B-ACB0-B3F69FBC45A9</string>
+          <string>D4C5B0EF-F617-4EE6-AEAA-0F0A91B1022E</string>
         </dict>
       </dict>
       <dict>
@@ -2630,7 +2821,7 @@
           <key>CustomOutputName</key>
           <string>Đợi hai giây</string>
           <key>UUID</key>
-          <string>0F8E72EB-E84E-47A6-A232-9ECA6C84BBEE</string>
+          <string>E56288F9-9EEA-4DF5-A5AD-A3CAC36F257C</string>
         </dict>
       </dict>
       <dict>
@@ -2643,7 +2834,7 @@
           <key>WFControlFlowMode</key>
           <integer>2</integer>
           <key>UUID</key>
-          <string>0FDFEB6E-E239-4F20-A740-BFBB3FD6ACF8</string>
+          <string>219FF13C-F525-4799-A64D-03E9EE3FB007</string>
         </dict>
       </dict>
       <dict>
@@ -2660,7 +2851,7 @@
           <key>CustomOutputName</key>
           <string>Không tải được</string>
           <key>UUID</key>
-          <string>089E4323-19E6-4877-A90A-A3436797A87E</string>
+          <string>5B60A751-7628-4527-A12F-C07F4ED5D15F</string>
         </dict>
       </dict>
       <dict>
@@ -2671,7 +2862,7 @@
           <key>CustomOutputName</key>
           <string>Dừng phím tắt</string>
           <key>UUID</key>
-          <string>9FB4F838-71C4-44ED-AC2C-639B1E9C61F4</string>
+          <string>EB782530-0BBA-4207-AE29-3D74B92E6F2F</string>
         </dict>
       </dict>
     </array>

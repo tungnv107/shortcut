@@ -1,15 +1,15 @@
-# Media Saver v1.1.0-beta.2 — sửa bước đọc mã tệp
+# Media Saver v1.1.0-beta.3 — album tùy chọn và link Facebook nhóm
 
-**[Tải Media Saver beta.2 đã ký](https://github.com/tungnv107/shortcut/releases/download/v1.1.0-beta.2/Media-Saver.shortcut)**
+**[Tải Media Saver beta.3 đã ký](https://github.com/tungnv107/shortcut/releases/download/v1.1.0-beta.3/Media-Saver.shortcut)**
 
-Beta.1 có thể báo **“Mã tệp trả về không hợp lệ”** trên iPhone dù VPS đã tải xong album và trả các mã đúng định dạng. Beta.2 đổi cách đọc danh sách mã: server trả văn bản đơn giản, Shortcut lấy từng mã theo vị trí, không phụ thuộc biến Mục lặp trong vòng lặp lồng nhau.
+Bỏ album `Recents` cố định. Mỗi lần tải, nhập tên album (mặc định **Media Saver**). Tác vụ Create Photo Album dùng lại album cùng tên nếu đã có, hoặc tạo mới rồi lưu ảnh/video. Chỉ hỏi tên một lần cho cả bài.
 
-Mở **trang cài riêng đã gửi trước đó** → **Sao chép mã → Tải Media Saver → dán mã khi thiết lập → Thay thế** bản cũ. Mã truy cập và địa chỉ VPS giữ nguyên. Dùng **Instagram/Facebook/TikTok → Chia sẻ → Thêm/Khác → Media Saver** như trước.
+Sửa lỗi Facebook báo “Hãy chọn một bài, video hoặc album cụ thể” khi link chia sẻ chuyển tới `/groups/.../permalink/...`. Nhận dạng bài trong nhóm, giữ gợi ý video từ link chia sẻ và chọn bộ tải ảnh/video phù hợp. Trang nhóm chung, Stories và bảng tin vẫn không được tải.
 
-**58/58 test đạt.** Đã chạy workflow mới trong mô hình tác vụ với API thật, tải đủ **5/5 và 8/8 ảnh** của hai bài Instagram vừa chia sẻ; so SHA-256 toàn bộ tệp với VPS. **Chưa xác nhận bản sửa trên iPhone thật**, và chưa quan sát trực tiếp giá trị biến gây lỗi trong runtime iOS. Báo cáo phân biệt rõ kiểm tra mô hình/API với thao tác lưu vào Ảnh.
+Mở **trang cài riêng** → **Sao chép mã → Tải Media Saver → dán mã khi thiết lập → Thay thế**. Mã truy cập và địa chỉ VPS không đổi.
 
-Bộ tải và giới hạn nền tảng không đổi: album ảnh Facebook chưa đạt trong thử nghiệm không có cookie; Instagram mẫu có thể dùng nguồn dự phòng công khai. Bản cài không chứa token; API tác vụ/tệp vẫn yêu cầu xác thực.
+**60/60 test đạt.** Đã chạy lại mô hình Shortcut với API thật, tải đủ hai album Instagram 5 và 8 ảnh. Video Facebook nhóm từng bị từ chối đã tải thành công 19.616.516 byte, H.264 + AAC. Bài ảnh nhóm vẫn chưa trả media khi VPS không có cookie đăng nhập; chưa xác nhận cookie sẽ giải quyết được bài này. Kết quả được ghi trong `FACEBOOK-LIVE-RESULTS.json`. Chưa kiểm tra thao tác tạo/lưu album trên iPhone thật.
 
-[Hướng dẫn cập nhật](https://github.com/tungnv107/shortcut/blob/v1.1.0-beta.2/HUONG-DAN-IPHONE.md) · [Chi tiết kiểm thử](https://github.com/tungnv107/shortcut/blob/v1.1.0-beta.2/KIEM-THU.md)
+[Hướng dẫn cập nhật](https://github.com/tungnv107/shortcut/blob/v1.1.0-beta.3/HUONG-DAN-IPHONE.md) · [Chi tiết kiểm thử](https://github.com/tungnv107/shortcut/blob/v1.1.0-beta.3/KIEM-THU.md)
 
-`SHORTCUT-LIVE-RESULTS.json` là báo cáo mới cho beta.2; `SERVER-LIVE-RESULTS.json` giữ kết quả kiểm tra bộ tải từ beta.1. Các tệp không chứa token hoặc link cài riêng. `SIGNING-VERIFICATION.json` và `SHA256SUMS.txt` dùng kiểm tra bản tải về.
+Tệp phát hành không chứa token hoặc link cài riêng. `SIGNING-VERIFICATION.json` và `SHA256SUMS.txt` dùng đối chiếu bản tải về. Báo cáo phân biệt kiểm tra HTTP/mô hình với thao tác thật trên iPhone.

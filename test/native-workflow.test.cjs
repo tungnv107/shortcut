@@ -51,3 +51,16 @@ test('long job has bounded polling and a retry message',async()=>{
  const r=await runWorkflow(configured(),{input:post,request:async(u,h,method)=>method==='POST'?{id:job}:{status:'running'}});
  assert.equal(r.requests.length,61);assert.match(r.alerts[0],/cùng bài/);assert.equal(r.saved.length,0);
 });
+test('chosen album name is reused for all files and an empty name stops before downloads',async()=>{
+ const ids=[file,'d'.repeat(32)];
+ const request=async(url,h,method)=>method==='POST'?{id:job}:url.includes('/v1/files/')?'media-file':{status:'ready',fileIds:ids.join('\n')};
+ for(const albumName of ['Media Saver','Ảnh tải về 📷']){
+  const result=await runWorkflow(configured(),{input:post,albumName,request});
+  assert.deepEqual(result.albumSaves,[albumName,albumName]);assert.ok(result.notifications[0].includes(albumName));
+ }
+ const cancelled=await runWorkflow(configured(),{input:post,albumName:'   ',request});
+ assert.equal(cancelled.saved.length,0);assert.equal(cancelled.requests.length,2);
+ assert.ok(!JSON.stringify(source).includes('WFCameraRollSelectedGroup'));
+ const save=source.WFWorkflowActions.find(a=>a.WFWorkflowActionIdentifier.endsWith('.photos.createalbum'));
+ assert.equal(save.WFWorkflowActionParameters.AlbumName.WFSerializationType,'WFTextTokenString');
+});

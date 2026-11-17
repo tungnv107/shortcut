@@ -33,23 +33,35 @@ async function downloadPost({url,dir,config,signal,onChild}) {
     '--max-filesize',String(config.maxJobBytes),'--restrict-filenames','--no-mtime','--merge-output-format','mp4','--remux-video','mp4',
     '--format','bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best','--match-filter','!is_live','--max-downloads',String(config.maxFiles),
     '--output',path.join(raw,'%(autonumber)04d_%(id)s.%(ext)s'),...(hasCookies?['--cookies',cookie]:[]),'--',post.url];
-  let result;
-  if(post.platform==='facebook'&&!post.photo) result=await run('yt-dlp',ytArgs,{cwd:dir,signal,onChild});
-  else {
+  const hasMedia=async()=> (await walk(raw)).some(f=>formats[path.extname(f.path).toLowerCase()]);
+  const runGallery=async()=>{
     const cfg={extractor:{'base-directory':raw,directory:[],filename:'{num:>04}_{filename}.{extension}',
       'path-restrict':'ascii','path-remove':'\u0000-\u001f\u007f',retries:2,timeout:20,
       instagram:{videos:'merged',previews:false,audio:false},tiktok:{audio:false,covers:false,photos:true,videos:true},
       ...(hasCookies?{cookies:cookie}:{})},downloader:{ytdl:{module:'yt_dlp',format:'b[ext=mp4]/best','raw-options':{merge_output_format:'mp4',noplaylist:true,max_filesize:config.maxJobBytes}}}};
     const cfgPath=path.join(dir,'gallery.json');await fs.writeFile(cfgPath,JSON.stringify(cfg));
-    result=await run('gallery-dl',['--config-ignore','--config',cfgPath,'--directory',raw,'--range','1-'+config.maxFiles,'--',post.url],{cwd:dir,signal,onChild});
-    if(post.platform==='tiktok'&&!post.url.includes('/photo/')&&!(await walk(raw)).some(f=>formats[path.extname(f.path).toLowerCase()]))result=await run('yt-dlp',ytArgs,{cwd:dir,signal,onChild});
+    return run('gallery-dl',['--config-ignore','--config',cfgPath,'--directory',raw,'--range','1-'+config.maxFiles,'--',post.url],{cwd:dir,signal,onChild});
+  };
+  const runVideo=()=>run('yt-dlp',ytArgs,{cwd:dir,signal,onChild});
+  let result;
+  if(post.platform==='facebook'){
+    if(post.photo)result=await runGallery();
+    else if(post.mixed){
+      result=await (post.preferVideo?runVideo():runGallery());
+      if(!signal.aborted&&!await hasMedia())result=await (post.preferVideo?runGallery():runVideo());
+    }else result=await runVideo();
+  }else{
+    result=await runGallery();
+    if(post.platform==='tiktok'&&!post.url.includes('/photo/')&&!await hasMedia())result=await runVideo();
   }
   if(config.publicFallback&&!hasCookies&&!(post.platform==='facebook'&&post.photo)&&!signal.aborted&&!(await walk(raw)).some(f=>formats[path.extname(f.path).toLowerCase()])){
-    result=await fallback(post,raw,config,signal);
+    try{result=await fallback(post,raw,config,signal);}
+    catch(error){if(post.platform!=='facebook'||signal.aborted)throw error;result.tail+='\n'+error.message;}
   }
   if(signal.aborted)throw new Error('Tác vụ đã hết thời gian hoặc vượt giới hạn tài nguyên.');
   const candidates=(await walk(raw)).filter(f=>formats[path.extname(f.path).toLowerCase()]).sort((a,b)=>a.path.localeCompare(b.path,'en',{numeric:true}));
   if(!candidates.length) {
+    if(post.platform==='facebook')throw new Error(hasCookies?'Facebook chưa trả về media. Cookie có thể hết hạn hoặc tài khoản không truy cập được bài này.':'Đã nhận đúng link bài Facebook, nhưng Facebook chưa cung cấp media cho VPS khi chưa đăng nhập. Thử bài công khai khác hoặc cấu hình cookie Facebook trên VPS.');
     const auth=/login|log in|cookies|private|authenticate|401|403|429|rate.limit/i.test(result.tail);
     throw new Error(auth?'Nền tảng yêu cầu đăng nhập hoặc đang giới hạn truy cập. Cần cập nhật cookie trên VPS hoặc thử lại sau.':'Không lấy được media. Bài có thể không hỗ trợ hoặc bộ tải cần cập nhật.');
   }

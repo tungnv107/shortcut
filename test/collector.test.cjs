@@ -177,5 +177,5 @@ test('generated workflow wires every output to an earlier action and closes loop
   }
   assert.equal(groups.length,0);
   assert.deepEqual(flow.WFWorkflowInputContentItemClasses,['WFURLContentItem','WFStringContentItem','WFSafariWebPageContentItem']);
-  assert.equal(flow.WFWorkflowActions.filter(a=>a.WFWorkflowActionIdentifier.endsWith('.savetocameraroll')).length,1);
+  assert.equal(flow.WFWorkflowActions.filter(a=>a.WFWorkflowActionIdentifier.endsWith('.photos.createalbum')).length,1);
 });

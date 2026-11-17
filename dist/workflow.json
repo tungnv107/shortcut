@@ -31,8 +31,8 @@
       "WFWorkflowActionIdentifier": "is.workflow.actions.comment",
       "WFWorkflowActionParameters": {
         "WFCommentActionText": "Chia sẻ bài đăng → Media Saver. VPS tải và xử lý media; iPhone lưu vào Ảnh. Cấu hình một lần bằng mã truy cập riêng. Máy chủ giữ tệp tạm trong một giờ.",
-        "CustomOutputName": "Media Saver VPS 1.1.0-beta.2",
-        "UUID": "0FC819B0-FF32-43E4-A110-2751B4002260"
+        "CustomOutputName": "Media Saver VPS 1.1.0-beta.3",
+        "UUID": "BE546E01-300F-4117-A97A-BEBF37A18C08"
       }
     },
     {
@@ -1230,11 +1230,108 @@
       }
     },
     {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.ask",
+      "WFWorkflowActionParameters": {
+        "WFAskActionPrompt": "Tên album để lưu. Nếu chưa có album này, Media Saver sẽ tạo mới.",
+        "WFInputType": "Text",
+        "WFAskActionDefaultAnswer": "Media Saver",
+        "CustomOutputName": "Chọn tên album",
+        "UUID": "D48CCFDB-ED36-467D-AA78-5594B69403D7"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.gettext",
+      "WFWorkflowActionParameters": {
+        "WFTextActionText": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "D48CCFDB-ED36-467D-AA78-5594B69403D7",
+                "OutputName": "Chọn tên album"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "CustomOutputName": "Album đích",
+        "UUID": "4F1DED3F-8995-4407-A81B-F1D0F62CAF87"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.text.match",
+      "WFWorkflowActionParameters": {
+        "text": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "4F1DED3F-8995-4407-A81B-F1D0F62CAF87",
+                "OutputName": "Album đích"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFMatchTextPattern": "\\S",
+        "WFMatchTextCaseSensitive": false,
+        "CustomOutputName": "Khớp văn bản",
+        "UUID": "D27129DA-FEAB-4EFF-A42C-6C36526AF35F"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "4D3B76F7-7757-4C4F-AB74-FD32FDEB63AF",
+        "WFControlFlowMode": 0,
+        "WFCondition": 101,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "D27129DA-FEAB-4EFF-A42C-6C36526AF35F",
+              "OutputName": "Khớp văn bản"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "UUID": "D45639AA-7BD5-46B5-AF66-EC7AB578B672"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": "Chưa nhập tên album để lưu.",
+        "WFAlertActionCancelButtonShown": false,
+        "CustomOutputName": "Không tải được",
+        "UUID": "1F5A17BE-F301-4EB9-AAD2-79FF01E8A289"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Dừng phím tắt",
+        "UUID": "9C6743DE-5F41-45A4-A7FA-F2DA1A554CF0"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "4D3B76F7-7757-4C4F-AB74-FD32FDEB63AF",
+        "WFControlFlowMode": 2,
+        "UUID": "3F5C38DF-2713-4C7B-AB26-10AE20408774"
+      }
+    },
+    {
       "WFWorkflowActionIdentifier": "is.workflow.actions.number",
       "WFWorkflowActionParameters": {
         "WFNumberActionNumber": "1",
         "CustomOutputName": "Bắt đầu từ tệp đầu",
-        "UUID": "B1ECC4BB-8CEB-4884-A4B6-62A0049DD05F"
+        "UUID": "5D43B687-903E-45D3-A5FC-4D75C5379272"
       }
     },
     {
@@ -1244,13 +1341,13 @@
         "WFInput": {
           "Value": {
             "Type": "ActionOutput",
-            "OutputUUID": "B1ECC4BB-8CEB-4884-A4B6-62A0049DD05F",
+            "OutputUUID": "5D43B687-903E-45D3-A5FC-4D75C5379272",
             "OutputName": "Bắt đầu từ tệp đầu"
           },
           "WFSerializationType": "WFTextTokenAttachment"
         },
         "CustomOutputName": "Đặt MediaIndex",
-        "UUID": "05534F4E-ABEA-4EA9-A688-73C9C83ED94C"
+        "UUID": "766EB7F0-FB69-48B2-A4FE-670FD8337EE7"
       }
     },
     {
@@ -1266,7 +1363,7 @@
           },
           "WFSerializationType": "WFTextTokenAttachment"
         },
-        "UUID": "D77A15D3-2047-46C2-AB40-5955FEE53F12"
+        "UUID": "957EA220-6AB3-44F9-A281-69BAEBF029A9"
       }
     },
     {
@@ -1293,7 +1390,7 @@
           "WFSerializationType": "WFTextTokenString"
         },
         "CustomOutputName": "Lấy mã theo vị trí",
-        "UUID": "06C87BA0-6574-4DAF-AEB1-8B1AFA1489E8"
+        "UUID": "50AAF95A-2ACC-4B57-A4C4-4F5B8C7D9792"
       }
     },
     {
@@ -1305,7 +1402,7 @@
             "attachmentsByRange": {
               "{0, 1}": {
                 "Type": "ActionOutput",
-                "OutputUUID": "06C87BA0-6574-4DAF-AEB1-8B1AFA1489E8",
+                "OutputUUID": "50AAF95A-2ACC-4B57-A4C4-4F5B8C7D9792",
                 "OutputName": "Lấy mã theo vị trí"
               }
             }
@@ -1313,7 +1410,7 @@
           "WFSerializationType": "WFTextTokenString"
         },
         "CustomOutputName": "Mã tệp hiện tại",
-        "UUID": "2003D2B0-BEF6-49F3-ACE4-D04F9ACED1A8"
+        "UUID": "91A930C4-C639-49D5-A749-7E09B7D5E8A7"
       }
     },
     {
@@ -1325,7 +1422,7 @@
             "attachmentsByRange": {
               "{0, 1}": {
                 "Type": "ActionOutput",
-                "OutputUUID": "2003D2B0-BEF6-49F3-ACE4-D04F9ACED1A8",
+                "OutputUUID": "91A930C4-C639-49D5-A749-7E09B7D5E8A7",
                 "OutputName": "Mã tệp hiện tại"
               }
             }
@@ -1335,13 +1432,13 @@
         "WFMatchTextPattern": "^[a-f0-9]{32}$",
         "WFMatchTextCaseSensitive": false,
         "CustomOutputName": "Khớp văn bản",
-        "UUID": "4CF6D125-0F1C-44A4-AD45-7A23E8ADF46B"
+        "UUID": "3567CDFF-D180-417B-AFDD-E4C02BC63E93"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
       "WFWorkflowActionParameters": {
-        "GroupingIdentifier": "27F3ED79-F59F-49FA-A8BC-C22B89E14AC4",
+        "GroupingIdentifier": "DF3306FE-D3C0-4687-AF4D-2B95479F2001",
         "WFControlFlowMode": 0,
         "WFCondition": 101,
         "WFInput": {
@@ -1349,13 +1446,13 @@
           "Variable": {
             "Value": {
               "Type": "ActionOutput",
-              "OutputUUID": "4CF6D125-0F1C-44A4-AD45-7A23E8ADF46B",
+              "OutputUUID": "3567CDFF-D180-417B-AFDD-E4C02BC63E93",
               "OutputName": "Khớp văn bản"
             },
             "WFSerializationType": "WFTextTokenAttachment"
           }
         },
-        "UUID": "A1F73797-324B-41EE-AFDA-3B0FA92B63FE"
+        "UUID": "FB69977A-9706-4303-AA76-F1EB539B291C"
       }
     },
     {
@@ -1365,22 +1462,22 @@
         "WFAlertActionMessage": "Không đọc được mã tệp ở vị trí hiện tại.",
         "WFAlertActionCancelButtonShown": false,
         "CustomOutputName": "Không tải được",
-        "UUID": "C14E7308-D0DC-4902-A277-F7A3D60863AD"
+        "UUID": "80F17AF9-62B1-4F20-ADD1-AB80B2D2771C"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
       "WFWorkflowActionParameters": {
         "CustomOutputName": "Dừng phím tắt",
-        "UUID": "6101A9BD-D859-4FDD-AA30-7E11F492DB4C"
+        "UUID": "4DE149AD-5169-4A52-AB76-46085B4C20ED"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
       "WFWorkflowActionParameters": {
-        "GroupingIdentifier": "27F3ED79-F59F-49FA-A8BC-C22B89E14AC4",
+        "GroupingIdentifier": "DF3306FE-D3C0-4687-AF4D-2B95479F2001",
         "WFControlFlowMode": 2,
-        "UUID": "F2EFF31D-AF41-4773-A448-BC7860FE221A"
+        "UUID": "C41176C5-3010-4785-A872-C7BB5572A0D4"
       }
     },
     {
@@ -1402,7 +1499,7 @@
               },
               "{13, 1}": {
                 "Type": "ActionOutput",
-                "OutputUUID": "2003D2B0-BEF6-49F3-ACE4-D04F9ACED1A8",
+                "OutputUUID": "91A930C4-C639-49D5-A749-7E09B7D5E8A7",
                 "OutputName": "Mã tệp hiện tại"
               }
             }
@@ -1410,7 +1507,7 @@
           "WFSerializationType": "WFTextTokenString"
         },
         "CustomOutputName": "Văn bản",
-        "UUID": "A1848C0B-AD41-4675-A129-C2822A006EE6"
+        "UUID": "84990099-2BFF-4AD4-A8C3-85B35FA12828"
       }
     },
     {
@@ -1422,7 +1519,7 @@
             "attachmentsByRange": {
               "{0, 1}": {
                 "Type": "ActionOutput",
-                "OutputUUID": "A1848C0B-AD41-4675-A129-C2822A006EE6",
+                "OutputUUID": "84990099-2BFF-4AD4-A8C3-85B35FA12828",
                 "OutputName": "Văn bản"
               }
             }
@@ -1461,23 +1558,35 @@
           "WFSerializationType": "WFDictionaryFieldValue"
         },
         "CustomOutputName": "Lấy dữ liệu từ VPS",
-        "UUID": "B1E52D1A-FB5E-4480-A983-999D883607E4"
+        "UUID": "560DE11D-E8EB-46BE-AA32-B98EEF68A8A5"
       }
     },
     {
-      "WFWorkflowActionIdentifier": "is.workflow.actions.savetocameraroll",
+      "WFWorkflowActionIdentifier": "is.workflow.actions.photos.createalbum",
       "WFWorkflowActionParameters": {
         "WFInput": {
           "Value": {
             "Type": "ActionOutput",
-            "OutputUUID": "B1E52D1A-FB5E-4480-A983-999D883607E4",
+            "OutputUUID": "560DE11D-E8EB-46BE-AA32-B98EEF68A8A5",
             "OutputName": "Lấy dữ liệu từ VPS"
           },
           "WFSerializationType": "WFTextTokenAttachment"
         },
-        "WFCameraRollSelectedGroup": "Recents",
-        "CustomOutputName": "Lưu vào Ảnh",
-        "UUID": "74E99012-8C20-4509-AEB6-97681011A38E"
+        "AlbumName": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "4F1DED3F-8995-4407-A81B-F1D0F62CAF87",
+                "OutputName": "Album đích"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "CustomOutputName": "Lưu vào album",
+        "UUID": "0AAFE976-E4A6-4E2F-A587-7D2FE6B5C67B"
       }
     },
     {
@@ -1498,7 +1607,7 @@
         "WFMathOperation": "+",
         "WFMathOperand": "1",
         "CustomOutputName": "Chuyển sang tệp tiếp theo",
-        "UUID": "1E42542F-536D-4A2E-A416-C3165CDED8CD"
+        "UUID": "654758AE-6F27-4D63-AA81-A031F7B660F9"
       }
     },
     {
@@ -1508,13 +1617,13 @@
         "WFInput": {
           "Value": {
             "Type": "ActionOutput",
-            "OutputUUID": "1E42542F-536D-4A2E-A416-C3165CDED8CD",
+            "OutputUUID": "654758AE-6F27-4D63-AA81-A031F7B660F9",
             "OutputName": "Chuyển sang tệp tiếp theo"
           },
           "WFSerializationType": "WFTextTokenAttachment"
         },
         "CustomOutputName": "Đặt MediaIndex",
-        "UUID": "33A1EF4A-AFC8-41F2-A386-73559B435F86"
+        "UUID": "64F76961-AEED-40F4-A2F9-BEE22BA53816"
       }
     },
     {
@@ -1522,7 +1631,7 @@
       "WFWorkflowActionParameters": {
         "GroupingIdentifier": "67D41470-9D1D-4341-A461-C3F31069B589",
         "WFControlFlowMode": 2,
-        "UUID": "BC97C1C3-D98B-47D6-AD2B-B310166C8263"
+        "UUID": "7189A724-8A3D-4ACB-A73E-FD76A5FCD031"
       }
     },
     {
@@ -1531,12 +1640,17 @@
         "WFNotificationActionTitle": "Media Saver",
         "WFNotificationActionBody": {
           "Value": {
-            "string": "Đã lưu ￼ tệp vào Ảnh.",
+            "string": "Đã lưu ￼ tệp vào album ￼.",
             "attachmentsByRange": {
               "{7, 1}": {
                 "Type": "ActionOutput",
                 "OutputUUID": "4D4B46F3-5ADF-46F3-A9A4-342456E8378B",
                 "OutputName": "Số lượng"
+              },
+              "{23, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "4F1DED3F-8995-4407-A81B-F1D0F62CAF87",
+                "OutputName": "Album đích"
               }
             }
           },
@@ -1544,14 +1658,14 @@
         },
         "WFNotificationActionSound": false,
         "CustomOutputName": "Đã lưu media",
-        "UUID": "4D7CF184-E93A-4869-AFA7-87B40B6A8214"
+        "UUID": "0A8223E2-E350-411B-A142-E128D313F1E0"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
       "WFWorkflowActionParameters": {
         "CustomOutputName": "Hoàn tất",
-        "UUID": "7B0A51BD-1ECD-49C2-A2B2-FFEB508CA08A"
+        "UUID": "B0E882A4-DED3-46F1-A640-93ACFF4491DC"
       }
     },
     {
@@ -1559,7 +1673,7 @@
       "WFWorkflowActionParameters": {
         "GroupingIdentifier": "3AFA426F-96A3-4731-A81E-78BA0EF8920B",
         "WFControlFlowMode": 2,
-        "UUID": "6947E684-7067-456B-ACB0-B3F69FBC45A9"
+        "UUID": "D4C5B0EF-F617-4EE6-AEAA-0F0A91B1022E"
       }
     },
     {
@@ -1567,7 +1681,7 @@
       "WFWorkflowActionParameters": {
         "WFDelayTime": 2,
         "CustomOutputName": "Đợi hai giây",
-        "UUID": "0F8E72EB-E84E-47A6-A232-9ECA6C84BBEE"
+        "UUID": "E56288F9-9EEA-4DF5-A5AD-A3CAC36F257C"
       }
     },
     {
@@ -1575,7 +1689,7 @@
       "WFWorkflowActionParameters": {
         "GroupingIdentifier": "8C235230-3005-4D9F-A153-510CE6FA145D",
         "WFControlFlowMode": 2,
-        "UUID": "0FDFEB6E-E239-4F20-A740-BFBB3FD6ACF8"
+        "UUID": "219FF13C-F525-4799-A64D-03E9EE3FB007"
       }
     },
     {
@@ -1585,14 +1699,14 @@
         "WFAlertActionMessage": "VPS vẫn đang xử lý. Đợi một lát rồi chia sẻ lại cùng bài; máy chủ sẽ tiếp tục tác vụ cũ.",
         "WFAlertActionCancelButtonShown": false,
         "CustomOutputName": "Không tải được",
-        "UUID": "089E4323-19E6-4877-A90A-A3436797A87E"
+        "UUID": "5B60A751-7628-4527-A12F-C07F4ED5D15F"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
       "WFWorkflowActionParameters": {
         "CustomOutputName": "Dừng phím tắt",
-        "UUID": "9FB4F838-71C4-44ED-AC2C-639B1E9C61F4"
+        "UUID": "EB782530-0BBA-4207-AE29-3D74B92E6F2F"
       }
     }
   ]

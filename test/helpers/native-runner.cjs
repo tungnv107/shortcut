@@ -1,8 +1,8 @@
 // A deliberately small model of the native action subset, for regression tests.
 // This is NOT Apple's Shortcuts runtime and does not verify device permissions/UI.
-async function runWorkflow(workflow, { input, prompt, choose = items => items[0], request, save = () => {} }) {
+async function runWorkflow(workflow, { input, prompt, albumName = 'Media Saver', choose = items => items[0], request, save = () => {} }) {
   const values = new Map(); const variables = new Map();
-  const alerts = []; const notifications = []; const requests = []; const saved = [];
+  const alerts = []; const notifications = []; const requests = []; const saved = []; const albumSaves=[];
   const actions = workflow.WFWorkflowActions;
   const array = value => value == null || value === '' ? [] : Array.isArray(value) ? value : [value];
   const stringify = value => array(value).map(v => typeof v === 'object' ? JSON.stringify(v) : String(v)).join('\n');
@@ -55,7 +55,7 @@ async function runWorkflow(workflow, { input, prompt, choose = items => items[0]
         case 'setvariable': out = resolve(p.WFInput); variables.set(p.WFVariableName,out); break;
         case 'appendvariable': out = [...array(variables.get(p.WFVariableName)),...array(resolve(p.WFInput))]; variables.set(p.WFVariableName,out); break;
         case 'gettext': out = resolve(p.WFTextActionText); break;
-        case 'ask': out = prompt; break;
+        case 'ask': out = p.WFInputType==='Text'?albumName:prompt; break;
         case 'detect.link': out = textSlot(p.WFInput).match(/https?:\/\/[^\s<>"\u201d]+/gi) || []; break;
         case 'text.match': out = stringify(resolve(p.text)).match(new RegExp(p.WFMatchTextPattern,p.WFMatchTextCaseSensitive ? 'g':'gi')) || []; break;
         case 'text.replace': out = stringify(resolve(p.WFInput)).replace(new RegExp(p.WFReplaceTextFind,p.WFReplaceTextCaseSensitive ? 'g':'gi'),resolve(p.WFReplaceTextReplace)); break;
@@ -79,6 +79,10 @@ async function runWorkflow(workflow, { input, prompt, choose = items => items[0]
           requests.push({url,headers,method:p.WFHTTPMethod,body}); out = await request(url,headers,p.WFHTTPMethod,body); break;
         }
         case 'savetocameraroll': out = resolve(p.WFInput); await save(out); saved.push(out); break;
+        case 'photos.createalbum': {
+          const name=textSlot(p.AlbumName);if(!name.trim())throw new Error('Missing album name');
+          out=resolve(p.WFInput);await save(out,name);saved.push(out);albumSaves.push(name);break;
+        }
         case 'notification': notifications.push(resolve(p.WFNotificationActionBody)); break;
         case 'alert': alerts.push(resolve(p.WFAlertActionMessage)); break;
         case 'exit': throw stopped;
@@ -89,6 +93,6 @@ async function runWorkflow(workflow, { input, prompt, choose = items => items[0]
   }
   try { await run(0,actions.length); }
   catch (error) { if (error !== stopped) throw error; }
-  return { alerts, notifications, requests, saved };
+  return { alerts, notifications, requests, saved, albumSaves };
 }
 module.exports = { runWorkflow };

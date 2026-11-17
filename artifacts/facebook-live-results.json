@@ -1,0 +1,40 @@
+{
+  "checkedAt": "2026-11-17T03:01:49.366Z",
+  "version": "1.1.0-beta.3",
+  "scope": "Real Facebook share links supplied by the user; full authenticated HTTPS file downloads and ffprobe on VPS. No login cookies. No iPhone execution.",
+  "results": [
+    {
+      "case": "reported group photo",
+      "status": "failed",
+      "message": "Đã nhận đúng link bài Facebook, nhưng Facebook chưa cung cấp media cho VPS khi chưa đăng nhập. Thử bài công khai khác hoặc cấu hình cookie Facebook trên VPS.",
+      "provider": "",
+      "files": []
+    },
+    {
+      "case": "reported group video",
+      "status": "ready",
+      "message": "",
+      "provider": "direct",
+      "files": [
+        {
+          "name": "1.mp4",
+          "bytes": 19616516,
+          "mime": "video/mp4",
+          "sha256": "c0699a9ca68ae4adb59779da5820f7201d28015d66bbb35e8a5729418c0123e0",
+          "streams": [
+            {
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1432,
+              "height": 2548
+            },
+            {
+              "codec_name": "aac",
+              "codec_type": "audio"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

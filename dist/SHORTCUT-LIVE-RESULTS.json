@@ -1,6 +1,6 @@
 {
-  "checkedAt": "2026-11-17T02:39:02.110Z",
-  "version": "1.1.0-beta.2",
+  "checkedAt": "2026-11-17T03:00:06.215Z",
+  "version": "1.1.0-beta.3",
   "scope": "Current shortcut action model against live authenticated HTTPS API, full-file hashes checked against VPS cache; not an iPhone Photos test.",
   "results": [
     {

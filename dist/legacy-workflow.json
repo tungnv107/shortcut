@@ -22,9 +22,9 @@
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.comment",
       "WFWorkflowActionParameters": {
-        "WFCommentActionText": "Media Saver 1.1.0-beta.2\nFacebook/TikTok/Instagram → Chia sẻ → Thêm/Khác → Media Saver. Chỉ dùng Phím tắt. Link bài đăng được gửi tới TikWM (TikTok), Siputzx/SSSInstagram (Instagram) hoặc VKrDownloader (Facebook); không gửi cookie/mật khẩu. Facebook hiện hỗ trợ video, chưa hỗ trợ album ảnh. github.com/tungnv107/shortcut",
-        "CustomOutputName": "Media Saver 1.1.0-beta.2",
-        "UUID": "000597F0-CB95-4431-A4A0-93359F5CBC21"
+        "WFCommentActionText": "Media Saver 1.1.0-beta.3\nFacebook/TikTok/Instagram → Chia sẻ → Thêm/Khác → Media Saver. Chỉ dùng Phím tắt. Link bài đăng được gửi tới TikWM (TikTok), Siputzx/SSSInstagram (Instagram) hoặc VKrDownloader (Facebook); không gửi cookie/mật khẩu. Facebook hiện hỗ trợ video, chưa hỗ trợ album ảnh. github.com/tungnv107/shortcut",
+        "CustomOutputName": "Media Saver 1.1.0-beta.3",
+        "UUID": "900F9110-038F-4899-A5C3-8B9C90393E3F"
       }
     },
     {

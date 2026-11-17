@@ -9,20 +9,25 @@ function validateURL(input,{allowShort=true}={}) {
   if(u.protocol!=='https:'||u.username||u.password||(u.port&&u.port!=='443')||!domains.some(d=>host===d||host.endsWith('.'+d)))throw new Error('Chỉ nhận link HTTPS của Facebook, Instagram hoặc TikTok.');
   const platform=host.endsWith('instagram.com')?'instagram':host.endsWith('tiktok.com')?'tiktok':'facebook';
   const p=u.pathname;
+  const groupPost=platform==='facebook'&&/^\/groups\/[^/]+\/(?:permalink|posts)\/(?:\d+|pfbid[A-Za-z0-9]+)\/?$/.test(p);
+  const photoPath=platform==='facebook'&&/^\/[^/]+\/photos\/(?:[^/]+\/)?\d+\/?$/.test(p);
   const short=(platform==='instagram'&&/^\/share\/[A-Za-z0-9_-]+\/?$/.test(p))||
     (platform==='tiktok'&&(/^(vm|vt)\.tiktok\.com$/.test(host)||/^\/t\//.test(p)))||
     (platform==='facebook'&&(host==='fb.watch'||/^\/share\//.test(p)));
   const post=platform==='instagram'?/^\/(?:[\w.]+\/)?(?:p|reel|reels|tv)\/[\w-]+\/?$/.test(p):
     platform==='tiktok'?/^\/@[^/]+\/(?:video|photo)\/\d+\/?$/.test(p):
-    /^\/(?:reel\/\d+|[^/]+\/videos\/[^/]+|[^/]+\/posts\/[^/]+)\/?$/.test(p)||
+    groupPost||photoPath||/^\/(?:reels?\/\d+|[^/]+\/videos\/[^/]+|[^/]+\/posts\/[^/]+)\/?$/.test(p)||
     (/^\/watch\/?$/.test(p)&&!!u.searchParams.get('v'))||
     (/^\/photo(?:\.php|s)?\/?$/.test(p)&&!!u.searchParams.get('fbid'))||
     (/^\/media\/set\/?$/.test(p)&&!!u.searchParams.get('set'))||
     (/^\/(?:story|permalink)\.php$/.test(p)&&!!u.searchParams.get('story_fbid'));
   if(!post&&!(short&&allowShort))throw new Error('Hãy chọn một bài, video hoặc album cụ thể; không nhận trang cá nhân, Stories hay bảng tin.');
   u.hash='';
-  for(const key of [...u.searchParams.keys()])if(/^(igsh|igshid|utm_|fbclid|mibextid)/i.test(key))u.searchParams.delete(key);
-  return {url:u.toString(),platform,short,photo:platform==='facebook'&&(/^\/(photo|media\/set|story\.php|permalink\.php)/.test(p)||/\/posts\//.test(p))};
+  for(const key of [...u.searchParams.keys()])if(/^(igsh|igshid|utm_|fbclid|mibextid|rdid$|share_url$)/i.test(key))u.searchParams.delete(key);
+  return {url:u.toString(),platform,short,
+    photo:platform==='facebook'&&(photoPath||/^\/(?:photo(?:\.php|s)?|media\/set)\/?$/.test(p)),
+    mixed:platform==='facebook'&&(groupPost||/\/posts\//.test(p)||/^\/(story|permalink)\.php$/.test(p)),
+    preferVideo:platform==='facebook'&&/^\/share\/[vr]\//.test(p)};
 }
 function publicAddress(address) {
   if(net.isIPv4(address)) {
@@ -40,18 +45,26 @@ function safeLookup(host,options,cb) {
     if(options?.all)cb(null,found);else cb(null,found[0].address,found[0].family);
   });
 }
-async function resolvePost(input) {
+function readRedirect(url) {
+  return new Promise((resolve,reject)=>{
+    const r=https.get(url,{lookup:safeLookup,headers:{'User-Agent':'Mozilla/5.0'},timeout:15000},res=>{
+      res.destroy();resolve({status:res.statusCode,location:res.headers.location});
+    });r.on('timeout',()=>r.destroy(new Error('Redirect timeout')));r.on('error',reject);
+  });
+}
+async function resolvePost(input,{request=readRedirect}={}) {
   let post=validateURL(input);
   if(!post.short)return post;
+  const preferVideo=post.preferVideo;
   for(let i=0;i<6;i++) {
-    const result=await new Promise((resolve,reject)=>{
-      const r=https.get(post.url,{lookup:safeLookup,headers:{'User-Agent':'Mozilla/5.0'},timeout:15000},res=>{
-        res.destroy();resolve({status:res.statusCode,location:res.headers.location});
-      });r.on('timeout',()=>r.destroy(new Error('Redirect timeout')));r.on('error',reject);
-    });
-    if(result.status>=300&&result.status<400&&result.location)post=validateURL(new URL(result.location,post.url).toString());
+    const result=await request(post.url);
+    if(result.status>=300&&result.status<400&&result.location){
+      const next=new URL(result.location,post.url);
+      if(post.platform==='facebook'&&/(^|\.)facebook\.com$/.test(next.hostname)&&/^\/(login|checkpoint)(\/|\.php|$)/.test(next.pathname))throw new Error('Facebook yêu cầu đăng nhập để mở liên kết này. Cần cookie Facebook trên VPS.');
+      post=validateURL(next.toString());
+    }
     else break;
-    if(!post.short)return post;
+    if(!post.short)return {...post,preferVideo:preferVideo||post.preferVideo};
   }
   throw new Error('Chưa mở được link rút gọn. Hãy dùng liên kết đầy đủ của bài đăng.');
 }

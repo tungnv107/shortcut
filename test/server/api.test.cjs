@@ -1,7 +1,7 @@
 const test=require('node:test');const assert=require('node:assert/strict');
 const fs=require('node:fs/promises');const os=require('node:os');const path=require('node:path');
 const {createService}=require('../../server/app.cjs');const {loadConfig}=require('../../server/config.cjs');
-const {validateURL,publicAddress}=require('../../server/urls.cjs');
+const {validateURL,resolvePost,publicAddress}=require('../../server/urls.cjs');
 const token='a'.repeat(64),post='https://www.instagram.com/p/Example/';
 async function service(t,downloader,extra={}){
   const dir=await fs.mkdtemp(path.join(os.tmpdir(),'media-saver-test-'));
@@ -22,6 +22,19 @@ test('health is public; jobs and files require bearer authentication',async t=>{
  const s=await service(t,fake);assert.equal((await fetch(s.base+'/healthz')).status,200);
  assert.equal((await fetch(s.base+'/v1/jobs',{method:'POST',body:'{}'})).status,401);
  assert.equal((await s.call('/v1/files/'+'a'.repeat(32)+'/'+'b'.repeat(32),{headers:{Authorization:'Bearer wrong'}})).status,401);
+});
+test('Facebook share redirects accept a concrete group post and preserve video hints',async()=>{
+ for(const type of ['p','v']){
+  const resolved=await resolvePost('https://www.facebook.com/share/'+type+'/Example/',{request:async()=>({status:302,location:'https://www.facebook.com/groups/demo.group/permalink/123456789/?rdid=tracking&share_url=1'})});
+  assert.equal(resolved.url,'https://www.facebook.com/groups/demo.group/permalink/123456789/');
+  assert.equal(resolved.mixed,true);assert.equal(resolved.photo,false);assert.equal(resolved.preferVideo,type==='v');
+ }
+ assert.equal(validateURL('https://www.facebook.com/groups/123/posts/pfbidABC123/').mixed,true);
+ assert.equal(validateURL('https://www.facebook.com/user/photos/a.123/456/').photo,true);
+ assert.equal(validateURL('https://www.facebook.com/photography/posts/123/').photo,false);
+ for(const url of ['https://www.facebook.com/groups/demo/','https://www.facebook.com/groups/demo/photos/','https://www.facebook.com/groups/demo/posts/','https://www.facebook.com/stories/demo/123/'])assert.throws(()=>validateURL(url));
+ await assert.rejects(resolvePost('https://www.facebook.com/share/p/Example/',{request:async()=>({status:302,location:'https://www.facebook.com/login/?next=post'})}),/đăng nhập/);
+ await assert.rejects(resolvePost('https://www.facebook.com/share/p/Example/',{request:async()=>({status:302,location:'http://127.0.0.1/'})}),/HTTPS/);
 });
 test('job completes, file is streamed with Range, same URL is deduplicated',async t=>{
  const s=await service(t,fake);const created=await (await s.call('/v1/jobs',{method:'POST',body:JSON.stringify({url:post})})).json();
