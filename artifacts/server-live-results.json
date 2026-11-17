@@ -1,0 +1,432 @@
+{
+  "checkedAt": "2026-11-17T02:12:44.985Z",
+  "version": "1.1.0-beta.1",
+  "scope": "Full file download through authenticated HTTPS and ffprobe on VPS; iPhone execution not tested.",
+  "results": [
+    {
+      "name": "TikTok video",
+      "url": "https://www.tiktok.com/@patroxofficial/video/6742501081818877190",
+      "status": "ready",
+      "message": "",
+      "provider": "direct",
+      "files": [
+        {
+          "name": "1.mp4",
+          "bytes": 2748535,
+          "mime": "video/mp4",
+          "sha256": "ea18319458fbe34748c146157e32295b0c6a98e42eb243121aa6c51524da3137",
+          "streams": [
+            {
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 540,
+              "height": 960
+            },
+            {
+              "codec_name": "aac",
+              "codec_type": "audio"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Instagram photos",
+      "url": "https://www.instagram.com/p/BoHk1haB5tM/",
+      "status": "ready",
+      "message": "",
+      "provider": "public-fallback",
+      "files": [
+        {
+          "name": "1.jpg",
+          "bytes": 172845,
+          "mime": "image/jpeg",
+          "sha256": "f487a3c21a1b5508a329f6923c15fe68a01bffb6426589bba2b977710053659c",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1080
+            }
+          ]
+        },
+        {
+          "name": "2.jpg",
+          "bytes": 132662,
+          "mime": "image/jpeg",
+          "sha256": "4c0a03c404275e35770f2d2f5a2b2b6fa584c5b99f0244887690154ca47c9583",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1080
+            }
+          ]
+        },
+        {
+          "name": "3.jpg",
+          "bytes": 175356,
+          "mime": "image/jpeg",
+          "sha256": "b78ff31bd16dfd2f67ae25e10ea75f186f33893f47fb9edaa4a6ec60ec00d878",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1080
+            }
+          ]
+        },
+        {
+          "name": "4.jpg",
+          "bytes": 94036,
+          "mime": "image/jpeg",
+          "sha256": "368739dcaba07da0f000f176b9037ceb66ab797ac4bb886ee2abae2d4e903490",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1080
+            }
+          ]
+        },
+        {
+          "name": "5.jpg",
+          "bytes": 167682,
+          "mime": "image/jpeg",
+          "sha256": "be2e1f81113ad091fe6cf4ec444b999b0330a5f916303f2555dd9b696d1751e8",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1080
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Facebook video",
+      "url": "https://www.facebook.com/cnn/videos/10155529876156509/",
+      "status": "ready",
+      "message": "",
+      "provider": "direct",
+      "files": [
+        {
+          "name": "1.mp4",
+          "bytes": 10964813,
+          "mime": "video/mp4",
+          "sha256": "ab8eb7319496f4948db8695c3f64042e76a468811632b856bfe0872940e0e4e3",
+          "streams": [
+            {
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1080
+            },
+            {
+              "codec_name": "aac",
+              "codec_type": "audio"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Instagram videos",
+      "url": "https://www.instagram.com/p/BQ0eAlwhDrw/",
+      "status": "ready",
+      "message": "",
+      "provider": "public-fallback",
+      "files": [
+        {
+          "name": "1.mp4",
+          "bytes": 960170,
+          "mime": "video/mp4",
+          "sha256": "0470ea370f198ba647a3a19ed79fcbf12da9ae54d95412fde9ffa3fc0182e03c",
+          "streams": [
+            {
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 640,
+              "height": 640
+            }
+          ]
+        },
+        {
+          "name": "2.mp4",
+          "bytes": 2526611,
+          "mime": "video/mp4",
+          "sha256": "59037a83d650a2a54d38b553b077a632a02e2d2d194b4ae7b6af5673fccc273c",
+          "streams": [
+            {
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 640,
+              "height": 640
+            }
+          ]
+        },
+        {
+          "name": "3.mp4",
+          "bytes": 40014,
+          "mime": "video/mp4",
+          "sha256": "c4f85605c50ea079f8ec70bd2a36d0dff392b8b4e350f8006796ad66d80207a7",
+          "streams": [
+            {
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 640,
+              "height": 640
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TikTok photos",
+      "url": "https://www.tiktok.com/@chillezy/photo/7240568259186019630",
+      "status": "ready",
+      "message": "",
+      "provider": "direct",
+      "files": [
+        {
+          "name": "1.jpg",
+          "bytes": 84653,
+          "mime": "image/jpeg",
+          "sha256": "aac728bdca503c0fb5b3b5ac3de5b386a1fa41a78031b3c5af4c764b72838e05",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 750,
+              "height": 1000
+            }
+          ]
+        },
+        {
+          "name": "2.jpg",
+          "bytes": 135405,
+          "mime": "image/jpeg",
+          "sha256": "28740ad80fab200093a68c9e58a4a28d18dc47a1c6276c27e6d7316722dd3ba8",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1276
+            }
+          ]
+        },
+        {
+          "name": "3.jpg",
+          "bytes": 325082,
+          "mime": "image/jpeg",
+          "sha256": "d1be6c5473a96964603c8101d4210de2e47e7b727b632e8f2918bc34f095e43d",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1284,
+              "height": 829
+            }
+          ]
+        },
+        {
+          "name": "4.jpg",
+          "bytes": 113698,
+          "mime": "image/jpeg",
+          "sha256": "7d9fdef7aa6e53ac3ad8b06bc71c8e8ab7662702780200adf0efca7a9dfbeff5",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1411
+            }
+          ]
+        },
+        {
+          "name": "5.jpg",
+          "bytes": 115577,
+          "mime": "image/jpeg",
+          "sha256": "b2cfc46da20e5e569d6101bb68ad474ef9dffff5f132ee3ff306abd3010c5bbe",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1273,
+              "height": 1080
+            }
+          ]
+        },
+        {
+          "name": "6.jpg",
+          "bytes": 457256,
+          "mime": "image/jpeg",
+          "sha256": "59f4e8e9f0c2fbe40155796e1ec81ea273f37b66ebff6e52863bcd49480de387",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1273,
+              "height": 1080
+            }
+          ]
+        },
+        {
+          "name": "7.jpg",
+          "bytes": 270540,
+          "mime": "image/jpeg",
+          "sha256": "c9228b96231b6079cdeb2bf924e89d23e3681aba222c84aa1d218db69c05bdd6",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1390
+            }
+          ]
+        },
+        {
+          "name": "8.jpg",
+          "bytes": 209520,
+          "mime": "image/jpeg",
+          "sha256": "b89da882b8c6abffef914e0277368620bda00ebcb8f69df4b10956e0e672c91c",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1237
+            }
+          ]
+        },
+        {
+          "name": "9.jpg",
+          "bytes": 323089,
+          "mime": "image/jpeg",
+          "sha256": "3bcc3995b95115393d76aec37101f9410df7432b4acf7c671ef47b95b1595c9b",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1286
+            }
+          ]
+        },
+        {
+          "name": "10.jpg",
+          "bytes": 196649,
+          "mime": "image/jpeg",
+          "sha256": "7f223a8e7dbf548585693d534a2df768db1b91687ae0708e51c114ba941ea279",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1610
+            }
+          ]
+        },
+        {
+          "name": "11.jpg",
+          "bytes": 293397,
+          "mime": "image/jpeg",
+          "sha256": "b581f249143f9cae0f1203905b0ed8292d17e5179db98ce105a1bd3c599dd39e",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1093
+            }
+          ]
+        },
+        {
+          "name": "12.jpg",
+          "bytes": 399459,
+          "mime": "image/jpeg",
+          "sha256": "83190269ef118d9003eafc2470e9d0f048e19b137d00ec85293781c63ff07a0e",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1253
+            }
+          ]
+        },
+        {
+          "name": "13.jpg",
+          "bytes": 407149,
+          "mime": "image/jpeg",
+          "sha256": "a30b2d4aa1bbc8f864fae4187d741107c300178424af5b38783e3294a3c85d9a",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1178
+            }
+          ]
+        },
+        {
+          "name": "14.jpg",
+          "bytes": 190622,
+          "mime": "image/jpeg",
+          "sha256": "a662f8e8b9e579a9acdb568b518e76e234d3f82ba049d4e728f6b7c46d83ce4e",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1284,
+              "height": 1052
+            }
+          ]
+        },
+        {
+          "name": "15.jpg",
+          "bytes": 260884,
+          "mime": "image/jpeg",
+          "sha256": "c36109ed1d1c44032de92035367a68fc5aa5123b3e04231e13afe176ea1c3694",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1316
+            }
+          ]
+        },
+        {
+          "name": "16.jpg",
+          "bytes": 142446,
+          "mime": "image/jpeg",
+          "sha256": "3ee9d0422122f1b46184b2ffc4573c2f33b61d5be04f5bdcf9b7d43528029fdf",
+          "streams": [
+            {
+              "codec_name": "mjpeg",
+              "codec_type": "video",
+              "width": 707,
+              "height": 1000
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Facebook album",
+      "url": "https://www.facebook.com/media/set/?set=a.10152716010956729&type=3",
+      "status": "failed",
+      "message": "Không lấy được media. Bài có thể không hỗ trợ hoặc bộ tải cần cập nhật.",
+      "provider": "",
+      "files": []
+    }
+  ]
+}

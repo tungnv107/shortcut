@@ -64,108 +64,47 @@ function buildNativeWorkflow() {
       WFKey: text('Referer'), WFValue: typeof referer === 'string' ? text(referer) : text(referer) }] }, WFSerializationType: 'WFDictionaryFieldValue' };
     return action('downloadurl', 'Nội dung URL', p);
   }
-  const noMedia = 'Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.';
-  action('comment', 'Media Saver ' + version, { WFCommentActionText:
-    'Media Saver ' + version + '\nFacebook/TikTok/Instagram → Chia sẻ → Thêm/Khác → Media Saver. Chỉ dùng Phím tắt. Link bài đăng được gửi tới TikWM (TikTok), Siputzx/SSSInstagram (Instagram) hoặc VKrDownloader (Facebook); không gửi cookie/mật khẩu. Facebook hiện hỗ trợ video, chưa hỗ trợ album ảnh. github.com/tungnv107/shortcut' });
-  const shared = set('Input', { Type: 'ExtensionInput' });
-  when(shared, 101, () => {
-    const prompted = action('ask', 'Dán liên kết bài đăng', { WFAskActionPrompt: 'Dán link bài Facebook, Instagram hoặc TikTok. Bạn cũng có thể dùng Chia sẻ → Media Saver trong ứng dụng.', WFInputType: 'URL' });
-    set('Input', prompted);
-  });
-  // Get URLs has a text slot: a bare WFTextTokenAttachment can import blank on iOS.
-  // Keep the placeholder and attachment map, even for a single variable.
-  const links = action('detect.link', 'Liên kết được chia sẻ', { WFInput: text(shared) });
-  clear('SupportedLinks');
-  each(links, item => {
-    const valid = match(item, inputPattern);
-    when(valid, 100, () => append('SupportedLinks', item));
-  });
-  const supported = variable('SupportedLinks');
-  requireValue(supported, 'Chưa nhận được link HTTPS của Facebook, Instagram hoặc TikTok. Trong ứng dụng, mở một bài → Chia sẻ → Thêm/Khác → Media Saver.');
-  when(count(supported), 2, () => {
-    const chosen = action('choosefromlist', 'Chọn bài đăng', { WFInput: token(supported), WFChooseFromListActionPrompt: 'Chọn một bài để tải', WFChooseFromListActionSelectMultiple: false });
-    set('PostURL', chosen);
-  }, () => set('PostURL', first(supported)), 1);
-  const post = variable('PostURL');
-  const encoded = action('urlencode', 'Mã hóa liên kết', { WFInput: text(post), WFEncodeMode: 'Encode' });
-  const host = action('geturlcomponent', 'Tên miền bài đăng', { WFURL: text(post), WFURLComponent: 'Host' });
-  clear('MediaURLs');
-  clear('SavedURLs');
-
-  when(match(host, '(^|\\.)tiktok\\.com$'), 100, () => {
-    set('Referer', asText('https://www.tikwm.com/'));
-    const apiURL = asText(text('https://www.tikwm.com/api/?hd=1&url=', encoded));
-    const response = download(apiURL);
-    const code = asText(get(response, 'code'));
-    when(code, 5, () => stop(noMedia), undefined, '0');
-    const data = get(response, 'data');
-    requireValue(data, noMedia);
-    const images = get(data, 'images');
-    when(images, 100, () => set('MediaURLs', images), () => {
-      const hd = get(data, 'hdplay');
-      when(hd, 100, () => set('MediaURLs', hd), () => set('MediaURLs', get(data, 'play')));
+  action('comment', 'Media Saver VPS '+version, {WFCommentActionText:'Chia sẻ bài đăng → Media Saver. VPS tải và xử lý media; iPhone lưu vào Ảnh. Cấu hình một lần bằng mã truy cập riêng. Máy chủ giữ tệp tạm trong một giờ.'});
+  const base=asText('https://media-saver.161.118.222.102.sslip.io','Địa chỉ VPS');
+  const key=asText('DAN_MA_TRUY_CAP','Mã truy cập VPS');
+  requireValue(match(key,'^[a-f0-9]{64}$'),'Chưa cấu hình mã truy cập. Mở trang cài Media Saver của bạn, sao chép mã và dán vào ô Mã truy cập VPS trong phím tắt.');
+  const dict=items=>({Value:{WFDictionaryFieldValueItems:Object.entries(items).map(([k,v])=>({WFItemType:0,WFKey:text(k),WFValue:typeof v==='string'?text(v):text(v)}))},WFSerializationType:'WFDictionaryFieldValue'});
+  function api(url,body) {
+    const p={WFURL:text(url),WFHTTPMethod:body?'POST':'GET',WFHTTPHeaders:{Value:{WFDictionaryFieldValueItems:[{WFItemType:0,WFKey:text('Authorization'),WFValue:text('Bearer ',key)}]},WFSerializationType:'WFDictionaryFieldValue'}};
+    if(body){p.WFHTTPBodyType='JSON';p.WFJSONValues=dict(body);}
+    return action('downloadurl',body?'Gửi bài tới VPS':'Lấy dữ liệu từ VPS',p);
+  }
+  const shared=set('Input',{Type:'ExtensionInput'});
+  when(shared,101,()=>set('Input',action('ask','Dán liên kết',{WFAskActionPrompt:'Dán link bài Facebook, Instagram hoặc TikTok',WFInputType:'URL'})));
+  const links=action('detect.link','Liên kết được chia sẻ',{WFInput:text(shared)});
+  requireValue(links,'Ứng dụng chưa gửi liên kết. Hãy chia sẻ liên kết của bài đăng.');
+  when(count(links),2,()=>set('PostURL',action('choosefromlist','Chọn bài',{WFInput:token(links),WFChooseFromListActionPrompt:'Chọn một bài để tải',WFChooseFromListActionSelectMultiple:false})),()=>set('PostURL',first(links)),1);
+  const post=variable('PostURL');
+  requireValue(match(post,inputPattern),'Chỉ nhận link HTTPS của Facebook, Instagram hoặc TikTok.');
+  const created=api(asText(text(base,'/v1/jobs')),{url:post});
+  const createError=get(created,'error');when(createError,100,()=>stop(text(createError)));
+  const job=get(created,'id');requireValue(match(job,'^[a-f0-9]{32}$'),'VPS không tạo được tác vụ tải. Kiểm tra mã truy cập và kết nối.');
+  const jobURL=asText(text(base,'/v1/jobs/',job));
+  const group=uuid('poll');
+  action('repeat.count','Chờ VPS xử lý',{GroupingIdentifier:group,WFControlFlowMode:0,WFRepeatCount:60});
+  const state=api(jobURL);
+  const stateError=get(state,'error');when(stateError,100,()=>stop(text(stateError)));
+  const status=asText(get(state,'status'));
+  when(status,4,()=>stop(text(get(state,'message'))),undefined,'failed');
+  when(match(status,'^(ready|partial)$'),100,()=>{
+    const files=get(state,'files');requireValue(files,'VPS chưa trả về tệp media.');
+    when(status,4,()=>action('alert','Kết quả một phần',{WFAlertActionTitle:'Media Saver',WFAlertActionMessage:text(get(state,'message')),WFAlertActionCancelButtonShown:true}),undefined,'partial');
+    each(files,item=>{
+      const id=get(item,'id');requireValue(match(id,'^[a-f0-9]{32}$'),'Mã tệp trả về không hợp lệ.');
+      const file=api(asText(text(base,'/v1/files/',job,'/',id)));
+      action('savetocameraroll','Lưu vào Ảnh',{WFInput:token(file),WFCameraRollSelectedGroup:'Recents'});
     });
-  }, () => {
-    when(match(host, '(^|\\.)instagram\\.com$'), 100, () => {
-      const igPost = match(post, '^https://(?:www\\.)?instagram\\.com/(?:p|reel|reels|tv)/[A-Za-z0-9_-]+(?:/|[?#]|$)');
-      requireValue(igPost, 'Hãy chia sẻ link bài đăng hoặc Reel Instagram. Bản này chưa hỗ trợ Stories, trang cá nhân hoặc link /share/.');
-      set('Referer', asText('https://sssinstagram.com/'));
-      const apiURL = asText(text('https://api.siputzx.my.id/api/d/sssinstagram?url=', encoded));
-      const response = download(apiURL);
-      const error = get(response, 'error');
-      when(error, 100, () => stop(noMedia));
-      const items = get(response, 'data');
-      requireValue(items, noMedia);
-      each(items, item => {
-        const variants = get(item, 'url');
-        requireValue(variants, noMedia);
-        const variant = first(variants);
-        const extension = get(variant, 'ext');
-        requireValue(match(extension, '^(mp4|jpg|jpeg|png|webp|heic)$'), 'Dịch vụ trả về định dạng chưa được hỗ trợ. Chưa lưu media nào.');
-        const url = get(variant, 'url');
-        requireValue(url, noMedia);
-        append('MediaURLs', url);
-      });
-    }, () => {
-      set('Referer', asText('https://www.facebook.com/'));
-      const apiURL = asText(text('https://vkrdownloader.org/server/?api_key=vkrdownloader&vkr=', encoded));
-      const response = download(apiURL);
-      const error = get(response, 'error');
-      when(error, 100, () => stop(noMedia + '\nFacebook hiện chỉ hỗ trợ video; chưa tải album ảnh.'));
-      const data = get(response, 'data');
-      requireValue(data, noMedia);
-      const formats = get(data, 'downloads');
-      requireValue(formats, noMedia);
-      // VKR mixes thumbnails with video qualities. Keep one MP4 only.
-      each(formats, format => {
-        const extension = asText(get(format, 'ext'));
-        when(extension, 4, () => {
-          when(variable('MediaURLs'), 101, () => set('MediaURLs', get(format, 'url')));
-        }, undefined, 'mp4');
-      });
-    });
+    action('notification','Đã lưu media',{WFNotificationActionTitle:'Media Saver',WFNotificationActionBody:text('Đã lưu ',count(files),' tệp vào Ảnh.'),WFNotificationActionSound:false});
+    action('exit','Hoàn tất');
   });
-
-  const urls = variable('MediaURLs');
-  requireValue(urls, 'Không tìm thấy tệp ảnh/video tải được. Facebook hiện chỉ hỗ trợ video; chưa hỗ trợ ảnh hoặc album. Không lưu ảnh bìa thay cho video.');
-  clear('ValidatedURLs');
-  each(urls, item => {
-    set('CandidateURL', item);
-    when(match(host, '(^|\\.)tiktok\\.com$'), 100, () => {
-      const normalized = action('text.replace', 'URL TikWM đầy đủ', { WFInput: text(item), WFReplaceTextFind: '^/(?!/)', WFReplaceTextReplace: 'https://www.tikwm.com/', WFReplaceTextRegularExpression: true, WFReplaceTextCaseSensitive: true });
-      set('CandidateURL', normalized);
-    });
-    const candidate = variable('CandidateURL');
-    requireValue(match(candidate, mediaPattern), 'Dịch vụ trả về URL media không hợp lệ hoặc luồng chưa hỗ trợ. Chưa lưu media nào.');
-    append('ValidatedURLs', candidate);
-  });
-  each(variable('ValidatedURLs'), item => {
-    const file = download(item, variable('Referer'));
-    action('savetocameraroll', 'Lưu vào Ảnh', { WFInput: token(file), WFCameraRollSelectedGroup: 'Recents' });
-    append('SavedURLs', item);
-  });
-  const saved = count(variable('SavedURLs'));
-  action('notification', 'Đã lưu media', { WFNotificationActionTitle: 'Media Saver', WFNotificationActionBody: text('Đã lưu ', saved, ' tệp vào Ảnh.'), WFNotificationActionSound: false });
+  action('delay','Đợi hai giây',{WFDelayTime:2});
+  action('repeat.count','Kết thúc chờ',{GroupingIdentifier:group,WFControlFlowMode:2});
+  stop('VPS vẫn đang xử lý. Đợi một lát rồi chia sẻ lại cùng bài; máy chủ sẽ tiếp tục tác vụ cũ.');
 
   return {
     WFWorkflowName: 'Media Saver', WFWorkflowClientVersion: '3036.0.4', WFWorkflowClientRelease: '18.0',
@@ -173,7 +112,7 @@ function buildNativeWorkflow() {
     WFWorkflowIcon: { WFWorkflowIconStartColor: 4282601983, WFWorkflowIconGlyphNumber: 59511 },
     WFWorkflowTypes: ['ActionExtension'],
     WFWorkflowInputContentItemClasses: ['WFURLContentItem', 'WFStringContentItem', 'WFSafariWebPageContentItem'],
-    WFWorkflowHasOutputFallback: false, WFWorkflowImportQuestions: [], WFWorkflowActions: actions,
+    WFWorkflowHasOutputFallback: false, WFWorkflowImportQuestions: [{ Category: 'Parameter', ActionIndex: 2, ParameterKey: 'WFTextActionText', Text: 'Dán mã truy cập được cấp trên trang cài Media Saver của bạn.', DefaultValue: '' }], WFWorkflowActions: actions,
   };
 }
 module.exports = { buildNativeWorkflow, inputPattern, mediaPattern };

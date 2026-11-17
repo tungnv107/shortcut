@@ -1,0 +1,7 @@
+services:
+  media-saver:
+    networks: [default, edge]
+networks:
+  edge:
+    external: true
+    name: npm_default

@@ -1,60 +1,49 @@
-# Media Saver cho iPhone — beta.4
+# Media Saver — Shortcut iPhone + VPS Docker
 
-**Facebook / TikTok / Instagram → Chia sẻ → Thêm/Khác → Media Saver → lưu vào Ảnh.**
+Chia sẻ bài từ **Facebook / Instagram / TikTok → Thêm/Khác → Media Saver**. VPS tải và chuẩn hóa media; iPhone lưu từng tệp vào ứng dụng **Ảnh** bằng các tác vụ Phím tắt gốc. Không cần Mac hoặc Scriptable.
 
-Chỉ cần ứng dụng **Phím tắt**. Bản beta.4 nhận URL hoặc văn bản từ bảng chia sẻ iOS và dùng tác vụ gốc để tải tệp. Không cần Scriptable, Mac, chép mã hay tự dựng VPS. Khi sử dụng, link bài đăng được gửi tới các dịch vụ tải công khai; cần Internet.
+## Cài v1.1.0-beta.1
 
-**[Tải Media Saver beta.4 đã ký để cài](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.4/Media-Saver.shortcut)** · [Hướng dẫn iPhone](HUONG-DAN-IPHONE.md) · [Bản phát hành](https://github.com/tungnv107/shortcut/releases/tag/v1.0.0-beta.4)
+Dùng **trang cài riêng** được quản trị viên gửi: sao chép mã truy cập → tải Shortcut → dán mã khi được hỏi → Thêm/Thay thế Media Saver cũ. Đây là thiết lập một lần. Trang cài và mã truy cập không được đăng lên GitHub.
 
-**Bản beta.4 sửa lỗi “Chưa nhận được link HTTPS” của beta.3:** tác vụ Lấy URL đã được nối lại bằng đúng định dạng đầu vào văn bản của iOS.
+[Tải Shortcut đã ký](https://github.com/tungnv107/shortcut/releases/download/v1.1.0-beta.1/Media-Saver.shortcut) · [Hướng dẫn iPhone](HUONG-DAN-IPHONE.md) · [Vận hành VPS](DOCKER-VPS.md) · [Kết quả kiểm thử](KIEM-THU.md)
 
-## Cài hoặc cập nhật
+Tệp công khai đã điền địa chỉ VPS `https://media-saver.161.118.222.102.sslip.io`, **chưa chứa mã truy cập**. Người khác tải tệp sẽ không dùng được dịch vụ nếu chưa được cấp mã. Bản cũ 1.0.0-beta.4 gọi dịch vụ công khai trực tiếp; cần cài lại bản này để chuyển sang VPS.
 
-1. Mở link tải trên bằng Safari, rồi mở tệp `Media-Saver.shortcut` vừa tải.
-2. Bấm **Thêm phím tắt**. Nếu đã có Media Saver, chọn **Thay thế** khi iOS hỏi. Nếu iOS tạo bản trùng, xóa bản cũ beta.2/beta.3 để tránh chạy nhầm.
-3. Trong ứng dụng mạng xã hội, mở bài → **Chia sẻ → Thêm/Khác → Media Saver**. Cấp quyền kết nối và thêm vào Ảnh khi iOS hỏi lần đầu.
+## Phạm vi đã kiểm chứng
 
-`Thêm/Khác` dùng để mở **bảng chia sẻ của iOS**; tên/vị trí nút tùy phiên bản ứng dụng. Cuộn xuống danh sách tác vụ để thấy Media Saver. Shortcut đã bật hiển thị trong bảng chia sẻ và nhận **URL, Văn bản, Trang web Safari**. Không cần bật quyền chạy JavaScript.
+Kiểm tra trên VPS ngày 17/11/2026, tải toàn bộ tệp qua HTTPS có xác thực:
 
-## Phạm vi hiện tại
+| Nội dung mẫu | Kết quả |
+|---|---|
+| TikTok video | 1 MP4, H.264 + AAC |
+| TikTok bài ảnh | 16 JPEG |
+| Instagram bài ảnh | 5 JPEG qua nguồn dự phòng |
+| Instagram bài video | 3 MP4 H.264 qua nguồn dự phòng; nguồn mẫu không có luồng âm thanh |
+| Facebook video | 1 MP4, H.264 + AAC |
+| Facebook album ảnh | Chưa tải được trong thử nghiệm không có cookie |
 
-| Nền tảng | Nội dung được xử lý | Kết quả kiểm tra thực tế trên máy tính |
-|---|---|---|
-| TikTok | Video hoặc tất cả ảnh mà API trả về cho một bài | Nhận 1 video; bài ảnh nhận 16 ảnh. Tệp video và ảnh mẫu tải được. |
-| Instagram | Ảnh, Reel, bài nhiều ảnh/video | Nhận đủ danh sách 5 ảnh và 3 video từ hai bài mẫu; tải được tệp mẫu của mỗi loại. |
-| Facebook | Một video/Reel; chọn một bản MP4, bỏ ảnh bìa và các bản chất lượng trùng | Video công khai mẫu tải được. **Chưa hỗ trợ ảnh/album Facebook.** |
+Ảnh/album Facebook có bộ xử lý gallery-dl nhưng **chưa xác nhận hoạt động**; có thể cần cookie đăng nhập. Không hứa tải được mọi bài hoặc mọi media. Chưa thử cài/chạy bản này trên iPhone thật. Bài riêng tư, Stories, livestream, tải cả trang cá nhân không thuộc phạm vi bản phát hành.
 
-Kiểm tra mạng dùng 1.024 byte đầu của một tệp cho mỗi trường hợp: HTTP 206, MIME và dấu hiệu JPEG/MP4 hợp lệ. **Chưa kiểm thử nhập/chạy beta.4 và lưu vào Ảnh trên iPhone thật**, cũng chưa kiểm tra phát hết video/âm thanh. [Báo cáo chi tiết](KIEM-THU.md).
+## Cách hoạt động
 
-Không cam kết tải mọi bài hoặc chất lượng gốc. Bài riêng tư, Stories, livestream, toàn bộ trang cá nhân, album Facebook và luồng HLS/DASH chưa được hỗ trợ. Một lần chạy xử lý một bài; nếu nhận nhiều link sẽ hỏi chọn bài. Lỗi tải/lưu giữa chừng làm dừng Shortcut; các tệp đã lưu vẫn còn. Chạy lại có thể tạo bản sao.
+Shortcut gửi URL bài tới API riêng, theo dõi hàng đợi rồi tải từng tệp từ cùng VPS. Server dùng **gallery-dl / yt-dlp / FFmpeg**: ảnh thành JPEG, video thành MP4 H.264 và âm thanh AAC nếu nguồn có âm thanh. Nếu nguồn trực tiếp thất bại và chưa cấu hình cookie, server có thể gửi link bài công khai tới TikWM, Siputzx/SSSInstagram hoặc VKrDownloader. Có thể tắt bằng `ALLOW_PUBLIC_FALLBACK: "0"`.
 
-## Dịch vụ và dữ liệu gửi đi
+Mặc định: tối đa 100 tệp và 512 MiB mỗi bài; một tác vụ chạy cùng lúc; hàng đợi tối đa 8; xử lý tối đa 10 phút; giữ tệp tạm 1 giờ. Phím tắt chờ khoảng 2 phút, sau đó cho phép chia sẻ lại cùng bài để lấy kết quả đang xử lý. Tải lại có thể tạo bản sao trong Ảnh.
 
-| Nền tảng | Dịch vụ nhận link | Cách chọn tệp |
-|---|---|---|
-| TikTok | [TikWM](https://www.tikwm.com/) | Dùng danh sách `images`; với video ưu tiên `hdplay`, dự phòng `play`. |
-| Instagram | [Siputzx](https://app.siputzx.my.id/) qua endpoint SSSInstagram | Lặp từng media, lấy một biến thể tải; bỏ `thumb`. [OpenAPI công khai](https://api.siputzx.my.id/api/openapi.json). |
-| Facebook | [VKrDownloader](https://github.com/theofficialvkr/VKrDownloader) | Chọn MP4 đầu tiên, không chọn JPEG dù dịch vụ gắn nhãn “4K”. |
+## Mã nguồn và kiểm tra
 
-Shortcut gửi đầy đủ link bạn chia sẻ tới dịch vụ tương ứng rồi tải từ URL dịch vụ trả về. Không đọc/gửi cookie, mật khẩu, token tài khoản hoặc thư viện Ảnh. Không dùng phiên đăng nhập Facebook/Instagram/TikTok trên iPhone. Các dịch vụ có thể đổi API, giới hạn lượt gọi hoặc ngừng hoạt động.
-
-## Mã nguồn và kiểm thử
-
-Node.js 20+ chỉ cần trên máy phát triển; iPhone không cần Node.js hay npm package.
-
-```powershell
-npm.cmd run verify
-node tools/sign-shortcut.cjs
-powershell -NoProfile -ExecutionPolicy Bypass -File tools/package.ps1
+```sh
+npm run verify
 ```
 
-- `src/native-workflow.cjs`: tạo các tác vụ Phím tắt gốc cho beta.4.
-- `dist/workflow.json`, `dist/Media-Saver.unsigned.shortcut`: nguồn có thể kiểm tra; bản unsigned không dùng để cài trực tiếp.
-- `test/native-workflow.test.cjs`: kiểm tra đầu vào chia sẻ, album, loại ảnh bìa, lỗi mạng/API, URL và các nhánh xử lý bằng mô hình tác vụ. Mô hình này không phải runtime iOS.
-- `test/fixtures`: cấu trúc rút gọn từ phản hồi API thật, URL tạm được thay bằng tên miền thử nghiệm.
-- `artifacts/native-live-results.json`: kết quả API và mẫu tệp từ beta.3; phần gọi dịch vụ không đổi trong beta.4.
-- `src/collector.js`, `dist/Safari-Media-Saver.*`: bộ trích xuất Safari cũ để tham khảo/bảo trì; **không được chạy trong Shortcut beta.4**. Các báo cáo `browser-results.json` và `live-probe-results.json` thuộc cách cũ.
+Node.js 24, không cần thư viện npm. Backend có thêm Python, yt-dlp, gallery-dl và FFmpeg được cài trong image Docker. Hướng dẫn Docker tại [DOCKER-VPS.md](DOCKER-VPS.md).
 
-Công cụ ký gửi nguồn workflow công khai tới [Shortcuty](https://github.com/Shortcuty/Signing-Server-API-Documentation), nhận tệp `AEA1` chế độ `anyone` và đối chiếu kích thước, SHA-256. Chưa xác minh chữ ký độc lập trên thiết bị. Shortcut đã cài không gọi Shortcuty khi tải media. Công cụ đóng gói từ chối bản ký không khớp nguồn.
+- `src/native-workflow.cjs`: tạo luồng VPS với 89 tác vụ gốc.
+- `server/`: API, hàng đợi, tải và chuẩn hóa tệp.
+- `compose.yaml`, `deploy/`: cấu hình Docker và HTTPS cho VPS đã chỉ định.
+- `tools/probe-server.cjs`: kiểm tra tải tệp thực tế; `artifacts/server-live-results.json`: báo cáo đã loại thông tin bí mật.
+- `dist/workflow.json`, `dist/Media-Saver.unsigned.shortcut`: đầu ra có thể kiểm tra; tệp ký nằm trong GitHub Release.
+- `src/legacy-workflow.cjs`, các báo cáo `native-live`/Safari: giữ để tham khảo bản cũ, không phải luồng hiện tại.
 
-[Tải gói ZIP](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.4/Media-Saver-iPhone.zip) · [Apple: chạy Shortcut từ ứng dụng khác](https://support.apple.com/en-gb/guide/shortcuts/apd163eb9f95/ios) · [Cherri: cấu trúc tác vụ](https://github.com/electrikmilk/cherri/blob/main/shortcutgen.go)
+Shortcut công khai được [Shortcuty](https://github.com/Shortcuty/Signing-Server-API-Documentation) ký chế độ `anyone`; **không gửi mã truy cập VPS** tới dịch vụ ký. Công cụ kiểm tra marker, kích thước và SHA-256, từ chối đóng gói bản ký không khớp nguồn. Xác nhận nhập và chạy trên iOS vẫn cần thiết bị thật.

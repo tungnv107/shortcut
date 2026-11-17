@@ -5,3 +5,9 @@ artifacts/browser-check/
 dist/Media-Saver.shortcut
 artifacts/github/
 artifacts/signing/
+artifacts/ssh/
+artifacts/server/
+.env
+.secrets/
+data/
+cookies/

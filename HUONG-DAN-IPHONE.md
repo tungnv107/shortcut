@@ -1,53 +1,45 @@
-# Media Saver beta.4 — dùng trực tiếp từ bảng chia sẻ
+# Media Saver 1.1.0-beta.1 — dùng với VPS
 
-Chỉ cần ứng dụng **Phím tắt** có sẵn trên iPhone và Internet. Không cần Mac, Scriptable, chép mã hoặc tự thêm tác vụ. Link bài đăng sẽ được gửi tới dịch vụ tải công khai.
+Chỉ cần ứng dụng **Phím tắt**, Internet và mã truy cập VPS của bạn. Không cần Mac, Scriptable hoặc tự thêm tác vụ.
 
-## Cài bản mới
+## Cài một lần
 
-1. Bấm **[Tải Media Saver beta.4 đã ký](https://github.com/tungnv107/shortcut/releases/download/v1.0.0-beta.4/Media-Saver.shortcut)** bằng Safari trên iPhone.
-2. Mở tệp vừa tải trong mục tải về của Safari hoặc **Tệp → Tải về**.
-3. Bấm **Thêm phím tắt**. Nếu đã có Media Saver, chọn **Thay thế** khi iOS hỏi. Nếu xuất hiện hai bản, xóa bản cũ beta.2/beta.3; giữ bản có dòng ghi chú `Media Saver 1.0.0-beta.4`.
+1. Mở **trang cài riêng** được gửi cho bạn bằng Safari trên iPhone; bấm **Sao chép mã**.
+2. Bấm **Tải Media Saver**, mở tệp vừa tải từ Safari hoặc **Tệp → Tải về**.
+3. Dán mã ở bước thiết lập; chọn **Thêm / Thay thế** Media Saver cũ khi iOS hỏi.
 
-Bản cũ beta.2 chỉ nhận Trang web Safari nên không xuất hiện khi các ứng dụng gửi link. Bản mới nhận URL và Văn bản, đã bật hiển thị trong bảng chia sẻ. iOS vẫn yêu cầu xác nhận cài đặt.
+Nếu tải trực tiếp từ [GitHub](https://github.com/tungnv107/shortcut/releases/download/v1.1.0-beta.1/Media-Saver.shortcut), vẫn cần mã từ trang cài riêng. Tệp có sẵn địa chỉ máy chủ nhưng không chứa mã bí mật. Giữ riêng trang cài vì người có link có thể lấy mã sử dụng VPS.
 
-Nếu đang dùng **beta.3** và gặp “Chưa nhận được link HTTPS” dù chia sẻ đúng từ ứng dụng, hãy thay bằng beta.4. Bản cũ ghi sai định dạng đầu vào của tác vụ Lấy URL; bạn không cần sửa các tác vụ thủ công.
+Nếu iOS bỏ qua câu hỏi thiết lập, mở **Phím tắt → Media Saver → …** và dán mã vào ô văn bản **Mã truy cập VPS** ở đầu luồng. Không thay đổi các tác vụ khác. Chưa có iPhone kết nối để xác nhận giao diện nhập bản này trên từng phiên bản iOS.
 
 ## Dùng hằng ngày
 
-1. Mở **một bài đăng/video công khai** trong Facebook, TikTok hoặc Instagram.
-2. Bấm **Chia sẻ** (với Instagram thường là biểu tượng máy bay giấy).
-3. Chọn **Thêm / Khác / More / Share to…** để mở bảng chia sẻ của iOS nếu ứng dụng đang hiện menu chia sẻ riêng. Tên nút thay đổi theo phiên bản ứng dụng.
-4. Cuộn danh sách tác vụ xuống và chọn **Media Saver**.
-5. Lần đầu, cho phép truy cập tên miền tải và **thêm vào Ảnh** khi iOS hỏi. Giữ ứng dụng mở cho tới thông báo **Đã lưu … tệp vào Ảnh**.
+1. Mở một bài đăng hoặc video trong **Facebook, Instagram hoặc TikTok**.
+2. Bấm **Chia sẻ**, rồi **Thêm / Khác / More / Share to…** nếu ứng dụng đang hiện menu riêng.
+3. Trong bảng chia sẻ iOS, chọn **Media Saver** ở danh sách tác vụ.
+4. Cho phép kết nối `media-saver.161.118.222.102.sslip.io` và thêm vào **Ảnh** khi iOS hỏi lần đầu. Giữ ứng dụng mở tới thông báo hoàn tất.
 
-Không cần mở bài bằng Safari hay đăng nhập Safari để tải. Nếu mở Media Saver từ ô trong Phím tắt, nó sẽ hỏi bạn dán link. Nếu chia sẻ nhiều link, chọn một bài để tải.
+Không cần mở bài bằng Safari. Nếu mở ô Media Saver trong Phím tắt, nó sẽ hỏi dán link. Nếu có nhiều link, chọn một bài.
 
-## Nội dung tải được
+## Phạm vi và thời gian chờ
 
-- **TikTok:** video và danh sách ảnh của bài. Bài ảnh không được ghép nhạc thành video.
-- **Instagram:** ảnh, Reels, bài nhiều ảnh/video; mỗi media lấy một phiên bản. Nhận link `/p/`, `/reel/`, `/reels/`, `/tv/`; chưa nhận link `/share/`, Stories hoặc trang cá nhân.
-- **Facebook:** video/Reels khi dịch vụ trả về MP4. **Chưa hỗ trợ ảnh hoặc album Facebook.**
+- **TikTok:** đã thử video có âm thanh và bài 16 ảnh. Bài ảnh lưu thành ảnh, không ghép nhạc.
+- **Instagram:** đã thử bài 5 ảnh và bài 3 video. Kết quả thực tế dùng nguồn dự phòng khi tải trực tiếp bị chặn.
+- **Facebook:** đã thử video có âm thanh. **Album ảnh chưa tải được khi không có cookie**, chưa bảo đảm hỗ trợ ảnh/album.
 
-Chưa hỗ trợ bài riêng tư, nội dung cần phiên đăng nhập, livestream, tải cả trang cá nhân hoặc ghép HLS/DASH. Số tệp được quyết định bởi dữ liệu dịch vụ trả về; không bảo đảm mọi bài đều đầy đủ. Chạy lại có thể tạo bản sao trong Ảnh. Nếu lỗi giữa chừng, các tệp trước đó vẫn được giữ.
+Không bảo đảm tải được mọi bài hoặc toàn bộ media của mọi bài. Stories, livestream, trang cá nhân và bài riêng tư chưa được xác nhận hỗ trợ. Mỗi bài tối đa 100 tệp, 512 MiB. Máy chủ giữ tệp tạm khoảng 1 giờ.
 
-## Không thấy Media Saver
+Sau khoảng 2 phút, nếu Shortcut báo VPS vẫn xử lý, đợi một lát rồi chia sẻ lại cùng bài. Tác vụ server có thể chạy tối đa 10 phút. iOS có thể dừng luồng lâu trong bảng chia sẻ; khi đó thử chạy ô Media Saver trong Phím tắt và dán cùng link. Chạy lại sau khi đã lưu có thể tạo bản sao; nếu dừng giữa chừng, các ảnh/video đã lưu vẫn còn.
 
-1. Kiểm tra đã cài **beta.4**, không còn chạy nhầm beta.3 hoặc bản Safari beta.2.
-2. Mở **bảng chia sẻ iOS** bằng nút Thêm/Khác của ứng dụng. Media Saver nằm trong danh sách tác vụ bên dưới, không nhất thiết nằm ở hàng biểu tượng ứng dụng.
-3. Nếu vẫn chưa có: vào **Phím tắt → Media Saver → … → Chi tiết (ⓘ hoặc menu tên) → Hiển thị trong bảng chia sẻ**, bật tùy chọn đó. Đầu vào phải cho phép **URL** và **Văn bản**.
-4. Đóng rồi mở lại bảng chia sẻ. Có thể dùng **Sửa tác vụ / Edit Actions** để đưa Media Saver lên đầu nếu tùy chọn xuất hiện.
+## Khi gặp lỗi
 
-[Hướng dẫn bảng chia sẻ của Apple](https://support.apple.com/en-gb/guide/shortcuts/apd163eb9f95/ios).
+| Hiện tượng | Cách xử lý |
+|---|---|
+| Không thấy Media Saver | Mở bảng chia sẻ **iOS** bằng Thêm/Khác. Trong chi tiết Shortcut, bật **Hiển thị trong bảng chia sẻ**; đầu vào cho phép URL và Văn bản. Kiểm tra đang dùng bản có ghi chú `Media Saver VPS 1.1.0-beta.1`. |
+| Chưa nhận được liên kết | Ứng dụng phải gửi link bài. Có thể Sao chép liên kết rồi mở ô Media Saver để dán. Luồng vẫn giữ bản sửa định dạng Get URLs của beta.4. |
+| Mã truy cập không đúng/chưa cấu hình | Sao chép lại mã từ trang cài riêng, cài lại và dán ở bước thiết lập. |
+| Không kết nối được VPS | Kiểm tra Internet; quản trị viên kiểm tra container và HTTPS. |
+| Nền tảng yêu cầu đăng nhập hoặc giới hạn truy cập | Thử lại sau hoặc thử bài công khai khác. Quản trị viên có thể cấu hình cookie trên VPS; không gửi mật khẩu/cookie vào chat. |
+| Không lưu được vào Ảnh | Kiểm tra quyền thêm ảnh của Phím tắt và dung lượng iPhone. Chia sẻ lại nếu tệp tạm đã hết hạn. |
 
-## Khi chạy báo lỗi
-
-- **Chưa nhận được link:** chia sẻ liên kết bài cụ thể, không chia sẻ ảnh chụp màn hình hoặc trang cá nhân. Có thể sao chép link rồi mở ô Media Saver để dán.
-- **Dịch vụ chưa lấy được media / HTTP 403, 429, 503:** bài có thể bị giới hạn hoặc dịch vụ đang lỗi. Chờ rồi thử lại với bài công khai khác. Không cần cung cấp mật khẩu/cookie.
-- **Không thể lưu vào Ảnh:** kiểm tra quyền thêm ảnh cho Phím tắt. URL media có thể hết hạn hoặc dịch vụ trả nội dung lỗi thay tệp; chạy lại từ link bài.
-- **Video lớn bị dừng:** giữ ứng dụng mở. Bản này chưa có tải tiếp khi gián đoạn.
-
-## Dịch vụ bên ngoài
-
-TikTok dùng **TikWM**; Instagram dùng **Siputzx/SSSInstagram**; Facebook dùng **VKrDownloader**. Shortcut gửi link bài bạn chọn, rồi tải tệp từ các tên miền được trả về. Không đọc cookie, mật khẩu, token đăng nhập hoặc ảnh sẵn có trong điện thoại. Bạn không phải tự vận hành máy chủ.
-
-Tệp cài đã được dịch vụ Shortcuty ký ở chế độ `anyone`. Môi trường phát triển chưa có iPhone để thử nhập/chạy beta.4; xem [kết quả đã kiểm chứng](https://github.com/tungnv107/shortcut/blob/v1.0.0-beta.4/KIEM-THU.md).
+VPS xử lý URL bạn chọn, không đọc mật khẩu hoặc ảnh có sẵn trên điện thoại. Nguồn dự phòng có thể nhận URL bài công khai. [Hướng dẫn bảng chia sẻ của Apple](https://support.apple.com/en-gb/guide/shortcuts/apd163eb9f95/ios) · [Kết quả kiểm chứng và giới hạn](KIEM-THU.md).

@@ -5,11 +5,11 @@ Push-Location $taskRoot
 try {
     & node tools/build.cjs
     if ($LASTEXITCODE -ne 0) { throw 'Build failed.' }
-    foreach ($taskDoc in @('HUONG-DAN-IPHONE.md', 'KIEM-THU.md')) {
+    foreach ($taskDoc in @('HUONG-DAN-IPHONE.md', 'DOCKER-VPS.md', 'KIEM-THU.md')) {
         Copy-Item -LiteralPath (Join-Path $taskRoot $taskDoc) -Destination (Join-Path $taskDist $taskDoc)
     }
-    Copy-Item -LiteralPath (Join-Path $taskRoot 'artifacts/native-live-results.json') -Destination (Join-Path $taskDist 'NATIVE-LIVE-RESULTS.json')
-    $taskNames = @('Media-Saver.unsigned.shortcut', 'workflow.json', 'HUONG-DAN-IPHONE.md', 'KIEM-THU.md', 'NATIVE-LIVE-RESULTS.json')
+    Copy-Item -LiteralPath (Join-Path $taskRoot 'artifacts/server-live-results.json') -Destination (Join-Path $taskDist 'SERVER-LIVE-RESULTS.json')
+    $taskNames = @('Media-Saver.unsigned.shortcut', 'workflow.json', 'HUONG-DAN-IPHONE.md', 'DOCKER-VPS.md', 'KIEM-THU.md', 'SERVER-LIVE-RESULTS.json')
     $taskSignedPath = Join-Path $taskDist 'Media-Saver.shortcut'
     if (Test-Path -LiteralPath $taskSignedPath) {
         $taskReportPath = Join-Path $taskRoot 'artifacts/signing/verification.json'

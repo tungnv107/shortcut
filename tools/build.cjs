@@ -22,4 +22,5 @@ function plist(value, depth = 0) {
 const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0">\n' + plist(workflow, 1) + '\n</plist>\n';
 fs.writeFileSync(path.join(out, 'Media-Saver.unsigned.shortcut'), xml);
 fs.writeFileSync(path.join(out, 'workflow.json'), JSON.stringify(workflow, null, 2) + '\n');
+fs.writeFileSync(path.join(out, 'legacy-workflow.json'), JSON.stringify(require('../src/legacy-workflow.cjs').buildNativeWorkflow(), null, 2) + '\n');
 console.log(`Đã tạo JavaScript, TXT và Shortcut CHƯA KÝ (${workflow.WFWorkflowActions.length} tác vụ).`);

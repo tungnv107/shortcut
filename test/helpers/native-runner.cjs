@@ -44,13 +44,14 @@ async function runWorkflow(workflow, { input, prompt, choose = items => items[0]
         else if (b.otherwise != null) await run(b.otherwise+1,b.end);
         i = b.end; continue;
       }
-      if (id === 'repeat.each') {
+      if (id === 'repeat.each' || id === 'repeat.count') {
         const b = blocks.get(i), previous = variables.get('Repeat Item');
-        for (const item of array(resolve(p.WFInput))) { variables.set('Repeat Item',item); await run(i+1,b.end); }
+        const items=id==='repeat.count'?Array.from({length:Number(p.WFRepeatCount)},(_,i)=>i+1):array(resolve(p.WFInput));
+        for (const item of items) { variables.set(id==='repeat.count'?'Repeat Index':'Repeat Item',item); await run(i+1,b.end); }
         variables.set('Repeat Item',previous); i = b.end; continue;
       }
       switch (id) {
-        case 'comment': case 'nothing': break;
+        case 'comment': case 'nothing': case 'delay': break;
         case 'setvariable': out = resolve(p.WFInput); variables.set(p.WFVariableName,out); break;
         case 'appendvariable': out = [...array(variables.get(p.WFVariableName)),...array(resolve(p.WFInput))]; variables.set(p.WFVariableName,out); break;
         case 'gettext': out = resolve(p.WFTextActionText); break;
@@ -67,7 +68,8 @@ async function runWorkflow(workflow, { input, prompt, choose = items => items[0]
         case 'downloadurl': {
           const url = resolve(p.WFURL); const headers = {};
           for(const item of p.WFHTTPHeaders?.Value.WFDictionaryFieldValueItems || []) headers[resolve(item.WFKey)] = resolve(item.WFValue);
-          requests.push({url,headers}); out = await request(url,headers); break;
+          const body=p.WFJSONValues?Object.fromEntries(p.WFJSONValues.Value.WFDictionaryFieldValueItems.map(x=>[resolve(x.WFKey),resolve(x.WFValue)])):undefined;
+          requests.push({url,headers,method:p.WFHTTPMethod,body}); out = await request(url,headers,p.WFHTTPMethod,body); break;
         }
         case 'savetocameraroll': out = resolve(p.WFInput); await save(out); saved.push(out); break;
         case 'notification': notifications.push(resolve(p.WFNotificationActionBody)); break;

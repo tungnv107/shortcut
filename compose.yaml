@@ -1,0 +1,42 @@
+services:
+  media-saver:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    image: media-saver:local
+    restart: unless-stopped
+    init: true
+    ports:
+      - "127.0.0.1:${MEDIA_SAVER_PORT:-18787}:8787"
+    environment:
+      API_TOKEN_FILE: /run/secrets/api_token
+      SETUP_TOKEN_FILE: /run/secrets/setup_token
+      PUBLIC_URL: ${PUBLIC_URL:-https://media-saver.161.118.222.102.sslip.io}
+      CONCURRENCY: "1"
+      MAX_FILES: "100"
+      MAX_JOB_MB: "512"
+      MAX_CACHE_MB: "2048"
+      FILE_TTL_SECONDS: "3600"
+      JOB_TIMEOUT_SECONDS: "600"
+      ALLOW_PUBLIC_FALLBACK: "1"
+    secrets:
+      - api_token
+      - setup_token
+    volumes:
+      - media_cache:/data
+      - ./cookies:/cookies:ro
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 1536m
+    cpus: 1.5
+    pids_limit: 150
+secrets:
+  api_token:
+    file: .secrets/api_token
+  setup_token:
+    file: .secrets/setup_token
+volumes:
+  media_cache:

@@ -1,0 +1,2364 @@
+{
+  "WFWorkflowName": "Media Saver",
+  "WFWorkflowClientVersion": "3036.0.4",
+  "WFWorkflowClientRelease": "18.0",
+  "WFWorkflowMinimumClientVersion": 900,
+  "WFWorkflowMinimumClientVersionString": "900",
+  "WFWorkflowIcon": {
+    "WFWorkflowIconStartColor": 4282601983,
+    "WFWorkflowIconGlyphNumber": 59511
+  },
+  "WFWorkflowTypes": [
+    "ActionExtension"
+  ],
+  "WFWorkflowInputContentItemClasses": [
+    "WFURLContentItem",
+    "WFStringContentItem",
+    "WFSafariWebPageContentItem"
+  ],
+  "WFWorkflowHasOutputFallback": false,
+  "WFWorkflowImportQuestions": [],
+  "WFWorkflowActions": [
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.comment",
+      "WFWorkflowActionParameters": {
+        "WFCommentActionText": "Media Saver 1.1.0-beta.1\nFacebook/TikTok/Instagram → Chia sẻ → Thêm/Khác → Media Saver. Chỉ dùng Phím tắt. Link bài đăng được gửi tới TikWM (TikTok), Siputzx/SSSInstagram (Instagram) hoặc VKrDownloader (Facebook); không gửi cookie/mật khẩu. Facebook hiện hỗ trợ video, chưa hỗ trợ album ảnh. github.com/tungnv107/shortcut",
+        "CustomOutputName": "Media Saver 1.1.0-beta.1",
+        "UUID": "12CC9354-CD78-47EB-A8B4-071A10F76A6D"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "Input",
+        "WFInput": {
+          "Value": {
+            "Type": "ExtensionInput"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt Input",
+        "UUID": "6F96B218-2134-4394-A83F-90EE79E51006"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "E68202B4-7AAA-450E-A533-E942977AB057",
+        "WFControlFlowMode": 0,
+        "WFCondition": 101,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "Variable",
+              "VariableName": "Input"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "C96921FF-3743-4266-AB34-858EBB8D07A7"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.ask",
+      "WFWorkflowActionParameters": {
+        "WFAskActionPrompt": "Dán link bài Facebook, Instagram hoặc TikTok. Bạn cũng có thể dùng Chia sẻ → Media Saver trong ứng dụng.",
+        "WFInputType": "URL",
+        "CustomOutputName": "Dán liên kết bài đăng",
+        "UUID": "5974513F-A73A-4DE4-A8AF-E99DEA9814E4"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "Input",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "5974513F-A73A-4DE4-A8AF-E99DEA9814E4",
+            "OutputName": "Dán liên kết bài đăng"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt Input",
+        "UUID": "FDD27371-DB85-4CED-ADAB-74A231B581C3"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "E68202B4-7AAA-450E-A533-E942977AB057",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "216814A2-A1F7-4BFA-AB78-3C4BC5A4189A"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.detect.link",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "Variable",
+                "VariableName": "Input"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "CustomOutputName": "Liên kết được chia sẻ",
+        "UUID": "B17D4235-FED8-4FDE-ADBB-A1754E7280E3"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.nothing",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Xóa giá trị SupportedLinks",
+        "UUID": "872AD15D-F8AC-4256-AFCA-0661D99CCE8D"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "SupportedLinks",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "872AD15D-F8AC-4256-AFCA-0661D99CCE8D",
+            "OutputName": "Xóa giá trị SupportedLinks"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt SupportedLinks",
+        "UUID": "99375A1F-A401-423C-ABAD-A03617DC7368"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.each",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "B17D4235-FED8-4FDE-ADBB-A1754E7280E3",
+            "OutputName": "Liên kết được chia sẻ"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "GroupingIdentifier": "12CDE20D-4F92-4520-A600-59A6BCB1A640",
+        "WFControlFlowMode": 0,
+        "CustomOutputName": "Lặp từng mục",
+        "UUID": "148394D1-FEBE-4E6D-A0E1-3C86EE82FCF1"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.text.match",
+      "WFWorkflowActionParameters": {
+        "text": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "Variable",
+                "VariableName": "Repeat Item"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFMatchTextPattern": "^https://(?:(?:[a-z0-9-]+\\.)?(?:facebook\\.com|fb\\.com|fb\\.watch|instagram\\.com|tiktok\\.com))/[^\\s]+$",
+        "WFMatchTextCaseSensitive": false,
+        "CustomOutputName": "Khớp văn bản",
+        "UUID": "71E67533-06B1-488B-A4DB-6B6E63D70C24"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "99BAD097-63CC-407E-A059-B437DDD5E57A",
+        "WFControlFlowMode": 0,
+        "WFCondition": 100,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "71E67533-06B1-488B-A4DB-6B6E63D70C24",
+              "OutputName": "Khớp văn bản"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "ECE861BF-A9BE-4D95-AA2B-2692FD0354AC"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.appendvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "SupportedLinks",
+        "WFInput": {
+          "Value": {
+            "Type": "Variable",
+            "VariableName": "Repeat Item"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Thêm vào SupportedLinks",
+        "UUID": "1BBB2F1D-E29D-4073-A60E-1DF88539A85D"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "99BAD097-63CC-407E-A059-B437DDD5E57A",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "80AF00F5-3641-4FE3-A40D-B104A893A517"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.each",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "12CDE20D-4F92-4520-A600-59A6BCB1A640",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc lặp",
+        "UUID": "CF203980-9065-4ABF-AC92-9B2ADFFFD0A5"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "7793EF5D-E7DE-436E-AB75-B89328601052",
+        "WFControlFlowMode": 0,
+        "WFCondition": 101,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "Variable",
+              "VariableName": "SupportedLinks"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "16DA9E50-5AAE-4010-A79E-5151DDC13B8E"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": "Chưa nhận được link HTTPS của Facebook, Instagram hoặc TikTok. Trong ứng dụng, mở một bài → Chia sẻ → Thêm/Khác → Media Saver.",
+        "WFAlertActionCancelButtonShown": false,
+        "CustomOutputName": "Không tải được",
+        "UUID": "C274E3CF-93AE-4F06-A516-D1ACAF697CDE"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Dừng phím tắt",
+        "UUID": "EFBD1C6C-AC65-4138-A408-046434583C2E"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "7793EF5D-E7DE-436E-AB75-B89328601052",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "5175C7B9-3E36-4DBB-ABB0-1D1E554372D0"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.count",
+      "WFWorkflowActionParameters": {
+        "Input": {
+          "Value": {
+            "Type": "Variable",
+            "VariableName": "SupportedLinks"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFCountType": "Items",
+        "CustomOutputName": "Số lượng",
+        "UUID": "74B8EBEC-2464-42BE-AB93-81689493B61E"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "E0194DBE-845E-4383-A652-171B44C0DCC1",
+        "WFControlFlowMode": 0,
+        "WFCondition": 2,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "74B8EBEC-2464-42BE-AB93-81689493B61E",
+              "OutputName": "Số lượng"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "WFNumberValue": 1,
+        "CustomOutputName": "Nếu",
+        "UUID": "9451F065-EAC9-42CF-A33F-529A7425476F"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.choosefromlist",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "Variable",
+            "VariableName": "SupportedLinks"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFChooseFromListActionPrompt": "Chọn một bài để tải",
+        "WFChooseFromListActionSelectMultiple": false,
+        "CustomOutputName": "Chọn bài đăng",
+        "UUID": "B6102389-A06B-48D1-A348-BCFED0C67FFA"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "PostURL",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "B6102389-A06B-48D1-A348-BCFED0C67FFA",
+            "OutputName": "Chọn bài đăng"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt PostURL",
+        "UUID": "C7307F5C-DDFC-4068-A9A5-81A9F7291430"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "E0194DBE-845E-4383-A652-171B44C0DCC1",
+        "WFControlFlowMode": 1,
+        "CustomOutputName": "Nếu không",
+        "UUID": "640A666D-16B4-4638-A961-78FF1262E429"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getitemfromlist",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "Variable",
+            "VariableName": "SupportedLinks"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFItemSpecifier": "First Item",
+        "CustomOutputName": "Mục đầu tiên",
+        "UUID": "3E59AE17-A8C9-47E6-A0E0-EFE5BCEE7474"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "PostURL",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "3E59AE17-A8C9-47E6-A0E0-EFE5BCEE7474",
+            "OutputName": "Mục đầu tiên"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt PostURL",
+        "UUID": "BB7F1D8B-AF13-4DCA-A22C-E7B423FEE4E7"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "E0194DBE-845E-4383-A652-171B44C0DCC1",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "D189A1B7-9BAC-4BA9-A756-F35BB2C4308A"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.urlencode",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "Variable",
+                "VariableName": "PostURL"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFEncodeMode": "Encode",
+        "CustomOutputName": "Mã hóa liên kết",
+        "UUID": "0D2292BE-EDE1-45ED-A2B9-A213412D05D0"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.geturlcomponent",
+      "WFWorkflowActionParameters": {
+        "WFURL": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "Variable",
+                "VariableName": "PostURL"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFURLComponent": "Host",
+        "CustomOutputName": "Tên miền bài đăng",
+        "UUID": "17D65174-C9F6-46B1-AAFD-11A272586A90"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.nothing",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Xóa giá trị MediaURLs",
+        "UUID": "BBEA3523-72C7-4A41-AD72-85F9F3D672A8"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "MediaURLs",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "BBEA3523-72C7-4A41-AD72-85F9F3D672A8",
+            "OutputName": "Xóa giá trị MediaURLs"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt MediaURLs",
+        "UUID": "3F1762DC-B066-4856-AFA2-15D2ED5FF269"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.nothing",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Xóa giá trị SavedURLs",
+        "UUID": "B0D192FA-FE3D-4E54-A269-4AB03CC71152"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "SavedURLs",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "B0D192FA-FE3D-4E54-A269-4AB03CC71152",
+            "OutputName": "Xóa giá trị SavedURLs"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt SavedURLs",
+        "UUID": "3F400443-76C6-42B1-AC52-A5C781094C14"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.text.match",
+      "WFWorkflowActionParameters": {
+        "text": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "17D65174-C9F6-46B1-AAFD-11A272586A90",
+                "OutputName": "Tên miền bài đăng"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFMatchTextPattern": "(^|\\.)tiktok\\.com$",
+        "WFMatchTextCaseSensitive": false,
+        "CustomOutputName": "Khớp văn bản",
+        "UUID": "C1DA0ECC-22ED-4244-AEF7-5D599CBFFD32"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "7DB3576B-85E7-4C8C-A3DC-306B76FE72BB",
+        "WFControlFlowMode": 0,
+        "WFCondition": 100,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "C1DA0ECC-22ED-4244-AEF7-5D599CBFFD32",
+              "OutputName": "Khớp văn bản"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "E359E94B-E218-4973-A198-847113C4FC5A"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.gettext",
+      "WFWorkflowActionParameters": {
+        "WFTextActionText": "https://www.tikwm.com/",
+        "CustomOutputName": "Văn bản",
+        "UUID": "7C76A75B-8258-434D-AD02-17CB4A7E2F39"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "Referer",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "7C76A75B-8258-434D-AD02-17CB4A7E2F39",
+            "OutputName": "Văn bản"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt Referer",
+        "UUID": "21067CCD-A4E5-4C33-AFC0-238A8E1782B3"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.gettext",
+      "WFWorkflowActionParameters": {
+        "WFTextActionText": {
+          "Value": {
+            "string": "https://www.tikwm.com/api/?hd=1&url=￼",
+            "attachmentsByRange": {
+              "{36, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "0D2292BE-EDE1-45ED-A2B9-A213412D05D0",
+                "OutputName": "Mã hóa liên kết"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "CustomOutputName": "Văn bản",
+        "UUID": "CC034C4D-B96D-4807-A7F7-D00F37004337"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.downloadurl",
+      "WFWorkflowActionParameters": {
+        "WFURL": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "CC034C4D-B96D-4807-A7F7-D00F37004337",
+                "OutputName": "Văn bản"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFHTTPMethod": "GET",
+        "CustomOutputName": "Nội dung URL",
+        "UUID": "BC025141-87F2-43BD-AFCC-A20F394C062E"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "BC025141-87F2-43BD-AFCC-A20F394C062E",
+            "OutputName": "Nội dung URL"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "code",
+        "WFGetDictionaryValueType": "Value",
+        "CustomOutputName": "Lấy code",
+        "UUID": "EA24E43D-0048-4A76-AB2E-14F939BA8FEA"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.gettext",
+      "WFWorkflowActionParameters": {
+        "WFTextActionText": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "EA24E43D-0048-4A76-AB2E-14F939BA8FEA",
+                "OutputName": "Lấy code"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "CustomOutputName": "Văn bản",
+        "UUID": "3182EBE0-6EF4-47B8-A132-5A921951D0C8"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "828794CC-6A6F-41A3-AA39-EE8C9C068C10",
+        "WFControlFlowMode": 0,
+        "WFCondition": 5,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "3182EBE0-6EF4-47B8-A132-5A921951D0C8",
+              "OutputName": "Văn bản"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "WFConditionalActionString": "0",
+        "CustomOutputName": "Nếu",
+        "UUID": "A17AAB92-F72D-4F0D-A476-178B797E977B"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": "Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.",
+        "WFAlertActionCancelButtonShown": false,
+        "CustomOutputName": "Không tải được",
+        "UUID": "148C6D12-4D8A-4D09-AB54-6B4AA58DCCF9"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Dừng phím tắt",
+        "UUID": "3DA98DAD-912A-496E-A13B-0F556A872A15"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "828794CC-6A6F-41A3-AA39-EE8C9C068C10",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "9F477F9F-D917-44EF-A326-4C6BC3131930"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "BC025141-87F2-43BD-AFCC-A20F394C062E",
+            "OutputName": "Nội dung URL"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "data",
+        "WFGetDictionaryValueType": "Value",
+        "CustomOutputName": "Lấy data",
+        "UUID": "BD1FEFD9-52DA-43CD-A4BC-54B670CCC34C"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "0B75DC4D-C694-4171-AAF9-F1EA83196017",
+        "WFControlFlowMode": 0,
+        "WFCondition": 101,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "BD1FEFD9-52DA-43CD-A4BC-54B670CCC34C",
+              "OutputName": "Lấy data"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "0FFAE1ED-8D41-4547-A81E-FA4B02BF190A"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": "Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.",
+        "WFAlertActionCancelButtonShown": false,
+        "CustomOutputName": "Không tải được",
+        "UUID": "32314232-8F37-4AFD-A6C6-727DBD57A82D"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Dừng phím tắt",
+        "UUID": "3306FC4E-549D-425C-A7DE-C69FCA44FA19"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "0B75DC4D-C694-4171-AAF9-F1EA83196017",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "D837BE39-8158-4E6C-AC71-EE9D4F7DFAD5"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "BD1FEFD9-52DA-43CD-A4BC-54B670CCC34C",
+            "OutputName": "Lấy data"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "images",
+        "WFGetDictionaryValueType": "Value",
+        "CustomOutputName": "Lấy images",
+        "UUID": "3D022D26-C365-4541-AA45-4FFDB538A86E"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "96F65092-AD08-4F9D-AC53-05E552F4FCEC",
+        "WFControlFlowMode": 0,
+        "WFCondition": 100,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "3D022D26-C365-4541-AA45-4FFDB538A86E",
+              "OutputName": "Lấy images"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "C325F7AC-A40C-4799-A3A5-1EE81A7752C8"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "MediaURLs",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "3D022D26-C365-4541-AA45-4FFDB538A86E",
+            "OutputName": "Lấy images"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt MediaURLs",
+        "UUID": "EB666506-191B-4C7C-ACEA-4F16A4E2F512"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "96F65092-AD08-4F9D-AC53-05E552F4FCEC",
+        "WFControlFlowMode": 1,
+        "CustomOutputName": "Nếu không",
+        "UUID": "51472B7F-19DE-489E-A992-261BE271531E"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "BD1FEFD9-52DA-43CD-A4BC-54B670CCC34C",
+            "OutputName": "Lấy data"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "hdplay",
+        "WFGetDictionaryValueType": "Value",
+        "CustomOutputName": "Lấy hdplay",
+        "UUID": "F75A6F84-0606-4ED2-A1A3-7C5BDDC69346"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "8EB8DC74-F993-4D04-AFF6-9A258EE3E559",
+        "WFControlFlowMode": 0,
+        "WFCondition": 100,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "F75A6F84-0606-4ED2-A1A3-7C5BDDC69346",
+              "OutputName": "Lấy hdplay"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "6DB01D25-8CE7-49DD-A426-9F33F48C5853"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "MediaURLs",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "F75A6F84-0606-4ED2-A1A3-7C5BDDC69346",
+            "OutputName": "Lấy hdplay"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt MediaURLs",
+        "UUID": "11B22D2B-4E28-4238-A80A-ED1B76325495"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "8EB8DC74-F993-4D04-AFF6-9A258EE3E559",
+        "WFControlFlowMode": 1,
+        "CustomOutputName": "Nếu không",
+        "UUID": "43E711C7-116F-4EA0-A274-2D6317ECF336"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "BD1FEFD9-52DA-43CD-A4BC-54B670CCC34C",
+            "OutputName": "Lấy data"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "play",
+        "WFGetDictionaryValueType": "Value",
+        "CustomOutputName": "Lấy play",
+        "UUID": "281639F8-4526-4C44-ABF0-0D82E19E46C9"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "MediaURLs",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "281639F8-4526-4C44-ABF0-0D82E19E46C9",
+            "OutputName": "Lấy play"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt MediaURLs",
+        "UUID": "C7F2DBAD-6C6E-4544-A5FF-BD018691F2BB"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "8EB8DC74-F993-4D04-AFF6-9A258EE3E559",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "822BD23D-A540-48F9-A124-355FCC3B6423"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "96F65092-AD08-4F9D-AC53-05E552F4FCEC",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "75681C1F-60DD-4D85-A699-34E05DFB8ADA"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "7DB3576B-85E7-4C8C-A3DC-306B76FE72BB",
+        "WFControlFlowMode": 1,
+        "CustomOutputName": "Nếu không",
+        "UUID": "1EF139F8-78F7-470E-A652-C2FEB6135E47"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.text.match",
+      "WFWorkflowActionParameters": {
+        "text": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "17D65174-C9F6-46B1-AAFD-11A272586A90",
+                "OutputName": "Tên miền bài đăng"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFMatchTextPattern": "(^|\\.)instagram\\.com$",
+        "WFMatchTextCaseSensitive": false,
+        "CustomOutputName": "Khớp văn bản",
+        "UUID": "30B9E29A-5411-4053-AD0B-CB5C62D3E405"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "E94D2D03-35B3-4E88-A423-4009062DCD6C",
+        "WFControlFlowMode": 0,
+        "WFCondition": 100,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "30B9E29A-5411-4053-AD0B-CB5C62D3E405",
+              "OutputName": "Khớp văn bản"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "1E4D9A5F-890A-414A-AFD0-260CDDFA56C7"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.text.match",
+      "WFWorkflowActionParameters": {
+        "text": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "Variable",
+                "VariableName": "PostURL"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFMatchTextPattern": "^https://(?:www\\.)?instagram\\.com/(?:p|reel|reels|tv)/[A-Za-z0-9_-]+(?:/|[?#]|$)",
+        "WFMatchTextCaseSensitive": false,
+        "CustomOutputName": "Khớp văn bản",
+        "UUID": "45527F77-E96F-400D-A3FF-13CDF1AAFD2B"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "55DE9C2F-5A50-4D34-A4F9-0A71B3057DD4",
+        "WFControlFlowMode": 0,
+        "WFCondition": 101,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "45527F77-E96F-400D-A3FF-13CDF1AAFD2B",
+              "OutputName": "Khớp văn bản"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "B7020DA5-47E3-4D7C-AD37-D8579B27EBEA"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": "Hãy chia sẻ link bài đăng hoặc Reel Instagram. Bản này chưa hỗ trợ Stories, trang cá nhân hoặc link /share/.",
+        "WFAlertActionCancelButtonShown": false,
+        "CustomOutputName": "Không tải được",
+        "UUID": "5B3C94AA-73D5-474B-AAA9-12DB559EAC09"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Dừng phím tắt",
+        "UUID": "E140EC5D-3F0B-418E-ACCC-261815BA27A2"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "55DE9C2F-5A50-4D34-A4F9-0A71B3057DD4",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "26AAC067-4CDF-4392-AA01-3EFA84C7BD12"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.gettext",
+      "WFWorkflowActionParameters": {
+        "WFTextActionText": "https://sssinstagram.com/",
+        "CustomOutputName": "Văn bản",
+        "UUID": "8F8B63A8-CB16-4420-A01B-679469745A1B"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "Referer",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "8F8B63A8-CB16-4420-A01B-679469745A1B",
+            "OutputName": "Văn bản"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt Referer",
+        "UUID": "66D35D3B-A2A4-4526-A382-932F0707DE62"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.gettext",
+      "WFWorkflowActionParameters": {
+        "WFTextActionText": {
+          "Value": {
+            "string": "https://api.siputzx.my.id/api/d/sssinstagram?url=￼",
+            "attachmentsByRange": {
+              "{49, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "0D2292BE-EDE1-45ED-A2B9-A213412D05D0",
+                "OutputName": "Mã hóa liên kết"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "CustomOutputName": "Văn bản",
+        "UUID": "9C0E7299-4C10-41FE-A457-4715DEF2B36B"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.downloadurl",
+      "WFWorkflowActionParameters": {
+        "WFURL": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "9C0E7299-4C10-41FE-A457-4715DEF2B36B",
+                "OutputName": "Văn bản"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFHTTPMethod": "GET",
+        "CustomOutputName": "Nội dung URL",
+        "UUID": "A50066A1-5356-4AE4-ACC8-FB03BE73C4AF"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "A50066A1-5356-4AE4-ACC8-FB03BE73C4AF",
+            "OutputName": "Nội dung URL"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "error",
+        "WFGetDictionaryValueType": "Value",
+        "CustomOutputName": "Lấy error",
+        "UUID": "9DBEA161-1EAF-47E9-AA75-6E37DE0B226E"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "DA9B3366-A290-4B37-ABB0-D076AB491156",
+        "WFControlFlowMode": 0,
+        "WFCondition": 100,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "9DBEA161-1EAF-47E9-AA75-6E37DE0B226E",
+              "OutputName": "Lấy error"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "2CCD0239-25BD-41E2-ABAC-40B89443F93E"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": "Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.",
+        "WFAlertActionCancelButtonShown": false,
+        "CustomOutputName": "Không tải được",
+        "UUID": "CA3A6F67-90EC-45EA-A3D1-DCD92CC2020F"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Dừng phím tắt",
+        "UUID": "33AE3F56-B38D-42AC-A70B-19C58E0BF93C"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "DA9B3366-A290-4B37-ABB0-D076AB491156",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "D7E2B90D-3196-4384-A4D1-9B77CEADDEA1"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "A50066A1-5356-4AE4-ACC8-FB03BE73C4AF",
+            "OutputName": "Nội dung URL"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "data",
+        "WFGetDictionaryValueType": "Value",
+        "CustomOutputName": "Lấy data",
+        "UUID": "59DBE7A9-9F7C-48C8-AA05-A3671064ECE3"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "8457E890-BAFC-4A47-A3C1-8C8F7880EC54",
+        "WFControlFlowMode": 0,
+        "WFCondition": 101,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "59DBE7A9-9F7C-48C8-AA05-A3671064ECE3",
+              "OutputName": "Lấy data"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "A31AD63F-2D63-4FB1-A4CB-750153A3ADA7"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": "Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.",
+        "WFAlertActionCancelButtonShown": false,
+        "CustomOutputName": "Không tải được",
+        "UUID": "CF427E82-48BF-4E19-AB96-89E4AA7058BD"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Dừng phím tắt",
+        "UUID": "346B31D6-FF0F-48A1-A309-62E5163006FD"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "8457E890-BAFC-4A47-A3C1-8C8F7880EC54",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "AF4925D0-1E0D-4EA0-A6B5-C98E68F7767A"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.each",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "59DBE7A9-9F7C-48C8-AA05-A3671064ECE3",
+            "OutputName": "Lấy data"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "GroupingIdentifier": "86FAE876-0FBF-4532-A688-9FE48EE5138C",
+        "WFControlFlowMode": 0,
+        "CustomOutputName": "Lặp từng mục",
+        "UUID": "83D4BEC3-B4D2-4F57-ABA8-54A28AD169F0"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "Variable",
+            "VariableName": "Repeat Item"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "url",
+        "WFGetDictionaryValueType": "Value",
+        "CustomOutputName": "Lấy url",
+        "UUID": "FBD08337-6757-4559-A9EC-4CF8C395511B"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "CEEE4033-EB63-4012-A44B-57FC3D8ED4B4",
+        "WFControlFlowMode": 0,
+        "WFCondition": 101,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "FBD08337-6757-4559-A9EC-4CF8C395511B",
+              "OutputName": "Lấy url"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "F9F47441-6D8B-469D-A22C-B01316781CF3"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": "Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.",
+        "WFAlertActionCancelButtonShown": false,
+        "CustomOutputName": "Không tải được",
+        "UUID": "5D12BB21-2B5D-4B96-A7CD-7C9391059763"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Dừng phím tắt",
+        "UUID": "7262B762-F431-42B7-A72F-89012639743E"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "CEEE4033-EB63-4012-A44B-57FC3D8ED4B4",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "1D337477-5417-4B9A-AE62-1C0470DBA24F"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getitemfromlist",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "FBD08337-6757-4559-A9EC-4CF8C395511B",
+            "OutputName": "Lấy url"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFItemSpecifier": "First Item",
+        "CustomOutputName": "Mục đầu tiên",
+        "UUID": "4726B544-6246-4536-A52B-DF71CF40B8E7"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "4726B544-6246-4536-A52B-DF71CF40B8E7",
+            "OutputName": "Mục đầu tiên"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "ext",
+        "WFGetDictionaryValueType": "Value",
+        "CustomOutputName": "Lấy ext",
+        "UUID": "7229DE7C-D145-46E2-A193-90DBF134A567"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.text.match",
+      "WFWorkflowActionParameters": {
+        "text": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "7229DE7C-D145-46E2-A193-90DBF134A567",
+                "OutputName": "Lấy ext"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFMatchTextPattern": "^(mp4|jpg|jpeg|png|webp|heic)$",
+        "WFMatchTextCaseSensitive": false,
+        "CustomOutputName": "Khớp văn bản",
+        "UUID": "D008929E-F9C5-43B8-A1F3-E75FB12CFE88"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "73914C70-1A3C-4724-A2A7-0B0760AC0B36",
+        "WFControlFlowMode": 0,
+        "WFCondition": 101,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "D008929E-F9C5-43B8-A1F3-E75FB12CFE88",
+              "OutputName": "Khớp văn bản"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "82243655-F77B-48BA-A299-E6CF76EDB59D"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": "Dịch vụ trả về định dạng chưa được hỗ trợ. Chưa lưu media nào.",
+        "WFAlertActionCancelButtonShown": false,
+        "CustomOutputName": "Không tải được",
+        "UUID": "973BDB9F-FC82-466F-A845-790FC22C3306"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Dừng phím tắt",
+        "UUID": "E2C7F0DE-53B6-42F6-A96B-5126917C2EE3"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "73914C70-1A3C-4724-A2A7-0B0760AC0B36",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "8EFC2354-DD9A-4046-AD33-9D9D5EE81295"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "4726B544-6246-4536-A52B-DF71CF40B8E7",
+            "OutputName": "Mục đầu tiên"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "url",
+        "WFGetDictionaryValueType": "Value",
+        "CustomOutputName": "Lấy url",
+        "UUID": "B65B3AA0-F174-428B-A3CA-9D1B3E7B37C4"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "5CC3320F-8B92-4014-A5A0-B40C8250C20C",
+        "WFControlFlowMode": 0,
+        "WFCondition": 101,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "B65B3AA0-F174-428B-A3CA-9D1B3E7B37C4",
+              "OutputName": "Lấy url"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "39F2696A-9D89-4D7E-A836-E6F701CA83E4"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": "Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.",
+        "WFAlertActionCancelButtonShown": false,
+        "CustomOutputName": "Không tải được",
+        "UUID": "4F6462D2-5E85-4046-A22B-826CB4E33971"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Dừng phím tắt",
+        "UUID": "DE4C4AAB-4FDB-4B0F-AC49-543F76D46B10"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "5CC3320F-8B92-4014-A5A0-B40C8250C20C",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "A6A787D6-2DD7-4DDE-A625-E4D213DF630D"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.appendvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "MediaURLs",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "B65B3AA0-F174-428B-A3CA-9D1B3E7B37C4",
+            "OutputName": "Lấy url"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Thêm vào MediaURLs",
+        "UUID": "BC4EFAA7-BC00-45AE-A246-3BAE4CECAAF7"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.each",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "86FAE876-0FBF-4532-A688-9FE48EE5138C",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc lặp",
+        "UUID": "604F25C6-E749-4975-A979-DC930131422C"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "E94D2D03-35B3-4E88-A423-4009062DCD6C",
+        "WFControlFlowMode": 1,
+        "CustomOutputName": "Nếu không",
+        "UUID": "333A061C-3E47-4CA8-A717-6BA9ED391062"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.gettext",
+      "WFWorkflowActionParameters": {
+        "WFTextActionText": "https://www.facebook.com/",
+        "CustomOutputName": "Văn bản",
+        "UUID": "F6D10BA1-B87B-4212-A208-8B3E3D2AA9DF"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "Referer",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "F6D10BA1-B87B-4212-A208-8B3E3D2AA9DF",
+            "OutputName": "Văn bản"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt Referer",
+        "UUID": "3A570514-EEBE-477A-A43B-5A869DD69F49"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.gettext",
+      "WFWorkflowActionParameters": {
+        "WFTextActionText": {
+          "Value": {
+            "string": "https://vkrdownloader.org/server/?api_key=vkrdownloader&vkr=￼",
+            "attachmentsByRange": {
+              "{60, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "0D2292BE-EDE1-45ED-A2B9-A213412D05D0",
+                "OutputName": "Mã hóa liên kết"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "CustomOutputName": "Văn bản",
+        "UUID": "3E1196E5-0115-4106-A4EB-977441D494E9"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.downloadurl",
+      "WFWorkflowActionParameters": {
+        "WFURL": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "3E1196E5-0115-4106-A4EB-977441D494E9",
+                "OutputName": "Văn bản"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFHTTPMethod": "GET",
+        "CustomOutputName": "Nội dung URL",
+        "UUID": "7EA267CF-0DB3-4C74-A5C0-E5FA78890514"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "7EA267CF-0DB3-4C74-A5C0-E5FA78890514",
+            "OutputName": "Nội dung URL"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "error",
+        "WFGetDictionaryValueType": "Value",
+        "CustomOutputName": "Lấy error",
+        "UUID": "051DCC6B-0EF8-4674-AB34-D3D7E0E85D94"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "D39D67AE-F6C8-4300-A8F9-698E14791FE0",
+        "WFControlFlowMode": 0,
+        "WFCondition": 100,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "051DCC6B-0EF8-4674-AB34-D3D7E0E85D94",
+              "OutputName": "Lấy error"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "DCA90EF2-C727-4166-A023-E7692E41F420"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": "Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.\nFacebook hiện chỉ hỗ trợ video; chưa tải album ảnh.",
+        "WFAlertActionCancelButtonShown": false,
+        "CustomOutputName": "Không tải được",
+        "UUID": "972125C5-C3CE-487D-AE4D-9DF95D7634C2"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Dừng phím tắt",
+        "UUID": "A97F6DF4-9CE4-4550-A834-3DD29EA5A23D"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "D39D67AE-F6C8-4300-A8F9-698E14791FE0",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "67627347-DF77-4CBC-AEDE-94C61DF1CF03"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "7EA267CF-0DB3-4C74-A5C0-E5FA78890514",
+            "OutputName": "Nội dung URL"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "data",
+        "WFGetDictionaryValueType": "Value",
+        "CustomOutputName": "Lấy data",
+        "UUID": "70E1EA4C-ADFB-42F0-A132-D4C781E76873"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "55CF66D1-83E1-4A51-A8E6-E878FF2E162B",
+        "WFControlFlowMode": 0,
+        "WFCondition": 101,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "70E1EA4C-ADFB-42F0-A132-D4C781E76873",
+              "OutputName": "Lấy data"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "E39A0049-725B-4A5F-A268-FBAF80C706F4"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": "Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.",
+        "WFAlertActionCancelButtonShown": false,
+        "CustomOutputName": "Không tải được",
+        "UUID": "6BD2E908-1703-44FD-A14E-EFFB0011BEE0"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Dừng phím tắt",
+        "UUID": "F7FBCA05-B6BF-4B6E-ABAA-358D2E881D15"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "55CF66D1-83E1-4A51-A8E6-E878FF2E162B",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "310D975B-C6F7-4000-A0E9-A7579FDCBC71"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "70E1EA4C-ADFB-42F0-A132-D4C781E76873",
+            "OutputName": "Lấy data"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "downloads",
+        "WFGetDictionaryValueType": "Value",
+        "CustomOutputName": "Lấy downloads",
+        "UUID": "F6B8BA54-DFBA-498B-A66D-4DDB0DD4A381"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "282E191D-8B30-44D6-AA3C-825C34777737",
+        "WFControlFlowMode": 0,
+        "WFCondition": 101,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "F6B8BA54-DFBA-498B-A66D-4DDB0DD4A381",
+              "OutputName": "Lấy downloads"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "B4DEE4B4-1B27-428F-A3D7-9FDA77AB0F56"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": "Dịch vụ chưa lấy được media của bài này. Hãy dùng link của một bài công khai và thử lại sau. Bài riêng tư, Stories, livestream và bài yêu cầu đăng nhập không được hỗ trợ.",
+        "WFAlertActionCancelButtonShown": false,
+        "CustomOutputName": "Không tải được",
+        "UUID": "9BAA10FE-C771-44FF-ABCA-2FC857E4369B"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Dừng phím tắt",
+        "UUID": "384E3533-5617-469C-A973-A1FF4A185170"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "282E191D-8B30-44D6-AA3C-825C34777737",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "9424B5BE-1811-45F5-A2C2-07461AB2EAF2"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.each",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "F6B8BA54-DFBA-498B-A66D-4DDB0DD4A381",
+            "OutputName": "Lấy downloads"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "GroupingIdentifier": "D98C5AB4-BEF0-46AD-AB03-3FA9E71D7DF9",
+        "WFControlFlowMode": 0,
+        "CustomOutputName": "Lặp từng mục",
+        "UUID": "2C2874FA-3A5F-4AE5-A20F-7734DC24D67C"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "Variable",
+            "VariableName": "Repeat Item"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "ext",
+        "WFGetDictionaryValueType": "Value",
+        "CustomOutputName": "Lấy ext",
+        "UUID": "CC0D2337-E6BA-4FFD-AE38-4280B52EEC56"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.gettext",
+      "WFWorkflowActionParameters": {
+        "WFTextActionText": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "CC0D2337-E6BA-4FFD-AE38-4280B52EEC56",
+                "OutputName": "Lấy ext"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "CustomOutputName": "Văn bản",
+        "UUID": "19DCE3C9-A529-4BB7-A4DE-F5F23F5782C8"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "91A8A032-827F-49A5-AEFD-841432A3F76C",
+        "WFControlFlowMode": 0,
+        "WFCondition": 4,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "19DCE3C9-A529-4BB7-A4DE-F5F23F5782C8",
+              "OutputName": "Văn bản"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "WFConditionalActionString": "mp4",
+        "CustomOutputName": "Nếu",
+        "UUID": "B8FDB6F8-2F0C-4E28-AFB1-D51811D60BA1"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "76A67FBD-A609-4866-AF7C-D8F9C4B55D9B",
+        "WFControlFlowMode": 0,
+        "WFCondition": 101,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "Variable",
+              "VariableName": "MediaURLs"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "B35534EA-9EAA-4DE5-A5B7-447A93195CE3"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "Variable",
+            "VariableName": "Repeat Item"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "url",
+        "WFGetDictionaryValueType": "Value",
+        "CustomOutputName": "Lấy url",
+        "UUID": "63304463-4F26-4476-A69E-C2CE60C11660"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "MediaURLs",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "63304463-4F26-4476-A69E-C2CE60C11660",
+            "OutputName": "Lấy url"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt MediaURLs",
+        "UUID": "B7C64B28-5DFA-4933-A5E9-3B1D9C8AE603"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "76A67FBD-A609-4866-AF7C-D8F9C4B55D9B",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "3596659B-B184-491B-A193-3163382ADDBC"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "91A8A032-827F-49A5-AEFD-841432A3F76C",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "36968893-8278-4B10-A3B3-5C63BBEBD198"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.each",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "D98C5AB4-BEF0-46AD-AB03-3FA9E71D7DF9",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc lặp",
+        "UUID": "12E69E3E-7679-4749-A7EA-1CA90199553F"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "E94D2D03-35B3-4E88-A423-4009062DCD6C",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "EB01DD5C-5FD8-4AB9-A623-08C84F97F4BD"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "7DB3576B-85E7-4C8C-A3DC-306B76FE72BB",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "FD54E65E-596C-44B1-AFF0-0B1E01122078"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "B64EB082-2D4B-466E-ADEF-EF08FE44D320",
+        "WFControlFlowMode": 0,
+        "WFCondition": 101,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "Variable",
+              "VariableName": "MediaURLs"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "FCD6E77F-67E3-4090-AFFE-F27C98F309D8"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": "Không tìm thấy tệp ảnh/video tải được. Facebook hiện chỉ hỗ trợ video; chưa hỗ trợ ảnh hoặc album. Không lưu ảnh bìa thay cho video.",
+        "WFAlertActionCancelButtonShown": false,
+        "CustomOutputName": "Không tải được",
+        "UUID": "E4FE7520-9404-4CCF-AA29-BBAECFB2AE2D"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Dừng phím tắt",
+        "UUID": "597B39C9-D0FD-4831-A266-42599E112ECB"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "B64EB082-2D4B-466E-ADEF-EF08FE44D320",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "80CE1710-F2B4-4D23-A321-6DEA5EB551EF"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.nothing",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Xóa giá trị ValidatedURLs",
+        "UUID": "2635A5B2-66BB-4891-AEFD-E208DD89CA9D"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "ValidatedURLs",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "2635A5B2-66BB-4891-AEFD-E208DD89CA9D",
+            "OutputName": "Xóa giá trị ValidatedURLs"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt ValidatedURLs",
+        "UUID": "5C8C0A97-5DA7-4508-A4CB-1CD8E4241C91"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.each",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "Variable",
+            "VariableName": "MediaURLs"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "GroupingIdentifier": "1F8F9207-24B8-4C4C-AA81-29DDCA67028F",
+        "WFControlFlowMode": 0,
+        "CustomOutputName": "Lặp từng mục",
+        "UUID": "E3A99C5D-3916-4029-A9FB-18699667B50E"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "CandidateURL",
+        "WFInput": {
+          "Value": {
+            "Type": "Variable",
+            "VariableName": "Repeat Item"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt CandidateURL",
+        "UUID": "A1830950-025B-4899-A493-0AB8EF536AEB"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.text.match",
+      "WFWorkflowActionParameters": {
+        "text": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "17D65174-C9F6-46B1-AAFD-11A272586A90",
+                "OutputName": "Tên miền bài đăng"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFMatchTextPattern": "(^|\\.)tiktok\\.com$",
+        "WFMatchTextCaseSensitive": false,
+        "CustomOutputName": "Khớp văn bản",
+        "UUID": "BD70A414-B41D-4DD5-AF5B-5B5186E4B012"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "161FAD8B-82D6-4E1C-A656-5B22242715C0",
+        "WFControlFlowMode": 0,
+        "WFCondition": 100,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "BD70A414-B41D-4DD5-AF5B-5B5186E4B012",
+              "OutputName": "Khớp văn bản"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "D4982303-D0D1-4279-AFFF-58DA34EDDEAD"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.text.replace",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "Variable",
+                "VariableName": "Repeat Item"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFReplaceTextFind": "^/(?!/)",
+        "WFReplaceTextReplace": "https://www.tikwm.com/",
+        "WFReplaceTextRegularExpression": true,
+        "WFReplaceTextCaseSensitive": true,
+        "CustomOutputName": "URL TikWM đầy đủ",
+        "UUID": "DCC02799-5ED7-401B-A9D3-AF101F1C4FB9"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "CandidateURL",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "DCC02799-5ED7-401B-A9D3-AF101F1C4FB9",
+            "OutputName": "URL TikWM đầy đủ"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt CandidateURL",
+        "UUID": "EE9F1F12-6A6A-46C3-A063-3544C344FF0D"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "161FAD8B-82D6-4E1C-A656-5B22242715C0",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "645D243C-57A6-4156-AB25-491BD66C5AB6"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.text.match",
+      "WFWorkflowActionParameters": {
+        "text": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "Variable",
+                "VariableName": "CandidateURL"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFMatchTextPattern": "^https://[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?/(?![^?#]*\\.(?:m3u8|mpd)(?:[?#]|$))[^\\s]*$",
+        "WFMatchTextCaseSensitive": false,
+        "CustomOutputName": "Khớp văn bản",
+        "UUID": "8094A0BC-89F7-4328-A571-2245B00C1D03"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "4316AFA5-CFE7-452A-A1FC-5A4B733667BC",
+        "WFControlFlowMode": 0,
+        "WFCondition": 101,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "8094A0BC-89F7-4328-A571-2245B00C1D03",
+              "OutputName": "Khớp văn bản"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "CustomOutputName": "Nếu",
+        "UUID": "E963D7E0-3BF5-417D-ADE3-21F2CFC4BEE3"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": "Dịch vụ trả về URL media không hợp lệ hoặc luồng chưa hỗ trợ. Chưa lưu media nào.",
+        "WFAlertActionCancelButtonShown": false,
+        "CustomOutputName": "Không tải được",
+        "UUID": "A67C18C2-8148-4134-A276-F1F9985D2F5E"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "CustomOutputName": "Dừng phím tắt",
+        "UUID": "6A3361EF-872B-45EE-ABBA-894839C49951"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "4316AFA5-CFE7-452A-A1FC-5A4B733667BC",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc nếu",
+        "UUID": "76FB948C-AB9F-4369-A478-2B263E993934"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.appendvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "ValidatedURLs",
+        "WFInput": {
+          "Value": {
+            "Type": "Variable",
+            "VariableName": "CandidateURL"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Thêm vào ValidatedURLs",
+        "UUID": "299B23A3-E5E2-4A7F-A133-8EFC86DBF500"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.each",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "1F8F9207-24B8-4C4C-AA81-29DDCA67028F",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc lặp",
+        "UUID": "48CFEA09-3A70-4388-AB50-E2914EEE685B"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.each",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "Variable",
+            "VariableName": "ValidatedURLs"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "GroupingIdentifier": "9CAE9F3B-B4BA-4953-A794-424E653887DF",
+        "WFControlFlowMode": 0,
+        "CustomOutputName": "Lặp từng mục",
+        "UUID": "5315904E-A5DB-43DF-A30B-C0F6784846D0"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.downloadurl",
+      "WFWorkflowActionParameters": {
+        "WFURL": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "Variable",
+                "VariableName": "Repeat Item"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFHTTPMethod": "GET",
+        "WFHTTPHeaders": {
+          "Value": {
+            "WFDictionaryFieldValueItems": [
+              {
+                "WFItemType": 0,
+                "WFKey": {
+                  "Value": {
+                    "string": "Referer",
+                    "attachmentsByRange": {}
+                  },
+                  "WFSerializationType": "WFTextTokenString"
+                },
+                "WFValue": {
+                  "Value": {
+                    "string": "￼",
+                    "attachmentsByRange": {
+                      "{0, 1}": {
+                        "Type": "Variable",
+                        "VariableName": "Referer"
+                      }
+                    }
+                  },
+                  "WFSerializationType": "WFTextTokenString"
+                }
+              }
+            ]
+          },
+          "WFSerializationType": "WFDictionaryFieldValue"
+        },
+        "CustomOutputName": "Nội dung URL",
+        "UUID": "A42BA7BF-4102-46E3-A20F-D431DBC07947"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.savetocameraroll",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "A42BA7BF-4102-46E3-A20F-D431DBC07947",
+            "OutputName": "Nội dung URL"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFCameraRollSelectedGroup": "Recents",
+        "CustomOutputName": "Lưu vào Ảnh",
+        "UUID": "BAA759BC-E823-4235-A670-1646F3F05EE9"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.appendvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "SavedURLs",
+        "WFInput": {
+          "Value": {
+            "Type": "Variable",
+            "VariableName": "Repeat Item"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Thêm vào SavedURLs",
+        "UUID": "449742B4-E3D1-42EE-AF6E-2E41DB58DC24"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.each",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "9CAE9F3B-B4BA-4953-A794-424E653887DF",
+        "WFControlFlowMode": 2,
+        "CustomOutputName": "Kết thúc lặp",
+        "UUID": "1C2A6BD4-7417-49C7-AB52-93D278D46794"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.count",
+      "WFWorkflowActionParameters": {
+        "Input": {
+          "Value": {
+            "Type": "Variable",
+            "VariableName": "SavedURLs"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFCountType": "Items",
+        "CustomOutputName": "Số lượng",
+        "UUID": "C4A2F1FE-401B-4C9F-ACE9-9AD9FACE59FD"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.notification",
+      "WFWorkflowActionParameters": {
+        "WFNotificationActionTitle": "Media Saver",
+        "WFNotificationActionBody": {
+          "Value": {
+            "string": "Đã lưu ￼ tệp vào Ảnh.",
+            "attachmentsByRange": {
+              "{7, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "C4A2F1FE-401B-4C9F-ACE9-9AD9FACE59FD",
+                "OutputName": "Số lượng"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFNotificationActionSound": false,
+        "CustomOutputName": "Đã lưu media",
+        "UUID": "3A6D36BE-0CF8-4373-AD1F-63A0FBF76BB9"
+      }
+    }
+  ]
+}
