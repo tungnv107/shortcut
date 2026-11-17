@@ -1,0 +1,13 @@
+{
+  "name": "media-saver-ios",
+  "version": "1.0.0-beta.1",
+  "private": true,
+  "description": "Shortcut chạy trên iPhone, trích xuất media từ bài đăng đang mở trong Safari.",
+  "scripts": {
+    "build": "node tools/build.cjs",
+    "test": "node --test test/*.test.cjs",
+    "verify": "npm run build && npm test",
+    "test:browser": "node tools/browser-check.cjs"
+  },
+  "engines": { "node": ">=20" }
+}

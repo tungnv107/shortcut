@@ -1,0 +1,197 @@
+{
+  "WFWorkflowName": "Media Saver",
+  "WFWorkflowClientVersion": "3036.0.4",
+  "WFWorkflowClientRelease": "18.0",
+  "WFWorkflowMinimumClientVersion": 900,
+  "WFWorkflowMinimumClientVersionString": "900",
+  "WFWorkflowIcon": {
+    "WFWorkflowIconStartColor": 4282601983,
+    "WFWorkflowIconGlyphNumber": 59511
+  },
+  "WFWorkflowTypes": [
+    "ActionExtension"
+  ],
+  "WFWorkflowInputContentItemClasses": [
+    "WFSafariWebPageContentItem"
+  ],
+  "WFWorkflowHasOutputFallback": false,
+  "WFWorkflowImportQuestions": [],
+  "WFWorkflowActions": [
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.comment",
+      "WFWorkflowActionParameters": {
+        "WFCommentActionText": "Mở riêng bài đăng Facebook/Instagram/TikTok trong Safari → Chia sẻ → Media Saver. Chỉ tải tệp mà trang cung cấp; không ghép HLS/DASH, không quét trang cá nhân. Đọc hướng dẫn đi kèm. Bản nguồn này cần ký trên macOS trước khi nhập.",
+        "UUID": "E83DF53D-9386-4467-A1D7-B1599F804A10"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.runjavascriptonwebpage",
+      "WFWorkflowActionParameters": {
+        "WFJavaScript": "function collectMedia(document, pageURL, additionalData) {\n  \"use strict\";\n  additionalData = additionalData || [];\n  const MAX_NODES = 60000;\n  const MAX_JSON = 12000000;\n  const deadline = Date.now() + 2500;\n  const warnings = new Set();\n  const media = new Map();\n  let scanned = 0;\n  let expected = 0;\n  let structured = false;\n  let inaccessibleVideos = 0;\n\n  function identify(raw) {\n    try {\n      const u = new URL(raw, pageURL);\n      const host = u.hostname.toLowerCase();\n      let platform = \"\";\n      let id = \"\";\n      if (/(^|\\.)instagram\\.com$/.test(host)) {\n        platform = \"Instagram\";\n        id = (u.pathname.match(/\\/(?:p|reels?|tv)\\/([\\w-]+)/) || [])[1] || \"\";\n      } else if (/(^|\\.)tiktok\\.com$/.test(host)) {\n        platform = \"TikTok\";\n        id = (u.pathname.match(/\\/(?:video|photo)\\/(\\d+)/) || [])[1] || \"\";\n      } else if (/(^|\\.)facebook\\.com$/.test(host) || host === \"fb.watch\") {\n        platform = \"Facebook\";\n        id = u.searchParams.get(\"fbid\") || u.searchParams.get(\"story_fbid\") || u.searchParams.get(\"v\") ||\n          (u.pathname.match(/\\/(?:reel|videos|posts)\\/([^/?]+)/) || [])[1] ||\n          (u.pathname.match(/\\/photos\\/(?:[^/]+\\/)*(\\d+)\\/?$/) || [])[1] || \"\";\n      }\n      return { platform, id, url: u.href };\n    } catch (_) { return { platform: \"\", id: \"\", url: \"\" }; }\n  }\n\n  const target = identify(pageURL);\n  const baseResult = { platform: target.platform, pageURL, urls: [], items: [], expected: 0, complete: false };\n  if (!target.platform) return { ...baseResult, notice: \"Chỉ hỗ trợ bài đăng Facebook, Instagram và TikTok mở trong Safari.\" };\n  // Short URLs need to finish redirecting before extraction. Never scan a feed/profile.\n  if (!target.id) return { ...baseResult, notice: \"Hãy mở liên kết của một bài đăng cụ thể trong Safari và đợi trang tải xong. Không hỗ trợ quét toàn bộ trang cá nhân, bảng tin hay album phân trang.\" };\n\n  function cleanURL(raw) {\n    if (typeof raw !== \"string\" || !raw) return \"\";\n    try {\n      const u = new URL(raw.replace(/&amp;/g, \"&\"), pageURL);\n      if (u.protocol !== \"https:\" || u.username || u.password) return \"\";\n      if (/\\.(?:m3u8|mpd)(?:$|[?#])/i.test(u.href)) {\n        warnings.add(\"Có luồng HLS/DASH không thể lưu trực tiếp bằng bản này.\");\n        return \"\";\n      }\n      return u.href;\n    } catch (_) { return \"\"; }\n  }\n\n  function urlsFrom(value) {\n    if (!value) return [];\n    if (typeof value === \"string\") return [value];\n    if (Array.isArray(value)) return value.flatMap(urlsFrom);\n    if (typeof value === \"object\") {\n      return urlsFrom(value.urlList || value.UrlList || value.url_list || value.url || value.src || value.uri);\n    }\n    return [];\n  }\n\n  function add(kind, values, id, width, height) {\n    const alternatives = [...new Set(urlsFrom(values).map(cleanURL).filter(Boolean))];\n    if (!alternatives.length) return false;\n    const key = kind + \":\" + (id || alternatives[0]);\n    const score = Number(width || 0) * Number(height || 0);\n    const existing = media.get(key);\n    if (!existing || score > existing.score) media.set(key, { kind, url: alternatives[0], id: String(id || \"\"), score });\n    return true;\n  }\n\n  function best(items) {\n    return [...(Array.isArray(items) ? items : [])].sort((a, b) =>\n      Number(b.width || b.config_width || 0) * Number(b.height || b.config_height || 0) -\n      Number(a.width || a.config_width || 0) * Number(a.height || a.config_height || 0));\n  }\n\n  const skipKeys = /^(?:owner|author|authorInfo|user|users|actors|comments|edge_media_to_comment|edge_media_to_parent_comment|edge_related_profiles|recommendations|suggested|related|related_videos|viewer|feedback|music|avatar|profile_pic_url)$/;\n  function walk(root, callback, skip = false) {\n    const stack = [root];\n    const visited = new Set();\n    while (stack.length) {\n      if (++scanned > MAX_NODES || Date.now() > deadline) {\n        warnings.add(\"Dữ liệu trang quá lớn; chỉ đọc được một phần. Mở riêng bài đăng rồi thử lại.\");\n        break;\n      }\n      const n = stack.pop();\n      if (!n || typeof n !== \"object\" || visited.has(n)) continue;\n      visited.add(n);\n      if (callback(n) === false) continue;\n      const entries = Array.isArray(n) ? n.map((v, i) => [String(i), v]) : Object.entries(n);\n      for (let i = entries.length - 1; i >= 0; i--) {\n        const [key, value] = entries[i];\n        if (!skip || !skipKeys.test(key)) stack.push(value);\n      }\n    }\n  }\n\n  function matches(n) {\n    if ([n.shortcode, n.code, n.id, n.pk, n.post_id, n.video_id, n.aweme_id].some(v => v != null && String(v) === target.id)) return true;\n    return [n.permalink_url, n.story_permalink, n.url].some(v => {\n      if (typeof v !== \"string\" || !/^https:\\/\\//.test(v)) return false;\n      const other = identify(v);\n      return other.platform === target.platform && other.id === target.id;\n    });\n  }\n\n  function instagram(n, fallbackID) {\n    const children = n.carousel_media || (n.edge_sidecar_to_children && n.edge_sidecar_to_children.edges.map(e => e.node));\n    if (Array.isArray(children) && children.length) {\n      expected = Math.max(expected, Number(n.carousel_media_count || (n.edge_sidecar_to_children || {}).count || children.length));\n      children.forEach((child, i) => instagram(child, \"ig-child-\" + i));\n      return true;\n    }\n    const id = n.id || n.pk || fallbackID;\n    const versions = best(n.video_versions);\n    const isVideo = n.is_video === true || n.media_type === 2 || n.__typename === \"GraphVideo\" || !!n.video_url || versions.length > 0;\n    if (isVideo) {\n      if (!add(\"video\", versions.length ? versions : n.video_url, id)) inaccessibleVideos++;\n      return true;\n    }\n    const images = best((n.image_versions2 || {}).candidates || n.display_resources);\n    return add(\"image\", images.length ? images : (n.display_url || n.display_src), id);\n  }\n\n  function tiktok(n) {\n    const images = (n.imagePost || n.image_post_info || {}).images;\n    if (Array.isArray(images) && images.length) {\n      expected = Math.max(expected, images.length);\n      images.forEach((img, i) => add(\"image\", img.imageURL || img.displayImage || img.display_image || img, \"tt-\" + i));\n      return true;\n    }\n    if (!n.video) return false;\n    const v = n.video;\n    if (!add(\"video\", [v.playAddr, v.play_addr, v.downloadAddr, (v.download || {}).url, v.download_addr], n.id || n.aweme_id || target.id)) inaccessibleVideos++;\n    return true;\n  }\n\n  function facebook(root) {\n    let recognized = false;\n    walk(root, n => {\n      const video = n.__typename === \"Video\" || n.browser_native_hd_url || n.browser_native_sd_url || n.playable_url || n.playable_url_quality_hd;\n      if (video) {\n        let found = false;\n        walk(n, part => {\n          const progressive = best(part.progressive_urls).map(p => p.progressive_url);\n          const sources = [part.browser_native_hd_url, part.playable_url_quality_hd, progressive, part.browser_native_sd_url, part.playable_url];\n          if (add(\"video\", sources, n.id || n.video_id || target.id)) found = true;\n        }, true);\n        if (!found) inaccessibleVideos++;\n        recognized = true;\n        return false;\n      }\n      if (n.__typename === \"Photo\") {\n        const images = [n.image, n.photo_image, n.viewer_image, n.large_share_image].filter(Boolean);\n        if (add(\"image\", best(images), n.id || n.fbid)) recognized = true;\n        return false;\n      }\n      const sub = n.all_subattachments || n.subattachments;\n      if (sub && Number(sub.count)) expected = Math.max(expected, Number(sub.count));\n    }, true);\n    return recognized;\n  }\n\n  let jsonBytes = 0;\n  const scripts = additionalData.map(data => ({ textContent: JSON.stringify(data) })).concat([...document.querySelectorAll(\"script\")]);\n  for (const script of scripts) {\n    let text = (script.textContent || \"\").trim().replace(/^for\\s*\\(;;\\);\\s*/, \"\");\n    if (!/^[\\[{]/.test(text)) continue;\n    jsonBytes += text.length;\n    if (jsonBytes > MAX_JSON) { warnings.add(\"Trang chứa quá nhiều dữ liệu; kết quả có thể chưa đầy đủ.\"); break; }\n    let root;\n    try { root = JSON.parse(text); } catch (_) { continue; }\n    walk(root, n => {\n      if (!matches(n)) return;\n      let handled = false;\n      if (target.platform === \"Instagram\") handled = instagram(n, target.id);\n      if (target.platform === \"TikTok\") handled = tiktok(n);\n      if (target.platform === \"Facebook\") handled = facebook(n);\n      if (handled) { structured = true; return false; }\n    });\n  }\n\n  function attr(node, key) { return node && node.getAttribute(key) || \"\"; }\n  function meta(key) { return attr(document.querySelector('meta[property=\"' + key + '\"]'), \"content\"); }\n  const canonical = identify(meta(\"og:url\") || attr(document.querySelector('link[rel=\"canonical\"]'), \"href\"));\n  const validMetadata = canonical.platform === target.platform && canonical.id === target.id;\n\n  // DOM fallback is deliberately limited to the matching post/article. A global\n  // img scan would download avatars, recommendations and video cover images.\n  if (!media.size && !structured) {\n    const articles = [...document.querySelectorAll('article, [role=\"article\"]')];\n    let scope = articles.find(article => [...article.querySelectorAll(\"a[href]\")].some(a => {\n      const link = identify(attr(a, \"href\"));\n      return link.platform === target.platform && link.id === target.id;\n    }));\n    if (!scope && articles.length === 1) scope = articles[0];\n    if (target.platform === \"TikTok\" && !scope) scope = document.querySelector('[data-e2e=\"browse-video\"], [data-e2e=\"video-detail\"]');\n    let hasVideo = false;\n    if (scope) {\n      const videos = [...scope.querySelectorAll(\"video\")];\n      hasVideo = videos.length > 0;\n      videos.forEach((v, i) => {\n        const sources = [v.currentSrc, attr(v, \"src\"), ...[...v.querySelectorAll(\"source\")].map(s => attr(s, \"src\"))];\n        if (!add(\"video\", sources, \"dom-video-\" + i)) inaccessibleVideos++;\n      });\n      if (!hasVideo) {\n        [...scope.querySelectorAll(\"img\")].forEach(img => {\n          const alt = attr(img, \"alt\");\n          if (/avatar|profile|ảnh đại diện/i.test(alt)) return;\n          if (Number(img.naturalWidth) < 240 || Number(img.naturalHeight) < 240) return;\n          add(\"image\", img.currentSrc || attr(img, \"src\"), null);\n        });\n      }\n    }\n    if (!media.size && validMetadata) {\n      const ogVideo = meta(\"og:video:secure_url\") || meta(\"og:video:url\") || meta(\"og:video\");\n      // Only direct files: og:video may be an HTML player URL.\n      if (ogVideo && /\\.mp4(?:$|[?#])/i.test(ogVideo)) add(\"video\", ogVideo, target.id);\n      else if (!hasVideo && !ogVideo && !/video/i.test(meta(\"og:type\")) && target.platform !== \"TikTok\" && !/\\/(reel|reels|videos|tv)\\//.test(pageURL)) {\n        add(\"image\", meta(\"og:image:secure_url\") || meta(\"og:image\"), target.id);\n      }\n    }\n    if (media.size) warnings.add(\"Chỉ đọc được media đang hiện trên trang; bài nhiều ảnh có thể thiếu. Lướt các ảnh còn lại rồi chạy lại.\");\n  }\n\n  const seen = new Set();\n  const items = [...media.values()].filter(item => {\n    if (seen.has(item.url)) return false;\n    seen.add(item.url);\n    return true;\n  }).map(({ kind, url, id }) => ({ kind, url, id }));\n  if (inaccessibleVideos) warnings.add(\"Có video chưa lấy được tệp trực tiếp. Phát video, chờ tải rồi chạy lại; luồng blob/HLS/DASH không được ghép ở bản này.\");\n  if (expected > items.length) warnings.add(\"Trang mới cung cấp \" + items.length + \"/\" + expected + \" media; chưa lấy đủ bài đăng.\");\n  const images = items.filter(x => x.kind === \"image\").length;\n  const videos = items.length - images;\n  const notice = items.length\n    ? \"Tìm thấy \" + images + \" ảnh và \" + videos + \" video trên \" + target.platform + \".\\n\" +\n      \"Nhấn OK để tải và lưu vào Ảnh.\\n\" + [...warnings].join(\"\\n\")\n    : \"Chưa tìm được tệp ảnh/video có thể tải. Mở đúng bài đăng, đăng nhập trong Safari nếu cần, phát video hoặc lướt ảnh rồi thử lại. Trang có thể chặn tải hoặc chỉ cung cấp luồng video.\\n\" + [...warnings].join(\"\\n\");\n  return { ...baseResult, urls: items.map(x => x.url), items, expected, notice, extracted: items.length, structured, warnings: [...warnings] };\n}\nasync function resolveMedia(document, pageURL, request = globalThis.fetch) {\n  const initial = collectMedia(document, pageURL);\n  if (initial.platform !== \"Instagram\" || (initial.structured && initial.urls.length && !initial.warnings.length) || typeof request !== \"function\") return initial;\n  const url = new URL(pageURL);\n  const code = (url.pathname.match(/\\/(?:p|reels?|tv)\\/([\\w-]+)/) || [])[1];\n  if (!code) return initial;\n  const alphabet = \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_\";\n  let mediaID = 0n;\n  for (const char of code) mediaID = mediaID * 64n + BigInt(alphabet.indexOf(char));\n  const controller = new AbortController();\n  const timer = setTimeout(() => controller.abort(), 3500);\n  try {\n    const response = await request(url.origin + \"/api/v1/media/\" + mediaID.toString() + \"/info/\", {\n      method: \"GET\", credentials: \"same-origin\", signal: controller.signal,\n      headers: { Accept: \"application/json\", \"X-IG-App-ID\": \"936619743392459\" }\n    });\n    if (!response.ok) return initial;\n    const data = await response.json();\n    const items = (Array.isArray(data.items) ? data.items : []).filter(item =>\n      item.code === code || String(item.pk || item.id || \"\").split(\"_\")[0] === mediaID.toString());\n    if (!items.length) return initial;\n    const enriched = collectMedia(document, pageURL, items.map(item => ({ ...item, shortcode: code })));\n    return enriched.structured && enriched.urls.length ? enriched : initial;\n  } catch (_) { return initial; }\n  finally { clearTimeout(timer); }\n}\nresolveMedia(document, location.href).then(completion).catch(error => {\n  completion({urls: [], notice: \"Không đọc được trang: \" + String(error.message || error)});\n});\n",
+        "WFInput": {
+          "Value": {
+            "Type": "ExtensionInput"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "UUID": "83D50B91-8039-4047-AE2B-0EBE36B54263"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "83D50B91-8039-4047-AE2B-0EBE36B54263",
+            "OutputName": "Kết quả JavaScript"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFGetDictionaryValueType": "Value",
+        "WFDictionaryKey": "notice",
+        "UUID": "A6E520F4-E13E-4911-AA65-1B2D1A0FC974"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "WFAlertActionTitle": "Media Saver",
+        "WFAlertActionMessage": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "A6E520F4-E13E-4911-AA65-1B2D1A0FC974",
+                "OutputName": "Lấy notice"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFAlertActionCancelButtonShown": true,
+        "UUID": "C56D4F5F-9B13-4EA1-A775-5FDFAB2A14D1"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "83D50B91-8039-4047-AE2B-0EBE36B54263",
+            "OutputName": "Kết quả JavaScript"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFGetDictionaryValueType": "Value",
+        "WFDictionaryKey": "pageURL",
+        "UUID": "70BB7BBF-EA8A-4EDB-A9D2-24B1029B310B"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "83D50B91-8039-4047-AE2B-0EBE36B54263",
+            "OutputName": "Kết quả JavaScript"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFGetDictionaryValueType": "Value",
+        "WFDictionaryKey": "urls",
+        "UUID": "EE825458-5CA8-421E-A9A6-867F3A5B07D2"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.each",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "EE825458-5CA8-421E-A9A6-867F3A5B07D2",
+            "OutputName": "Lấy urls"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "GroupingIdentifier": "657B3551-C72C-4737-A576-16D62168EA31",
+        "WFControlFlowMode": 0,
+        "UUID": "791FFC06-EA33-4EA6-A5AD-C1AB412BA81F"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.downloadurl",
+      "WFWorkflowActionParameters": {
+        "WFURL": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "Variable",
+                "VariableName": "Repeat Item"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFHTTPMethod": "GET",
+        "WFHTTPHeaders": {
+          "Value": {
+            "WFDictionaryFieldValueItems": [
+              {
+                "WFItemType": 0,
+                "WFKey": {
+                  "Value": {
+                    "string": "Referer"
+                  },
+                  "WFSerializationType": "WFTextTokenString"
+                },
+                "WFValue": {
+                  "Value": {
+                    "string": "￼",
+                    "attachmentsByRange": {
+                      "{0, 1}": {
+                        "Type": "ActionOutput",
+                        "OutputUUID": "70BB7BBF-EA8A-4EDB-A9D2-24B1029B310B",
+                        "OutputName": "Lấy pageURL"
+                      }
+                    }
+                  },
+                  "WFSerializationType": "WFTextTokenString"
+                }
+              }
+            ]
+          },
+          "WFSerializationType": "WFDictionaryFieldValue"
+        },
+        "UUID": "2C770019-682C-49D4-AD07-ECF305B97D35"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.savetocameraroll",
+      "WFWorkflowActionParameters": {
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "2C770019-682C-49D4-AD07-ECF305B97D35",
+            "OutputName": "Tệp tải về"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFCameraRollSelectedGroup": "Recents",
+        "UUID": "026FFC2F-DD3E-4A71-AFFA-B479848B6914"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.each",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "657B3551-C72C-4737-A576-16D62168EA31",
+        "WFControlFlowMode": 2,
+        "UUID": "77B18136-B431-414B-AB85-77458B3135E1"
+      }
+    }
+  ]
+}

@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>WFWorkflowName</key>
+    <string>Media Saver</string>
+    <key>WFWorkflowClientVersion</key>
+    <string>3036.0.4</string>
+    <key>WFWorkflowClientRelease</key>
+    <string>18.0</string>
+    <key>WFWorkflowMinimumClientVersion</key>
+    <integer>900</integer>
+    <key>WFWorkflowMinimumClientVersionString</key>
+    <string>900</string>
+    <key>WFWorkflowIcon</key>
+    <dict>
+      <key>WFWorkflowIconStartColor</key>
+      <integer>4282601983</integer>
+      <key>WFWorkflowIconGlyphNumber</key>
+      <integer>59511</integer>
+    </dict>
+    <key>WFWorkflowTypes</key>
+    <array>
+      <string>ActionExtension</string>
+    </array>
+    <key>WFWorkflowInputContentItemClasses</key>
+    <array>
+      <string>WFSafariWebPageContentItem</string>
+    </array>
+    <key>WFWorkflowHasOutputFallback</key>
+    <false/>
+    <key>WFWorkflowImportQuestions</key>
+    <array>
+
+    </array>
+    <key>WFWorkflowActions</key>
+    <array>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.comment</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFCommentActionText</key>
+          <string>Mở riêng bài đăng Facebook/Instagram/TikTok trong Safari → Chia sẻ → Media Saver. Chỉ tải tệp mà trang cung cấp; không ghép HLS/DASH, không quét trang cá nhân. Đọc hướng dẫn đi kèm. Bản nguồn này cần ký trên macOS trước khi nhập.</string>
+          <key>UUID</key>
+          <string>E83DF53D-9386-4467-A1D7-B1599F804A10</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.runjavascriptonwebpage</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFJavaScript</key>
+          <string>function collectMedia(document, pageURL, additionalData) {
+  &quot;use strict&quot;;
+  additionalData = additionalData || [];
+  const MAX_NODES = 60000;
+  const MAX_JSON = 12000000;
+  const deadline = Date.now() + 2500;
+  const warnings = new Set();
+  const media = new Map();
+  let scanned = 0;
+  let expected = 0;
+  let structured = false;
+  let inaccessibleVideos = 0;
+
+  function identify(raw) {
+    try {
+      const u = new URL(raw, pageURL);
+      const host = u.hostname.toLowerCase();
+      let platform = &quot;&quot;;
+      let id = &quot;&quot;;
+      if (/(^|\.)instagram\.com$/.test(host)) {
+        platform = &quot;Instagram&quot;;
+        id = (u.pathname.match(/\/(?:p|reels?|tv)\/([\w-]+)/) || [])[1] || &quot;&quot;;
+      } else if (/(^|\.)tiktok\.com$/.test(host)) {
+        platform = &quot;TikTok&quot;;
+        id = (u.pathname.match(/\/(?:video|photo)\/(\d+)/) || [])[1] || &quot;&quot;;
+      } else if (/(^|\.)facebook\.com$/.test(host) || host === &quot;fb.watch&quot;) {
+        platform = &quot;Facebook&quot;;
+        id = u.searchParams.get(&quot;fbid&quot;) || u.searchParams.get(&quot;story_fbid&quot;) || u.searchParams.get(&quot;v&quot;) ||
+          (u.pathname.match(/\/(?:reel|videos|posts)\/([^/?]+)/) || [])[1] ||
+          (u.pathname.match(/\/photos\/(?:[^/]+\/)*(\d+)\/?$/) || [])[1] || &quot;&quot;;
+      }
+      return { platform, id, url: u.href };
+    } catch (_) { return { platform: &quot;&quot;, id: &quot;&quot;, url: &quot;&quot; }; }
+  }
+
+  const target = identify(pageURL);
+  const baseResult = { platform: target.platform, pageURL, urls: [], items: [], expected: 0, complete: false };
+  if (!target.platform) return { ...baseResult, notice: &quot;Chỉ hỗ trợ bài đăng Facebook, Instagram và TikTok mở trong Safari.&quot; };
+  // Short URLs need to finish redirecting before extraction. Never scan a feed/profile.
+  if (!target.id) return { ...baseResult, notice: &quot;Hãy mở liên kết của một bài đăng cụ thể trong Safari và đợi trang tải xong. Không hỗ trợ quét toàn bộ trang cá nhân, bảng tin hay album phân trang.&quot; };
+
+  function cleanURL(raw) {
+    if (typeof raw !== &quot;string&quot; || !raw) return &quot;&quot;;
+    try {
+      const u = new URL(raw.replace(/&amp;amp;/g, &quot;&amp;&quot;), pageURL);
+      if (u.protocol !== &quot;https:&quot; || u.username || u.password) return &quot;&quot;;
+      if (/\.(?:m3u8|mpd)(?:$|[?#])/i.test(u.href)) {
+        warnings.add(&quot;Có luồng HLS/DASH không thể lưu trực tiếp bằng bản này.&quot;);
+        return &quot;&quot;;
+      }
+      return u.href;
+    } catch (_) { return &quot;&quot;; }
+  }
+
+  function urlsFrom(value) {
+    if (!value) return [];
+    if (typeof value === &quot;string&quot;) return [value];
+    if (Array.isArray(value)) return value.flatMap(urlsFrom);
+    if (typeof value === &quot;object&quot;) {
+      return urlsFrom(value.urlList || value.UrlList || value.url_list || value.url || value.src || value.uri);
+    }
+    return [];
+  }
+
+  function add(kind, values, id, width, height) {
+    const alternatives = [...new Set(urlsFrom(values).map(cleanURL).filter(Boolean))];
+    if (!alternatives.length) return false;
+    const key = kind + &quot;:&quot; + (id || alternatives[0]);
+    const score = Number(width || 0) * Number(height || 0);
+    const existing = media.get(key);
+    if (!existing || score &gt; existing.score) media.set(key, { kind, url: alternatives[0], id: String(id || &quot;&quot;), score });
+    return true;
+  }
+
+  function best(items) {
+    return [...(Array.isArray(items) ? items : [])].sort((a, b) =&gt;
+      Number(b.width || b.config_width || 0) * Number(b.height || b.config_height || 0) -
+      Number(a.width || a.config_width || 0) * Number(a.height || a.config_height || 0));
+  }
+
+  const skipKeys = /^(?:owner|author|authorInfo|user|users|actors|comments|edge_media_to_comment|edge_media_to_parent_comment|edge_related_profiles|recommendations|suggested|related|related_videos|viewer|feedback|music|avatar|profile_pic_url)$/;
+  function walk(root, callback, skip = false) {
+    const stack = [root];
+    const visited = new Set();
+    while (stack.length) {
+      if (++scanned &gt; MAX_NODES || Date.now() &gt; deadline) {
+        warnings.add(&quot;Dữ liệu trang quá lớn; chỉ đọc được một phần. Mở riêng bài đăng rồi thử lại.&quot;);
+        break;
+      }
+      const n = stack.pop();
+      if (!n || typeof n !== &quot;object&quot; || visited.has(n)) continue;
+      visited.add(n);
+      if (callback(n) === false) continue;
+      const entries = Array.isArray(n) ? n.map((v, i) =&gt; [String(i), v]) : Object.entries(n);
+      for (let i = entries.length - 1; i &gt;= 0; i--) {
+        const [key, value] = entries[i];
+        if (!skip || !skipKeys.test(key)) stack.push(value);
+      }
+    }
+  }
+
+  function matches(n) {
+    if ([n.shortcode, n.code, n.id, n.pk, n.post_id, n.video_id, n.aweme_id].some(v =&gt; v != null &amp;&amp; String(v) === target.id)) return true;
+    return [n.permalink_url, n.story_permalink, n.url].some(v =&gt; {
+      if (typeof v !== &quot;string&quot; || !/^https:\/\//.test(v)) return false;
+      const other = identify(v);
+      return other.platform === target.platform &amp;&amp; other.id === target.id;
+    });
+  }
+
+  function instagram(n, fallbackID) {
+    const children = n.carousel_media || (n.edge_sidecar_to_children &amp;&amp; n.edge_sidecar_to_children.edges.map(e =&gt; e.node));
+    if (Array.isArray(children) &amp;&amp; children.length) {
+      expected = Math.max(expected, Number(n.carousel_media_count || (n.edge_sidecar_to_children || {}).count || children.length));
+      children.forEach((child, i) =&gt; instagram(child, &quot;ig-child-&quot; + i));
+      return true;
+    }
+    const id = n.id || n.pk || fallbackID;
+    const versions = best(n.video_versions);
+    const isVideo = n.is_video === true || n.media_type === 2 || n.__typename === &quot;GraphVideo&quot; || !!n.video_url || versions.length &gt; 0;
+    if (isVideo) {
+      if (!add(&quot;video&quot;, versions.length ? versions : n.video_url, id)) inaccessibleVideos++;
+      return true;
+    }
+    const images = best((n.image_versions2 || {}).candidates || n.display_resources);
+    return add(&quot;image&quot;, images.length ? images : (n.display_url || n.display_src), id);
+  }
+
+  function tiktok(n) {
+    const images = (n.imagePost || n.image_post_info || {}).images;
+    if (Array.isArray(images) &amp;&amp; images.length) {
+      expected = Math.max(expected, images.length);
+      images.forEach((img, i) =&gt; add(&quot;image&quot;, img.imageURL || img.displayImage || img.display_image || img, &quot;tt-&quot; + i));
+      return true;
+    }
+    if (!n.video) return false;
+    const v = n.video;
+    if (!add(&quot;video&quot;, [v.playAddr, v.play_addr, v.downloadAddr, (v.download || {}).url, v.download_addr], n.id || n.aweme_id || target.id)) inaccessibleVideos++;
+    return true;
+  }
+
+  function facebook(root) {
+    let recognized = false;
+    walk(root, n =&gt; {
+      const video = n.__typename === &quot;Video&quot; || n.browser_native_hd_url || n.browser_native_sd_url || n.playable_url || n.playable_url_quality_hd;
+      if (video) {
+        let found = false;
+        walk(n, part =&gt; {
+          const progressive = best(part.progressive_urls).map(p =&gt; p.progressive_url);
+          const sources = [part.browser_native_hd_url, part.playable_url_quality_hd, progressive, part.browser_native_sd_url, part.playable_url];
+          if (add(&quot;video&quot;, sources, n.id || n.video_id || target.id)) found = true;
+        }, true);
+        if (!found) inaccessibleVideos++;
+        recognized = true;
+        return false;
+      }
+      if (n.__typename === &quot;Photo&quot;) {
+        const images = [n.image, n.photo_image, n.viewer_image, n.large_share_image].filter(Boolean);
+        if (add(&quot;image&quot;, best(images), n.id || n.fbid)) recognized = true;
+        return false;
+      }
+      const sub = n.all_subattachments || n.subattachments;
+      if (sub &amp;&amp; Number(sub.count)) expected = Math.max(expected, Number(sub.count));
+    }, true);
+    return recognized;
+  }
+
+  let jsonBytes = 0;
+  const scripts = additionalData.map(data =&gt; ({ textContent: JSON.stringify(data) })).concat([...document.querySelectorAll(&quot;script&quot;)]);
+  for (const script of scripts) {
+    let text = (script.textContent || &quot;&quot;).trim().replace(/^for\s*\(;;\);\s*/, &quot;&quot;);
+    if (!/^[\[{]/.test(text)) continue;
+    jsonBytes += text.length;
+    if (jsonBytes &gt; MAX_JSON) { warnings.add(&quot;Trang chứa quá nhiều dữ liệu; kết quả có thể chưa đầy đủ.&quot;); break; }
+    let root;
+    try { root = JSON.parse(text); } catch (_) { continue; }
+    walk(root, n =&gt; {
+      if (!matches(n)) return;
+      let handled = false;
+      if (target.platform === &quot;Instagram&quot;) handled = instagram(n, target.id);
+      if (target.platform === &quot;TikTok&quot;) handled = tiktok(n);
+      if (target.platform === &quot;Facebook&quot;) handled = facebook(n);
+      if (handled) { structured = true; return false; }
+    });
+  }
+
+  function attr(node, key) { return node &amp;&amp; node.getAttribute(key) || &quot;&quot;; }
+  function meta(key) { return attr(document.querySelector('meta[property=&quot;' + key + '&quot;]'), &quot;content&quot;); }
+  const canonical = identify(meta(&quot;og:url&quot;) || attr(document.querySelector('link[rel=&quot;canonical&quot;]'), &quot;href&quot;));
+  const validMetadata = canonical.platform === target.platform &amp;&amp; canonical.id === target.id;
+
+  // DOM fallback is deliberately limited to the matching post/article. A global
+  // img scan would download avatars, recommendations and video cover images.
+  if (!media.size &amp;&amp; !structured) {
+    const articles = [...document.querySelectorAll('article, [role=&quot;article&quot;]')];
+    let scope = articles.find(article =&gt; [...article.querySelectorAll(&quot;a[href]&quot;)].some(a =&gt; {
+      const link = identify(attr(a, &quot;href&quot;));
+      return link.platform === target.platform &amp;&amp; link.id === target.id;
+    }));
+    if (!scope &amp;&amp; articles.length === 1) scope = articles[0];
+    if (target.platform === &quot;TikTok&quot; &amp;&amp; !scope) scope = document.querySelector('[data-e2e=&quot;browse-video&quot;], [data-e2e=&quot;video-detail&quot;]');
+    let hasVideo = false;
+    if (scope) {
+      const videos = [...scope.querySelectorAll(&quot;video&quot;)];
+      hasVideo = videos.length &gt; 0;
+      videos.forEach((v, i) =&gt; {
+        const sources = [v.currentSrc, attr(v, &quot;src&quot;), ...[...v.querySelectorAll(&quot;source&quot;)].map(s =&gt; attr(s, &quot;src&quot;))];
+        if (!add(&quot;video&quot;, sources, &quot;dom-video-&quot; + i)) inaccessibleVideos++;
+      });
+      if (!hasVideo) {
+        [...scope.querySelectorAll(&quot;img&quot;)].forEach(img =&gt; {
+          const alt = attr(img, &quot;alt&quot;);
+          if (/avatar|profile|ảnh đại diện/i.test(alt)) return;
+          if (Number(img.naturalWidth) &lt; 240 || Number(img.naturalHeight) &lt; 240) return;
+          add(&quot;image&quot;, img.currentSrc || attr(img, &quot;src&quot;), null);
+        });
+      }
+    }
+    if (!media.size &amp;&amp; validMetadata) {
+      const ogVideo = meta(&quot;og:video:secure_url&quot;) || meta(&quot;og:video:url&quot;) || meta(&quot;og:video&quot;);
+      // Only direct files: og:video may be an HTML player URL.
+      if (ogVideo &amp;&amp; /\.mp4(?:$|[?#])/i.test(ogVideo)) add(&quot;video&quot;, ogVideo, target.id);
+      else if (!hasVideo &amp;&amp; !ogVideo &amp;&amp; !/video/i.test(meta(&quot;og:type&quot;)) &amp;&amp; target.platform !== &quot;TikTok&quot; &amp;&amp; !/\/(reel|reels|videos|tv)\//.test(pageURL)) {
+        add(&quot;image&quot;, meta(&quot;og:image:secure_url&quot;) || meta(&quot;og:image&quot;), target.id);
+      }
+    }
+    if (media.size) warnings.add(&quot;Chỉ đọc được media đang hiện trên trang; bài nhiều ảnh có thể thiếu. Lướt các ảnh còn lại rồi chạy lại.&quot;);
+  }
+
+  const seen = new Set();
+  const items = [...media.values()].filter(item =&gt; {
+    if (seen.has(item.url)) return false;
+    seen.add(item.url);
+    return true;
+  }).map(({ kind, url, id }) =&gt; ({ kind, url, id }));
+  if (inaccessibleVideos) warnings.add(&quot;Có video chưa lấy được tệp trực tiếp. Phát video, chờ tải rồi chạy lại; luồng blob/HLS/DASH không được ghép ở bản này.&quot;);
+  if (expected &gt; items.length) warnings.add(&quot;Trang mới cung cấp &quot; + items.length + &quot;/&quot; + expected + &quot; media; chưa lấy đủ bài đăng.&quot;);
+  const images = items.filter(x =&gt; x.kind === &quot;image&quot;).length;
+  const videos = items.length - images;
+  const notice = items.length
+    ? &quot;Tìm thấy &quot; + images + &quot; ảnh và &quot; + videos + &quot; video trên &quot; + target.platform + &quot;.\n&quot; +
+      &quot;Nhấn OK để tải và lưu vào Ảnh.\n&quot; + [...warnings].join(&quot;\n&quot;)
+    : &quot;Chưa tìm được tệp ảnh/video có thể tải. Mở đúng bài đăng, đăng nhập trong Safari nếu cần, phát video hoặc lướt ảnh rồi thử lại. Trang có thể chặn tải hoặc chỉ cung cấp luồng video.\n&quot; + [...warnings].join(&quot;\n&quot;);
+  return { ...baseResult, urls: items.map(x =&gt; x.url), items, expected, notice, extracted: items.length, structured, warnings: [...warnings] };
+}
+async function resolveMedia(document, pageURL, request = globalThis.fetch) {
+  const initial = collectMedia(document, pageURL);
+  if (initial.platform !== &quot;Instagram&quot; || (initial.structured &amp;&amp; initial.urls.length &amp;&amp; !initial.warnings.length) || typeof request !== &quot;function&quot;) return initial;
+  const url = new URL(pageURL);
+  const code = (url.pathname.match(/\/(?:p|reels?|tv)\/([\w-]+)/) || [])[1];
+  if (!code) return initial;
+  const alphabet = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_&quot;;
+  let mediaID = 0n;
+  for (const char of code) mediaID = mediaID * 64n + BigInt(alphabet.indexOf(char));
+  const controller = new AbortController();
+  const timer = setTimeout(() =&gt; controller.abort(), 3500);
+  try {
+    const response = await request(url.origin + &quot;/api/v1/media/&quot; + mediaID.toString() + &quot;/info/&quot;, {
+      method: &quot;GET&quot;, credentials: &quot;same-origin&quot;, signal: controller.signal,
+      headers: { Accept: &quot;application/json&quot;, &quot;X-IG-App-ID&quot;: &quot;936619743392459&quot; }
+    });
+    if (!response.ok) return initial;
+    const data = await response.json();
+    const items = (Array.isArray(data.items) ? data.items : []).filter(item =&gt;
+      item.code === code || String(item.pk || item.id || &quot;&quot;).split(&quot;_&quot;)[0] === mediaID.toString());
+    if (!items.length) return initial;
+    const enriched = collectMedia(document, pageURL, items.map(item =&gt; ({ ...item, shortcode: code })));
+    return enriched.structured &amp;&amp; enriched.urls.length ? enriched : initial;
+  } catch (_) { return initial; }
+  finally { clearTimeout(timer); }
+}
+resolveMedia(document, location.href).then(completion).catch(error =&gt; {
+  completion({urls: [], notice: &quot;Không đọc được trang: &quot; + String(error.message || error)});
+});
+</string>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ExtensionInput</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>UUID</key>
+          <string>83D50B91-8039-4047-AE2B-0EBE36B54263</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>83D50B91-8039-4047-AE2B-0EBE36B54263</string>
+              <key>OutputName</key>
+              <string>Kết quả JavaScript</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>WFDictionaryKey</key>
+          <string>notice</string>
+          <key>UUID</key>
+          <string>A6E520F4-E13E-4911-AA65-1B2D1A0FC974</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.alert</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFAlertActionTitle</key>
+          <string>Media Saver</string>
+          <key>WFAlertActionMessage</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>ActionOutput</string>
+                  <key>OutputUUID</key>
+                  <string>A6E520F4-E13E-4911-AA65-1B2D1A0FC974</string>
+                  <key>OutputName</key>
+                  <string>Lấy notice</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFAlertActionCancelButtonShown</key>
+          <true/>
+          <key>UUID</key>
+          <string>C56D4F5F-9B13-4EA1-A775-5FDFAB2A14D1</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>83D50B91-8039-4047-AE2B-0EBE36B54263</string>
+              <key>OutputName</key>
+              <string>Kết quả JavaScript</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>WFDictionaryKey</key>
+          <string>pageURL</string>
+          <key>UUID</key>
+          <string>70BB7BBF-EA8A-4EDB-A9D2-24B1029B310B</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.getvalueforkey</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>83D50B91-8039-4047-AE2B-0EBE36B54263</string>
+              <key>OutputName</key>
+              <string>Kết quả JavaScript</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFGetDictionaryValueType</key>
+          <string>Value</string>
+          <key>WFDictionaryKey</key>
+          <string>urls</string>
+          <key>UUID</key>
+          <string>EE825458-5CA8-421E-A9A6-867F3A5B07D2</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.repeat.each</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>EE825458-5CA8-421E-A9A6-867F3A5B07D2</string>
+              <key>OutputName</key>
+              <string>Lấy urls</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>GroupingIdentifier</key>
+          <string>657B3551-C72C-4737-A576-16D62168EA31</string>
+          <key>WFControlFlowMode</key>
+          <integer>0</integer>
+          <key>UUID</key>
+          <string>791FFC06-EA33-4EA6-A5AD-C1AB412BA81F</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.downloadurl</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFURL</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>string</key>
+              <string>￼</string>
+              <key>attachmentsByRange</key>
+              <dict>
+                <key>{0, 1}</key>
+                <dict>
+                  <key>Type</key>
+                  <string>Variable</string>
+                  <key>VariableName</key>
+                  <string>Repeat Item</string>
+                </dict>
+              </dict>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenString</string>
+          </dict>
+          <key>WFHTTPMethod</key>
+          <string>GET</string>
+          <key>WFHTTPHeaders</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>WFDictionaryFieldValueItems</key>
+              <array>
+                <dict>
+                  <key>WFItemType</key>
+                  <integer>0</integer>
+                  <key>WFKey</key>
+                  <dict>
+                    <key>Value</key>
+                    <dict>
+                      <key>string</key>
+                      <string>Referer</string>
+                    </dict>
+                    <key>WFSerializationType</key>
+                    <string>WFTextTokenString</string>
+                  </dict>
+                  <key>WFValue</key>
+                  <dict>
+                    <key>Value</key>
+                    <dict>
+                      <key>string</key>
+                      <string>￼</string>
+                      <key>attachmentsByRange</key>
+                      <dict>
+                        <key>{0, 1}</key>
+                        <dict>
+                          <key>Type</key>
+                          <string>ActionOutput</string>
+                          <key>OutputUUID</key>
+                          <string>70BB7BBF-EA8A-4EDB-A9D2-24B1029B310B</string>
+                          <key>OutputName</key>
+                          <string>Lấy pageURL</string>
+                        </dict>
+                      </dict>
+                    </dict>
+                    <key>WFSerializationType</key>
+                    <string>WFTextTokenString</string>
+                  </dict>
+                </dict>
+              </array>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFDictionaryFieldValue</string>
+          </dict>
+          <key>UUID</key>
+          <string>2C770019-682C-49D4-AD07-ECF305B97D35</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.savetocameraroll</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>WFInput</key>
+          <dict>
+            <key>Value</key>
+            <dict>
+              <key>Type</key>
+              <string>ActionOutput</string>
+              <key>OutputUUID</key>
+              <string>2C770019-682C-49D4-AD07-ECF305B97D35</string>
+              <key>OutputName</key>
+              <string>Tệp tải về</string>
+            </dict>
+            <key>WFSerializationType</key>
+            <string>WFTextTokenAttachment</string>
+          </dict>
+          <key>WFCameraRollSelectedGroup</key>
+          <string>Recents</string>
+          <key>UUID</key>
+          <string>026FFC2F-DD3E-4A71-AFFA-B479848B6914</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>WFWorkflowActionIdentifier</key>
+        <string>is.workflow.actions.repeat.each</string>
+        <key>WFWorkflowActionParameters</key>
+        <dict>
+          <key>GroupingIdentifier</key>
+          <string>657B3551-C72C-4737-A576-16D62168EA31</string>
+          <key>WFControlFlowMode</key>
+          <integer>2</integer>
+          <key>UUID</key>
+          <string>77B18136-B431-414B-AB85-77458B3135E1</string>
+        </dict>
+      </dict>
+    </array>
+  </dict>
+</plist>

@@ -1,0 +1,83 @@
+{
+  "checkedAt": "2026-11-17T00:33:34.181Z",
+  "engine": "Chrome/Edge headless, DOMParser (not iOS)",
+  "results": [
+    {
+      "name": "Instagram HTML carousel",
+      "live": false,
+      "expected": 2,
+      "found": 2,
+      "passed": true,
+      "title": "",
+      "structured": true,
+      "notice": "Tìm thấy 1 ảnh và 1 video trên Instagram.\nNhấn OK để tải và lưu vào Ảnh.\n"
+    },
+    {
+      "name": "TikTok HTML album",
+      "live": false,
+      "expected": 2,
+      "found": 2,
+      "passed": true,
+      "title": "",
+      "structured": true,
+      "notice": "Tìm thấy 2 ảnh và 0 video trên TikTok.\nNhấn OK để tải và lưu vào Ảnh.\n"
+    },
+    {
+      "name": "Facebook HTML video",
+      "live": false,
+      "expected": 1,
+      "found": 1,
+      "passed": true,
+      "title": "",
+      "structured": true,
+      "notice": "Tìm thấy 0 ảnh và 1 video trên Facebook.\nNhấn OK để tải và lưu vào Ảnh.\n"
+    },
+    {
+      "name": "DOM video fallback",
+      "live": false,
+      "expected": 1,
+      "found": 1,
+      "passed": true,
+      "title": "",
+      "structured": false,
+      "notice": "Tìm thấy 0 ảnh và 1 video trên Instagram.\nNhấn OK để tải và lưu vào Ảnh.\nChỉ đọc được media đang hiện trên trang; bài nhiều ảnh có thể thiếu. Lướt các ảnh còn lại rồi chạy lại."
+    },
+    {
+      "name": "unrelated DOM article isolation",
+      "live": false,
+      "expected": 1,
+      "found": 1,
+      "passed": true,
+      "title": "",
+      "structured": false,
+      "notice": "Tìm thấy 0 ảnh và 1 video trên Instagram.\nNhấn OK để tải và lưu vào Ảnh.\nChỉ đọc được media đang hiện trên trang; bài nhiều ảnh có thể thiếu. Lướt các ảnh còn lại rồi chạy lại."
+    },
+    {
+      "name": "Live HTTP HTML: instagram",
+      "live": true,
+      "found": 1,
+      "passed": null,
+      "title": "Instagram | Surprise! 🎉 Swipe left on the post above to see more. Starting today, you can share up to 10 photos and videos in one post on Instagram.... | Instagram",
+      "structured": false,
+      "notice": "Tìm thấy 1 ảnh và 0 video trên Instagram.\nNhấn OK để tải và lưu vào Ảnh.\nChỉ đọc được media đang hiện trên trang; bài nhiều ảnh có thể thiếu. Lướt các ảnh còn lại rồi chạy lại."
+    },
+    {
+      "name": "Live HTTP HTML: tiktok",
+      "live": true,
+      "found": 1,
+      "passed": null,
+      "title": "",
+      "structured": true,
+      "notice": "Tìm thấy 0 ảnh và 1 video trên TikTok.\nNhấn OK để tải và lưu vào Ảnh.\n"
+    },
+    {
+      "name": "Live HTTP HTML: facebook",
+      "live": true,
+      "found": 0,
+      "passed": null,
+      "title": "She survived the holocaust — and years later, she’s getting her citizenship so she can vote for Hillary Clinton http://cnn.it/2eERh5f | CNN | Facebook",
+      "structured": false,
+      "notice": "Chưa tìm được tệp ảnh/video có thể tải. Mở đúng bài đăng, đăng nhập trong Safari nếu cần, phát video hoặc lướt ảnh rồi thử lại. Trang có thể chặn tải hoặc chỉ cung cấp luồng video.\n"
+    }
+  ]
+}

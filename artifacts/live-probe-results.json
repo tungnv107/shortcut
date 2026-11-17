@@ -1,0 +1,25 @@
+{
+  "checkedAt": "2026-11-17T00:33:35.071Z",
+  "results": [
+    {
+      "name": "instagram",
+      "kind": "image",
+      "exit": 0,
+      "status": 206,
+      "contentType": "image/jpeg",
+      "bytes": 1024,
+      "mp4Signature": false,
+      "jpegSignature": true
+    },
+    {
+      "name": "tiktok",
+      "kind": "video",
+      "exit": 0,
+      "status": 403,
+      "contentType": "text/html",
+      "bytes": 504,
+      "mp4Signature": false,
+      "jpegSignature": false
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+node_modules/
+artifacts/live/
+artifacts/browser-check/
+*.signed.shortcut
+dist/Media-Saver.shortcut
+artifacts/github/
