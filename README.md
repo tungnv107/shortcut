@@ -2,17 +2,19 @@
 
 Chia sẻ bài từ **Facebook / Instagram / TikTok → Thêm/Khác → Media Saver**. VPS tải và chuẩn hóa media; iPhone lưu từng tệp vào ứng dụng **Ảnh** bằng các tác vụ Phím tắt gốc. Không cần Mac hoặc Scriptable.
 
-## Cài v1.1.0-beta.1
+## Cài v1.1.0-beta.2
 
 Dùng **trang cài riêng** được quản trị viên gửi: sao chép mã truy cập → tải Shortcut → dán mã khi được hỏi → Thêm/Thay thế Media Saver cũ. Đây là thiết lập một lần. Trang cài và mã truy cập không được đăng lên GitHub.
 
-[Tải Shortcut đã ký](https://github.com/tungnv107/shortcut/releases/download/v1.1.0-beta.1/Media-Saver.shortcut) · [Hướng dẫn iPhone](HUONG-DAN-IPHONE.md) · [Vận hành VPS](DOCKER-VPS.md) · [Kết quả kiểm thử](KIEM-THU.md)
+[Tải Shortcut đã ký](https://github.com/tungnv107/shortcut/releases/download/v1.1.0-beta.2/Media-Saver.shortcut) · [Hướng dẫn iPhone](HUONG-DAN-IPHONE.md) · [Vận hành VPS](DOCKER-VPS.md) · [Kết quả kiểm thử](KIEM-THU.md)
 
 Tệp công khai đã điền địa chỉ VPS `https://media-saver.161.118.222.102.sslip.io`, **chưa chứa mã truy cập**. Người khác tải tệp sẽ không dùng được dịch vụ nếu chưa được cấp mã. Bản cũ 1.0.0-beta.4 gọi dịch vụ công khai trực tiếp; cần cài lại bản này để chuyển sang VPS.
 
+**Nếu beta.1 báo “Mã tệp trả về không hợp lệ”** dù đã nhận link: cài beta.2 và chọn Thay thế. Server đã xử lý xong media nhưng bước đọc mã tệp trên iPhone dừng; bản mới dùng danh sách mã dạng văn bản và lấy từng mã theo vị trí. Đã chạy mô hình luồng mới với API thật, tải đủ hai album 5 và 8 ảnh của các lần lỗi; chưa xác nhận bản sửa trên iPhone thật.
+
 ## Phạm vi đã kiểm chứng
 
-Kiểm tra trên VPS ngày 17/11/2026, tải toàn bộ tệp qua HTTPS có xác thực:
+Kiểm tra bộ tải trên VPS ngày 17/11/2026 ở beta.1, tải toàn bộ tệp qua HTTPS có xác thực. Bộ tải không đổi trong beta.2:
 
 | Nội dung mẫu | Kết quả |
 |---|---|
@@ -39,10 +41,11 @@ npm run verify
 
 Node.js 24, không cần thư viện npm. Backend có thêm Python, yt-dlp, gallery-dl và FFmpeg được cài trong image Docker. Hướng dẫn Docker tại [DOCKER-VPS.md](DOCKER-VPS.md).
 
-- `src/native-workflow.cjs`: tạo luồng VPS với 89 tác vụ gốc.
+- `src/native-workflow.cjs`: tạo luồng VPS với 98 tác vụ gốc.
 - `server/`: API, hàng đợi, tải và chuẩn hóa tệp.
 - `compose.yaml`, `deploy/`: cấu hình Docker và HTTPS cho VPS đã chỉ định.
 - `tools/probe-server.cjs`: kiểm tra tải tệp thực tế; `artifacts/server-live-results.json`: báo cáo đã loại thông tin bí mật.
+- `artifacts/shortcut-live-results.json`: kiểm tra beta.2 với API thật và hai album người dùng vừa chia sẻ, tải đủ 13 ảnh; không phải kiểm tra iPhone.
 - `dist/workflow.json`, `dist/Media-Saver.unsigned.shortcut`: đầu ra có thể kiểm tra; tệp ký nằm trong GitHub Release.
 - `src/legacy-workflow.cjs`, các báo cáo `native-live`/Safari: giữ để tham khảo bản cũ, không phải luồng hiện tại.
 

@@ -1,15 +1,15 @@
-# Media Saver v1.1.0-beta.1 — tải qua VPS
+# Media Saver v1.1.0-beta.2 — sửa bước đọc mã tệp
 
-**[Tải Media Saver đã ký](https://github.com/tungnv107/shortcut/releases/download/v1.1.0-beta.1/Media-Saver.shortcut)**
+**[Tải Media Saver beta.2 đã ký](https://github.com/tungnv107/shortcut/releases/download/v1.1.0-beta.2/Media-Saver.shortcut)**
 
-Chuyển việc tải và chuẩn hóa ảnh/video sang VPS Docker. iPhone chỉ dùng Phím tắt: **Facebook / Instagram / TikTok → Chia sẻ → Thêm/Khác → Media Saver → lưu vào Ảnh**.
+Beta.1 có thể báo **“Mã tệp trả về không hợp lệ”** trên iPhone dù VPS đã tải xong album và trả các mã đúng định dạng. Beta.2 đổi cách đọc danh sách mã: server trả văn bản đơn giản, Shortcut lấy từng mã theo vị trí, không phụ thuộc biến Mục lặp trong vòng lặp lồng nhau.
 
-Cài bằng trang riêng được gửi cho bạn: **Sao chép mã → tải Shortcut → dán mã khi thiết lập → Thêm/Thay thế**. Thiết lập một lần, không cần Mac hoặc Scriptable. Tệp công khai đã điền địa chỉ VPS sslip.io nhưng không chứa khóa truy cập.
+Mở **trang cài riêng đã gửi trước đó** → **Sao chép mã → Tải Media Saver → dán mã khi thiết lập → Thay thế** bản cũ. Mã truy cập và địa chỉ VPS giữ nguyên. Dùng **Instagram/Facebook/TikTok → Chia sẻ → Thêm/Khác → Media Saver** như trước.
 
-Đã tải toàn bộ 26 tệp từ 5 bài mẫu qua HTTPS: video Facebook, ảnh/video Instagram, ảnh/video TikTok. Video đã kiểm tra codec; Facebook/TikTok mẫu có H.264 + AAC. Album ảnh Facebook thử nghiệm không có cookie vẫn thất bại. Instagram mẫu dùng nguồn dự phòng công khai. **Chưa xác nhận nhập/chạy bản này trên iPhone thật**, không bảo đảm mọi bài đều tải đủ.
+**58/58 test đạt.** Đã chạy workflow mới trong mô hình tác vụ với API thật, tải đủ **5/5 và 8/8 ảnh** của hai bài Instagram vừa chia sẻ; so SHA-256 toàn bộ tệp với VPS. **Chưa xác nhận bản sửa trên iPhone thật**, và chưa quan sát trực tiếp giá trị biến gây lỗi trong runtime iOS. Báo cáo phân biệt rõ kiểm tra mô hình/API với thao tác lưu vào Ảnh.
 
-Server có hàng đợi, xác thực, giới hạn tài nguyên, cache tự hết hạn và cookie tùy chọn. Video chuẩn hóa MP4 H.264; ảnh JPEG. Giữ bản sửa đầu vào Get URLs của beta.4. Shortcut chỉ gửi mã truy cập tới VPS; dịch vụ ký không nhận mã này.
+Bộ tải và giới hạn nền tảng không đổi: album ảnh Facebook chưa đạt trong thử nghiệm không có cookie; Instagram mẫu có thể dùng nguồn dự phòng công khai. Bản cài không chứa token; API tác vụ/tệp vẫn yêu cầu xác thực.
 
-[Hướng dẫn iPhone](https://github.com/tungnv107/shortcut/blob/v1.1.0-beta.1/HUONG-DAN-IPHONE.md) · [Vận hành VPS](https://github.com/tungnv107/shortcut/blob/v1.1.0-beta.1/DOCKER-VPS.md) · [Kiểm thử và giới hạn](https://github.com/tungnv107/shortcut/blob/v1.1.0-beta.1/KIEM-THU.md)
+[Hướng dẫn cập nhật](https://github.com/tungnv107/shortcut/blob/v1.1.0-beta.2/HUONG-DAN-IPHONE.md) · [Chi tiết kiểm thử](https://github.com/tungnv107/shortcut/blob/v1.1.0-beta.2/KIEM-THU.md)
 
-Chọn **Media-Saver.shortcut** để cài. Gói ZIP chứa Shortcut và hướng dẫn. `SERVER-LIVE-RESULTS.json`, `SIGNING-VERIFICATION.json`, `SHA256SUMS.txt` dùng đối chiếu kiểm thử/tệp; không chứa token hoặc link cài riêng.
+`SHORTCUT-LIVE-RESULTS.json` là báo cáo mới cho beta.2; `SERVER-LIVE-RESULTS.json` giữ kết quả kiểm tra bộ tải từ beta.1. Các tệp không chứa token hoặc link cài riêng. `SIGNING-VERIFICATION.json` và `SHA256SUMS.txt` dùng kiểm tra bản tải về.

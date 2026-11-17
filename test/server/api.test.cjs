@@ -25,12 +25,20 @@ test('health is public; jobs and files require bearer authentication',async t=>{
 });
 test('job completes, file is streamed with Range, same URL is deduplicated',async t=>{
  const s=await service(t,fake);const created=await (await s.call('/v1/jobs',{method:'POST',body:JSON.stringify({url:post})})).json();
- const job=await ready(s,created.id);assert.equal(job.status,'ready');assert.equal(job.files.length,1);
+ const job=await ready(s,created.id);assert.equal(job.status,'ready');assert.equal(job.files.length,1);assert.equal(job.fileIds,job.files[0].id);
  const url='/v1/files/'+job.id+'/'+job.files[0].id;
  const full=await s.call(url);assert.equal(await full.text(),'test-media');
  const part=await s.call(url,{headers:{Range:'bytes=2-5'}});assert.equal(part.status,206);assert.equal(await part.text(),'st-m');
  assert.equal((await s.call(url,{headers:{Range:'bytes=999-'}})).status,416);
  const again=await (await s.call('/v1/jobs',{method:'POST',body:JSON.stringify({url:post+'?igsh=tracking'})})).json();assert.equal(again.id,job.id);
+});
+test('plain file manifest exactly matches the metadata IDs for a multi-file album',async t=>{
+ const s=await service(t,async({dir})=>{
+  const files=[];for(let i=1;i<=5;i++){await fs.writeFile(path.join(dir,i+'.jpg'),'test-media');files.push({name:i+'.jpg',mime:'image/jpeg',size:10});}return {files};
+ });
+ const created=await(await s.call('/v1/jobs',{method:'POST',body:JSON.stringify({url:post})})).json();
+ const job=await ready(s,created.id);assert.equal(job.fileIds.split('\n').length,5);
+ assert.deepEqual(job.fileIds.split('\n'),job.files.map(f=>f.id));
 });
 test('invalid URLs never start a worker; failed jobs expose no files',async t=>{
  let calls=0;const s=await service(t,async()=>{calls++;throw new Error('Need cookies');});

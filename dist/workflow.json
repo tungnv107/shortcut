@@ -31,8 +31,8 @@
       "WFWorkflowActionIdentifier": "is.workflow.actions.comment",
       "WFWorkflowActionParameters": {
         "WFCommentActionText": "Chia sẻ bài đăng → Media Saver. VPS tải và xử lý media; iPhone lưu vào Ảnh. Cấu hình một lần bằng mã truy cập riêng. Máy chủ giữ tệp tạm trong một giờ.",
-        "CustomOutputName": "Media Saver VPS 1.1.0-beta.1",
-        "UUID": "37529B33-0734-426E-A7E5-E4BCF1BB29D3"
+        "CustomOutputName": "Media Saver VPS 1.1.0-beta.2",
+        "UUID": "0FC819B0-FF32-43E4-A110-2751B4002260"
       }
     },
     {
@@ -90,7 +90,6 @@
             "WFSerializationType": "WFTextTokenAttachment"
           }
         },
-        "CustomOutputName": "Nếu",
         "UUID": "A02A51A1-ECFC-43C9-A639-4303A08AEE57"
       }
     },
@@ -116,7 +115,6 @@
       "WFWorkflowActionParameters": {
         "GroupingIdentifier": "FD1FD567-FFFC-48D8-A0CB-78930D7F031D",
         "WFControlFlowMode": 2,
-        "CustomOutputName": "Kết thúc nếu",
         "UUID": "5D6B33B6-1EFD-46BF-AD3D-F6F9990E2FC7"
       }
     },
@@ -150,7 +148,6 @@
             "WFSerializationType": "WFTextTokenAttachment"
           }
         },
-        "CustomOutputName": "Nếu",
         "UUID": "F62CF48B-7200-439D-A715-3E7F02A1147D"
       }
     },
@@ -184,7 +181,6 @@
       "WFWorkflowActionParameters": {
         "GroupingIdentifier": "37FE9FC7-C707-4809-A3FA-1CB59BD46432",
         "WFControlFlowMode": 2,
-        "CustomOutputName": "Kết thúc nếu",
         "UUID": "51A69357-9CF7-4CBB-A131-D3314BB99FFA"
       }
     },
@@ -224,7 +220,6 @@
             "WFSerializationType": "WFTextTokenAttachment"
           }
         },
-        "CustomOutputName": "Nếu",
         "UUID": "35CFE70A-9A91-4331-AA02-EFA75183DB71"
       }
     },
@@ -250,7 +245,6 @@
       "WFWorkflowActionParameters": {
         "GroupingIdentifier": "3F357D22-91CB-4677-A42F-EF51B3816861",
         "WFControlFlowMode": 2,
-        "CustomOutputName": "Kết thúc nếu",
         "UUID": "A28C6A2B-E3FC-4B8D-AB94-4411005B9F58"
       }
     },
@@ -288,7 +282,6 @@
           }
         },
         "WFNumberValue": 1,
-        "CustomOutputName": "Nếu",
         "UUID": "3D58F7AF-2741-44A8-A4E0-324BCD4BE725"
       }
     },
@@ -330,7 +323,6 @@
       "WFWorkflowActionParameters": {
         "GroupingIdentifier": "E46AB191-6180-4907-A58D-3769B4183E91",
         "WFControlFlowMode": 1,
-        "CustomOutputName": "Nếu không",
         "UUID": "C04CC8C9-90FE-4413-A956-2C23D03270FC"
       }
     },
@@ -371,7 +363,6 @@
       "WFWorkflowActionParameters": {
         "GroupingIdentifier": "E46AB191-6180-4907-A58D-3769B4183E91",
         "WFControlFlowMode": 2,
-        "CustomOutputName": "Kết thúc nếu",
         "UUID": "A4A107AF-B6E1-4147-A979-FBA9EDC7DE8A"
       }
     },
@@ -413,7 +404,6 @@
             "WFSerializationType": "WFTextTokenAttachment"
           }
         },
-        "CustomOutputName": "Nếu",
         "UUID": "B44B8275-96CD-4736-A065-BE150EE9A90D"
       }
     },
@@ -439,7 +429,6 @@
       "WFWorkflowActionParameters": {
         "GroupingIdentifier": "FF9D24E2-4485-48E2-A24D-918C150A2611",
         "WFControlFlowMode": 2,
-        "CustomOutputName": "Kết thúc nếu",
         "UUID": "2205E704-003E-46D8-AE60-3A69FA075925"
       }
     },
@@ -578,7 +567,6 @@
             "WFSerializationType": "WFTextTokenAttachment"
           }
         },
-        "CustomOutputName": "Nếu",
         "UUID": "E359E94B-E218-4973-A198-847113C4FC5A"
       }
     },
@@ -616,7 +604,6 @@
       "WFWorkflowActionParameters": {
         "GroupingIdentifier": "7DB3576B-85E7-4C8C-A3DC-306B76FE72BB",
         "WFControlFlowMode": 2,
-        "CustomOutputName": "Kết thúc nếu",
         "UUID": "39049095-382C-4B7B-A12B-A2DE45771AFF"
       }
     },
@@ -676,7 +663,6 @@
             "WFSerializationType": "WFTextTokenAttachment"
           }
         },
-        "CustomOutputName": "Nếu",
         "UUID": "B40B4091-29AC-43EB-A823-47273695CEA2"
       }
     },
@@ -702,7 +688,6 @@
       "WFWorkflowActionParameters": {
         "GroupingIdentifier": "E290AF98-9977-4F3A-A2C9-0448199F43A4",
         "WFControlFlowMode": 2,
-        "CustomOutputName": "Kết thúc nếu",
         "UUID": "88659438-5A0F-4C6C-A94A-016428EE08ED"
       }
     },
@@ -737,7 +722,6 @@
         "GroupingIdentifier": "8C235230-3005-4D9F-A153-510CE6FA145D",
         "WFControlFlowMode": 0,
         "WFRepeatCount": 60,
-        "CustomOutputName": "Chờ VPS xử lý",
         "UUID": "B7077D2D-C175-48F5-A107-89EF5686F332"
       }
     },
@@ -826,7 +810,6 @@
             "WFSerializationType": "WFTextTokenAttachment"
           }
         },
-        "CustomOutputName": "Nếu",
         "UUID": "49299589-774F-4317-AC48-BDB60007DC14"
       }
     },
@@ -864,7 +847,6 @@
       "WFWorkflowActionParameters": {
         "GroupingIdentifier": "FCEDA7E2-06F1-4975-A579-25A974CD955A",
         "WFControlFlowMode": 2,
-        "CustomOutputName": "Kết thúc nếu",
         "UUID": "9F645944-77C5-4E07-A7F0-E3C0F6E34A79"
       }
     },
@@ -923,7 +905,6 @@
           }
         },
         "WFConditionalActionString": "failed",
-        "CustomOutputName": "Nếu",
         "UUID": "B4363090-8ED6-4FD5-A33F-4EDCC2A466DC"
       }
     },
@@ -978,7 +959,6 @@
       "WFWorkflowActionParameters": {
         "GroupingIdentifier": "A908336C-C2B0-489B-AD71-1360B2F74CA4",
         "WFControlFlowMode": 2,
-        "CustomOutputName": "Kết thúc nếu",
         "UUID": "3880CCA5-B4E9-42E8-A3F4-928B0314DB17"
       }
     },
@@ -1021,7 +1001,6 @@
             "WFSerializationType": "WFTextTokenAttachment"
           }
         },
-        "CustomOutputName": "Nếu",
         "UUID": "1E8DECBB-2472-4E21-A2FC-3B61DD552FE1"
       }
     },
@@ -1036,16 +1015,58 @@
           },
           "WFSerializationType": "WFTextTokenAttachment"
         },
-        "WFDictionaryKey": "files",
+        "WFDictionaryKey": "fileIds",
         "WFGetDictionaryValueType": "Value",
-        "CustomOutputName": "Lấy files",
-        "UUID": "6978EC64-ED67-49D1-AE71-91940FD63375"
+        "CustomOutputName": "Lấy fileIds",
+        "UUID": "60977F46-BB47-4D0A-A499-18F0AF312730"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.gettext",
+      "WFWorkflowActionParameters": {
+        "WFTextActionText": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "60977F46-BB47-4D0A-A499-18F0AF312730",
+                "OutputName": "Lấy fileIds"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "CustomOutputName": "Danh sách mã tệp",
+        "UUID": "BD0DDC2D-0682-452A-AA1B-FD70102D1CA7"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.text.match",
+      "WFWorkflowActionParameters": {
+        "text": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "BD0DDC2D-0682-452A-AA1B-FD70102D1CA7",
+                "OutputName": "Danh sách mã tệp"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFMatchTextPattern": "^[a-f0-9]{32}(?:\\n[a-f0-9]{32}){0,499}$",
+        "WFMatchTextCaseSensitive": false,
+        "CustomOutputName": "Khớp văn bản",
+        "UUID": "30B9E29A-5411-4053-AD0B-CB5C62D3E405"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
       "WFWorkflowActionParameters": {
-        "GroupingIdentifier": "DF4C50F1-0C32-4F12-A184-09E133353E7E",
+        "GroupingIdentifier": "E94D2D03-35B3-4E88-A423-4009062DCD6C",
         "WFControlFlowMode": 0,
         "WFCondition": 101,
         "WFInput": {
@@ -1053,46 +1074,97 @@
           "Variable": {
             "Value": {
               "Type": "ActionOutput",
-              "OutputUUID": "6978EC64-ED67-49D1-AE71-91940FD63375",
-              "OutputName": "Lấy files"
+              "OutputUUID": "30B9E29A-5411-4053-AD0B-CB5C62D3E405",
+              "OutputName": "Khớp văn bản"
             },
             "WFSerializationType": "WFTextTokenAttachment"
           }
         },
-        "CustomOutputName": "Nếu",
-        "UUID": "490A1C7C-5870-4CFE-AA8F-7F9A196B35F1"
+        "UUID": "1E4D9A5F-890A-414A-AFD0-260CDDFA56C7"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
       "WFWorkflowActionParameters": {
         "WFAlertActionTitle": "Media Saver",
-        "WFAlertActionMessage": "VPS chưa trả về tệp media.",
+        "WFAlertActionMessage": "VPS chưa trả về danh sách mã tệp hợp lệ. Hãy cập nhật dịch vụ Media Saver.",
         "WFAlertActionCancelButtonShown": false,
         "CustomOutputName": "Không tải được",
-        "UUID": "7172E705-50CF-4438-AB50-CF9AB00D856F"
+        "UUID": "D6EEC31C-562D-4E3C-A99B-481670BFCEDF"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
       "WFWorkflowActionParameters": {
         "CustomOutputName": "Dừng phím tắt",
-        "UUID": "01C41973-8B0E-419B-AC43-50E22293F7DA"
+        "UUID": "237CB6CD-0BA9-4E7A-AFDD-0AA7CE33F6A4"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
       "WFWorkflowActionParameters": {
-        "GroupingIdentifier": "DF4C50F1-0C32-4F12-A184-09E133353E7E",
+        "GroupingIdentifier": "E94D2D03-35B3-4E88-A423-4009062DCD6C",
         "WFControlFlowMode": 2,
-        "CustomOutputName": "Kết thúc nếu",
-        "UUID": "7B863913-3A64-4701-AA64-FEBAE86128C7"
+        "UUID": "6593E178-370E-47A3-ACD1-D55F36726CF9"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.text.match",
+      "WFWorkflowActionParameters": {
+        "text": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "BD0DDC2D-0682-452A-AA1B-FD70102D1CA7",
+                "OutputName": "Danh sách mã tệp"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFMatchTextPattern": "[a-f0-9]{32}",
+        "WFMatchTextCaseSensitive": false,
+        "CustomOutputName": "Khớp văn bản",
+        "UUID": "285CDD27-AAE4-4399-A5D6-6E363366A42C"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "MediaFileIds",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "285CDD27-AAE4-4399-A5D6-6E363366A42C",
+            "OutputName": "Khớp văn bản"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "CustomOutputName": "Đặt MediaFileIds",
+        "UUID": "F5CF2550-4576-4077-A10E-46422EB359C8"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.count",
+      "WFWorkflowActionParameters": {
+        "Input": {
+          "Value": {
+            "Type": "Variable",
+            "VariableName": "MediaFileIds"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFCountType": "Items",
+        "CustomOutputName": "Số lượng",
+        "UUID": "4D4B46F3-5ADF-46F3-A9A4-342456E8378B"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
       "WFWorkflowActionParameters": {
-        "GroupingIdentifier": "55DE9C2F-5A50-4D34-A4F9-0A71B3057DD4",
+        "GroupingIdentifier": "7D978830-A54B-4320-AF24-AC6BD1516726",
         "WFControlFlowMode": 0,
         "WFCondition": 4,
         "WFInput": {
@@ -1107,8 +1179,7 @@
           }
         },
         "WFConditionalActionString": "partial",
-        "CustomOutputName": "Nếu",
-        "UUID": "B7020DA5-47E3-4D7C-AD37-D8579B27EBEA"
+        "UUID": "015031AE-1D1A-468F-A5CA-4A1E3111EBA6"
       }
     },
     {
@@ -1125,7 +1196,7 @@
         "WFDictionaryKey": "message",
         "WFGetDictionaryValueType": "Value",
         "CustomOutputName": "Lấy message",
-        "UUID": "EA09FE16-32E4-48BE-AF7E-D87E7FC65E02"
+        "UUID": "5D940556-0AD3-4FD0-ABE3-FCF6B7A729D8"
       }
     },
     {
@@ -1138,7 +1209,7 @@
             "attachmentsByRange": {
               "{0, 1}": {
                 "Type": "ActionOutput",
-                "OutputUUID": "EA09FE16-32E4-48BE-AF7E-D87E7FC65E02",
+                "OutputUUID": "5D940556-0AD3-4FD0-ABE3-FCF6B7A729D8",
                 "OutputName": "Lấy message"
               }
             }
@@ -1147,49 +1218,102 @@
         },
         "WFAlertActionCancelButtonShown": true,
         "CustomOutputName": "Kết quả một phần",
-        "UUID": "29EB7EAC-42D8-431E-A0B8-9EB18CEE94D5"
+        "UUID": "48014876-09E7-4297-AE28-312E331A4E27"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
       "WFWorkflowActionParameters": {
-        "GroupingIdentifier": "55DE9C2F-5A50-4D34-A4F9-0A71B3057DD4",
+        "GroupingIdentifier": "7D978830-A54B-4320-AF24-AC6BD1516726",
         "WFControlFlowMode": 2,
-        "CustomOutputName": "Kết thúc nếu",
-        "UUID": "26AAC067-4CDF-4392-AA01-3EFA84C7BD12"
+        "UUID": "A68270D4-2D34-4DF4-AB56-98D4969A0738"
       }
     },
     {
-      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.each",
+      "WFWorkflowActionIdentifier": "is.workflow.actions.number",
       "WFWorkflowActionParameters": {
+        "WFNumberActionNumber": "1",
+        "CustomOutputName": "Bắt đầu từ tệp đầu",
+        "UUID": "B1ECC4BB-8CEB-4884-A4B6-62A0049DD05F"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
+      "WFWorkflowActionParameters": {
+        "WFVariableName": "MediaIndex",
         "WFInput": {
           "Value": {
             "Type": "ActionOutput",
-            "OutputUUID": "6978EC64-ED67-49D1-AE71-91940FD63375",
-            "OutputName": "Lấy files"
+            "OutputUUID": "B1ECC4BB-8CEB-4884-A4B6-62A0049DD05F",
+            "OutputName": "Bắt đầu từ tệp đầu"
           },
           "WFSerializationType": "WFTextTokenAttachment"
         },
-        "GroupingIdentifier": "93155DEC-A2C5-41EF-A0AF-22EDF933FC3F",
-        "WFControlFlowMode": 0,
-        "CustomOutputName": "Lặp từng mục",
-        "UUID": "BE610B26-CCF5-4D3B-AC97-25D3234FE76E"
+        "CustomOutputName": "Đặt MediaIndex",
+        "UUID": "05534F4E-ABEA-4EA9-A688-73C9C83ED94C"
       }
     },
     {
-      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.count",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "67D41470-9D1D-4341-A461-C3F31069B589",
+        "WFControlFlowMode": 0,
+        "WFRepeatCount": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "4D4B46F3-5ADF-46F3-A9A4-342456E8378B",
+            "OutputName": "Số lượng"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "UUID": "D77A15D3-2047-46C2-AB40-5955FEE53F12"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getitemfromlist",
       "WFWorkflowActionParameters": {
         "WFInput": {
           "Value": {
             "Type": "Variable",
-            "VariableName": "Repeat Item"
+            "VariableName": "MediaFileIds"
           },
           "WFSerializationType": "WFTextTokenAttachment"
         },
-        "WFDictionaryKey": "id",
-        "WFGetDictionaryValueType": "Value",
-        "CustomOutputName": "Lấy id",
-        "UUID": "14B191F6-B881-416C-A276-F49D3A9D50C5"
+        "WFItemSpecifier": "Item At Index",
+        "WFItemIndex": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "Variable",
+                "VariableName": "MediaIndex"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "CustomOutputName": "Lấy mã theo vị trí",
+        "UUID": "06C87BA0-6574-4DAF-AEB1-8B1AFA1489E8"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.gettext",
+      "WFWorkflowActionParameters": {
+        "WFTextActionText": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "06C87BA0-6574-4DAF-AEB1-8B1AFA1489E8",
+                "OutputName": "Lấy mã theo vị trí"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "CustomOutputName": "Mã tệp hiện tại",
+        "UUID": "2003D2B0-BEF6-49F3-ACE4-D04F9ACED1A8"
       }
     },
     {
@@ -1201,8 +1325,8 @@
             "attachmentsByRange": {
               "{0, 1}": {
                 "Type": "ActionOutput",
-                "OutputUUID": "14B191F6-B881-416C-A276-F49D3A9D50C5",
-                "OutputName": "Lấy id"
+                "OutputUUID": "2003D2B0-BEF6-49F3-ACE4-D04F9ACED1A8",
+                "OutputName": "Mã tệp hiện tại"
               }
             }
           },
@@ -1211,13 +1335,13 @@
         "WFMatchTextPattern": "^[a-f0-9]{32}$",
         "WFMatchTextCaseSensitive": false,
         "CustomOutputName": "Khớp văn bản",
-        "UUID": "E3D06802-B60C-4D9A-AAFF-A359441AFC4E"
+        "UUID": "4CF6D125-0F1C-44A4-AD45-7A23E8ADF46B"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
       "WFWorkflowActionParameters": {
-        "GroupingIdentifier": "89C1EDB8-CE37-4414-A0B0-35F1C499BD2E",
+        "GroupingIdentifier": "27F3ED79-F59F-49FA-A8BC-C22B89E14AC4",
         "WFControlFlowMode": 0,
         "WFCondition": 101,
         "WFInput": {
@@ -1225,40 +1349,38 @@
           "Variable": {
             "Value": {
               "Type": "ActionOutput",
-              "OutputUUID": "E3D06802-B60C-4D9A-AAFF-A359441AFC4E",
+              "OutputUUID": "4CF6D125-0F1C-44A4-AD45-7A23E8ADF46B",
               "OutputName": "Khớp văn bản"
             },
             "WFSerializationType": "WFTextTokenAttachment"
           }
         },
-        "CustomOutputName": "Nếu",
-        "UUID": "FBCCD29F-3E7D-4C06-AC29-15870F6507AD"
+        "UUID": "A1F73797-324B-41EE-AFDA-3B0FA92B63FE"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
       "WFWorkflowActionParameters": {
         "WFAlertActionTitle": "Media Saver",
-        "WFAlertActionMessage": "Mã tệp trả về không hợp lệ.",
+        "WFAlertActionMessage": "Không đọc được mã tệp ở vị trí hiện tại.",
         "WFAlertActionCancelButtonShown": false,
         "CustomOutputName": "Không tải được",
-        "UUID": "AFE6FB89-E619-4805-AAA4-E5C862951489"
+        "UUID": "C14E7308-D0DC-4902-A277-F7A3D60863AD"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
       "WFWorkflowActionParameters": {
         "CustomOutputName": "Dừng phím tắt",
-        "UUID": "772B7ADB-7FFD-41BC-AA77-061BE38BDEBF"
+        "UUID": "6101A9BD-D859-4FDD-AA30-7E11F492DB4C"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
       "WFWorkflowActionParameters": {
-        "GroupingIdentifier": "89C1EDB8-CE37-4414-A0B0-35F1C499BD2E",
+        "GroupingIdentifier": "27F3ED79-F59F-49FA-A8BC-C22B89E14AC4",
         "WFControlFlowMode": 2,
-        "CustomOutputName": "Kết thúc nếu",
-        "UUID": "DEA18B34-9519-4E58-A176-AFB2822BA3BE"
+        "UUID": "F2EFF31D-AF41-4773-A448-BC7860FE221A"
       }
     },
     {
@@ -1280,15 +1402,15 @@
               },
               "{13, 1}": {
                 "Type": "ActionOutput",
-                "OutputUUID": "14B191F6-B881-416C-A276-F49D3A9D50C5",
-                "OutputName": "Lấy id"
+                "OutputUUID": "2003D2B0-BEF6-49F3-ACE4-D04F9ACED1A8",
+                "OutputName": "Mã tệp hiện tại"
               }
             }
           },
           "WFSerializationType": "WFTextTokenString"
         },
         "CustomOutputName": "Văn bản",
-        "UUID": "03CCE2CC-CD03-4DD7-A5C0-F2020E21C0C4"
+        "UUID": "A1848C0B-AD41-4675-A129-C2822A006EE6"
       }
     },
     {
@@ -1300,7 +1422,7 @@
             "attachmentsByRange": {
               "{0, 1}": {
                 "Type": "ActionOutput",
-                "OutputUUID": "03CCE2CC-CD03-4DD7-A5C0-F2020E21C0C4",
+                "OutputUUID": "A1848C0B-AD41-4675-A129-C2822A006EE6",
                 "OutputName": "Văn bản"
               }
             }
@@ -1339,7 +1461,7 @@
           "WFSerializationType": "WFDictionaryFieldValue"
         },
         "CustomOutputName": "Lấy dữ liệu từ VPS",
-        "UUID": "420E76EA-B12B-403D-AB6A-CA3E74DE2FCB"
+        "UUID": "B1E52D1A-FB5E-4480-A983-999D883607E4"
       }
     },
     {
@@ -1348,39 +1470,59 @@
         "WFInput": {
           "Value": {
             "Type": "ActionOutput",
-            "OutputUUID": "420E76EA-B12B-403D-AB6A-CA3E74DE2FCB",
+            "OutputUUID": "B1E52D1A-FB5E-4480-A983-999D883607E4",
             "OutputName": "Lấy dữ liệu từ VPS"
           },
           "WFSerializationType": "WFTextTokenAttachment"
         },
         "WFCameraRollSelectedGroup": "Recents",
         "CustomOutputName": "Lưu vào Ảnh",
-        "UUID": "20245F03-20E4-41CB-A4DC-DA4991DFE0C7"
+        "UUID": "74E99012-8C20-4509-AEB6-97681011A38E"
       }
     },
     {
-      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.each",
+      "WFWorkflowActionIdentifier": "is.workflow.actions.math",
       "WFWorkflowActionParameters": {
-        "GroupingIdentifier": "93155DEC-A2C5-41EF-A0AF-22EDF933FC3F",
-        "WFControlFlowMode": 2,
-        "CustomOutputName": "Kết thúc lặp",
-        "UUID": "006CFCD1-FF15-4C5C-ABEE-35B355B94246"
+        "WFInput": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "Variable",
+                "VariableName": "MediaIndex"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFMathOperation": "+",
+        "WFMathOperand": "1",
+        "CustomOutputName": "Chuyển sang tệp tiếp theo",
+        "UUID": "1E42542F-536D-4A2E-A416-C3165CDED8CD"
       }
     },
     {
-      "WFWorkflowActionIdentifier": "is.workflow.actions.count",
+      "WFWorkflowActionIdentifier": "is.workflow.actions.setvariable",
       "WFWorkflowActionParameters": {
-        "Input": {
+        "WFVariableName": "MediaIndex",
+        "WFInput": {
           "Value": {
             "Type": "ActionOutput",
-            "OutputUUID": "6978EC64-ED67-49D1-AE71-91940FD63375",
-            "OutputName": "Lấy files"
+            "OutputUUID": "1E42542F-536D-4A2E-A416-C3165CDED8CD",
+            "OutputName": "Chuyển sang tệp tiếp theo"
           },
           "WFSerializationType": "WFTextTokenAttachment"
         },
-        "WFCountType": "Items",
-        "CustomOutputName": "Số lượng",
-        "UUID": "FE41D22D-142C-43E4-A81E-B0736188E8DD"
+        "CustomOutputName": "Đặt MediaIndex",
+        "UUID": "33A1EF4A-AFC8-41F2-A386-73559B435F86"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.repeat.count",
+      "WFWorkflowActionParameters": {
+        "GroupingIdentifier": "67D41470-9D1D-4341-A461-C3F31069B589",
+        "WFControlFlowMode": 2,
+        "UUID": "BC97C1C3-D98B-47D6-AD2B-B310166C8263"
       }
     },
     {
@@ -1393,7 +1535,7 @@
             "attachmentsByRange": {
               "{7, 1}": {
                 "Type": "ActionOutput",
-                "OutputUUID": "FE41D22D-142C-43E4-A81E-B0736188E8DD",
+                "OutputUUID": "4D4B46F3-5ADF-46F3-A9A4-342456E8378B",
                 "OutputName": "Số lượng"
               }
             }
@@ -1402,14 +1544,14 @@
         },
         "WFNotificationActionSound": false,
         "CustomOutputName": "Đã lưu media",
-        "UUID": "1BD53B5A-D067-4E07-A647-68C819AA138B"
+        "UUID": "4D7CF184-E93A-4869-AFA7-87B40B6A8214"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
       "WFWorkflowActionParameters": {
         "CustomOutputName": "Hoàn tất",
-        "UUID": "25E7D78D-DBE2-4EB2-ABEA-45F2CFE8179C"
+        "UUID": "7B0A51BD-1ECD-49C2-A2B2-FFEB508CA08A"
       }
     },
     {
@@ -1417,8 +1559,7 @@
       "WFWorkflowActionParameters": {
         "GroupingIdentifier": "3AFA426F-96A3-4731-A81E-78BA0EF8920B",
         "WFControlFlowMode": 2,
-        "CustomOutputName": "Kết thúc nếu",
-        "UUID": "F2EFF31D-AF41-4773-A448-BC7860FE221A"
+        "UUID": "6947E684-7067-456B-ACB0-B3F69FBC45A9"
       }
     },
     {
@@ -1426,7 +1567,7 @@
       "WFWorkflowActionParameters": {
         "WFDelayTime": 2,
         "CustomOutputName": "Đợi hai giây",
-        "UUID": "9CD439D2-8DB5-41A1-A02C-80FCE513C4EE"
+        "UUID": "0F8E72EB-E84E-47A6-A232-9ECA6C84BBEE"
       }
     },
     {
@@ -1434,8 +1575,7 @@
       "WFWorkflowActionParameters": {
         "GroupingIdentifier": "8C235230-3005-4D9F-A153-510CE6FA145D",
         "WFControlFlowMode": 2,
-        "CustomOutputName": "Kết thúc chờ",
-        "UUID": "42666901-1030-4559-A72B-18A1F11BD907"
+        "UUID": "0FDFEB6E-E239-4F20-A740-BFBB3FD6ACF8"
       }
     },
     {
@@ -1445,14 +1585,14 @@
         "WFAlertActionMessage": "VPS vẫn đang xử lý. Đợi một lát rồi chia sẻ lại cùng bài; máy chủ sẽ tiếp tục tác vụ cũ.",
         "WFAlertActionCancelButtonShown": false,
         "CustomOutputName": "Không tải được",
-        "UUID": "5D12BB21-2B5D-4B96-A7CD-7C9391059763"
+        "UUID": "089E4323-19E6-4877-A90A-A3436797A87E"
       }
     },
     {
       "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
       "WFWorkflowActionParameters": {
         "CustomOutputName": "Dừng phím tắt",
-        "UUID": "7262B762-F431-42B7-A72F-89012639743E"
+        "UUID": "9FB4F838-71C4-44ED-AC2C-639B1E9C61F4"
       }
     }
   ]

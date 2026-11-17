@@ -46,7 +46,7 @@ async function runWorkflow(workflow, { input, prompt, choose = items => items[0]
       }
       if (id === 'repeat.each' || id === 'repeat.count') {
         const b = blocks.get(i), previous = variables.get('Repeat Item');
-        const items=id==='repeat.count'?Array.from({length:Number(p.WFRepeatCount)},(_,i)=>i+1):array(resolve(p.WFInput));
+        const items=id==='repeat.count'?Array.from({length:Number(resolve(p.WFRepeatCount))},(_,i)=>i+1):array(resolve(p.WFInput));
         for (const item of items) { variables.set(id==='repeat.count'?'Repeat Index':'Repeat Item',item); await run(i+1,b.end); }
         variables.set('Repeat Item',previous); i = b.end; continue;
       }
@@ -60,7 +60,14 @@ async function runWorkflow(workflow, { input, prompt, choose = items => items[0]
         case 'text.match': out = stringify(resolve(p.text)).match(new RegExp(p.WFMatchTextPattern,p.WFMatchTextCaseSensitive ? 'g':'gi')) || []; break;
         case 'text.replace': out = stringify(resolve(p.WFInput)).replace(new RegExp(p.WFReplaceTextFind,p.WFReplaceTextCaseSensitive ? 'g':'gi'),resolve(p.WFReplaceTextReplace)); break;
         case 'getvalueforkey': out = resolve(p.WFInput)?.[p.WFDictionaryKey]; break;
-        case 'getitemfromlist': out = array(resolve(p.WFInput))[0]; break;
+        case 'getitemfromlist': {
+          const list=array(resolve(p.WFInput));
+          out=list[p.WFItemSpecifier==='Item At Index'?Number(textSlot(p.WFItemIndex))-1:0];break;
+        }
+        case 'number': out=Number(textSlot(p.WFNumberActionNumber));break;
+        case 'math':
+          if(p.WFMathOperation!=='+')throw new Error('Unmodelled math');
+          out=Number(textSlot(p.WFInput))+Number(textSlot(p.WFMathOperand));break;
         case 'geturlcomponent': out = new URL(resolve(p.WFURL)).hostname; break;
         case 'urlencode': out = encodeURIComponent(resolve(p.WFInput)); break;
         case 'count': out = array(resolve(p.Input)).length; break;

@@ -1,16 +1,26 @@
-# Kiểm thử Media Saver 1.1.0-beta.1 — 17/11/2026
+# Kiểm thử Media Saver 1.1.0-beta.2 — 17/11/2026
 
 ## Kiểm tra mã
 
-`npm run verify`: **55/55 test đạt** trên Node.js 24. Trong đó 4 test cho Shortcut VPS, 7 test HTTP/backend và 44 test giữ lại cho các luồng/collector trước. Test cũ không được tính là kiểm tra tải thực tế của VPS.
+`npm run verify`: **58/58 test đạt** trên Node.js 24. Trong đó 6 test cho Shortcut VPS, 8 test HTTP/backend và 44 test giữ lại cho các luồng/collector trước. Test cũ không được tính là kiểm tra tải thực tế của VPS.
 
-Luồng mới có **89 tác vụ Phím tắt gốc**: nhận URL/văn bản từ bảng chia sẻ, hỏi liên kết nếu mở trực tiếp, gửi POST JSON có Bearer token, theo dõi trạng thái, kiểm tra ID tệp rồi tải từ cùng VPS và lưu vào Ảnh. Một câu hỏi nhập mã được gắn vào tác vụ văn bản thứ ba. Cấu trúc import question được đối chiếu [Cherri shortcutgen.go](https://github.com/electrikmilk/cherri/blob/main/shortcutgen.go).
+Luồng mới có **98 tác vụ Phím tắt gốc**: nhận URL/văn bản từ bảng chia sẻ, hỏi liên kết nếu mở trực tiếp, gửi POST JSON có Bearer token, theo dõi trạng thái, kiểm tra ID tệp rồi tải từ cùng VPS và lưu vào Ảnh. Một câu hỏi nhập mã được gắn vào tác vụ văn bản thứ ba. Cấu trúc import question được đối chiếu [Cherri shortcutgen.go](https://github.com/electrikmilk/cherri/blob/main/shortcutgen.go).
 
 Các test mới kiểm tra: chỉ gửi mã tới VPS; tải theo đúng trạng thái; không lưu khi lỗi; chặn ID tệp có URL; giới hạn số lần chờ; xác thực API; URL giả/nội bộ; Range; gộp tác vụ trùng; giới hạn hàng đợi đồng thời; hết hạn tệp; kết quả một phần; trang cài riêng; loại cache codec cũ khi restart. Dùng downloader giả cho test API, không gọi nền tảng trong unit test.
 
 Bản sửa Get URLs từ beta.4 vẫn được giữ: đầu vào dùng `WFTextTokenString`, tránh kiểu `WFTextTokenAttachment` không phù hợp với tham số văn bản. Mô hình `test/helpers/native-runner.cjs` mô phỏng các tác vụ; **không thay thế kiểm tra trên iOS**.
 
-## Tải thực tế trên VPS
+## Sửa lỗi đọc mã tệp của beta.1
+
+Ảnh chụp iPhone lúc 09:31 (giờ Việt Nam) báo “Mã tệp trả về không hợp lệ”. Tác vụ server lúc 09:31:34 đã ở trạng thái `ready`, có 5 ảnh và tất cả ID đều là chuỗi hex 32 ký tự; tác vụ Instagram trước đó có 8 ảnh cũng hợp lệ. Lỗi nằm sau bước tạo tác vụ/đọc trạng thái, trong đường đọc mã từng tệp ở Shortcut. Không có thiết bị kết nối để quan sát trực tiếp giá trị biến lúc lỗi, nên chưa xác nhận nguyên nhân chi tiết bên trong runtime iOS.
+
+Beta.2 bổ sung `fileIds` dạng văn bản, mỗi dòng một ID; vẫn giữ `files` để tương thích client cũ. Shortcut kiểm tra toàn bộ danh sách trước khi tải, dùng biến đếm riêng và Get Item at Index, không đọc `id` từ `Repeat Item` trong vòng lặp lồng nhau. Không đặt tên đầu ra tùy biến cho tác vụ điều khiển. Tham số tác vụ được đối chiếu [catalog Shortcuts](https://github.com/frontboat/shortcutkit/blob/main/data/builtin-actions.json) và [cách tuần tự hóa Cherri](https://github.com/electrikmilk/cherri/blob/main/shortcutgen.go).
+
+Test mới bao gồm danh sách 1/5/8/100 tệp đúng thứ tự, metadata dictionary không dùng tới, danh sách thiếu/sai có URL lạ phải dừng trước khi tải, và hợp đồng `fileIds` khớp `files` của API. Đây là kiểm tra hướng xử lý mới, không phải mô phỏng đã chứng minh tái hiện chính xác lỗi runtime của beta.1.
+
+Đã chạy **workflow beta.2 trong mô hình tác vụ với API thật** trên VPS cho đúng hai bài Instagram vừa chia sẻ: **5/5 và 8/8 ảnh**. Tải toàn bộ 13 tệp qua HTTPS có Bearer, so số byte, dấu hiệu JPEG và SHA-256 với tệp trên VPS. Thông báo hoàn tất được đi tới trong mô hình; thao tác lưu chỉ được thu nhận trong bộ kiểm tra, **không lưu vào thư viện Ảnh trên iPhone**. Báo cáo [artifacts/shortcut-live-results.json](artifacts/shortcut-live-results.json) không chứa URL bài cá nhân, token hoặc link cài riêng.
+
+## Tải thực tế trên VPS từ beta.1
 
 Server ARM64 Ubuntu, Docker, HTTPS tên miền sslip.io có chứng chỉ công khai. Bộ tải: yt-dlp 2026.10.26, gallery-dl 1.32.20, FFmpeg. Chưa có cookie đăng nhập. Probe tạo tác vụ qua API có xác thực, tải **toàn bộ từng tệp** qua HTTPS, so số byte, dấu hiệu định dạng, SHA-256 và đọc codec bằng ffprobe trên VPS.
 
@@ -37,6 +47,6 @@ Shortcut được Shortcuty ký chế độ `anyone`, kiểm tra marker `AEA1`, 
 
 ## Chưa xác nhận
 
-Chưa có iPhone kết nối để thử nhập bản 1.1.0-beta.1, câu hỏi mã truy cập, hiển thị trong bảng chia sẻ từng ứng dụng, quyền truy cập và lưu vào Ảnh. Kiểm tra codec không phải phát toàn bộ video trên iPhone. Không có kết quả với bài Instagram chính xác trong ảnh lỗi của người dùng vì chưa nhận được URL bài đó.
+Chưa có iPhone kết nối để thử nhập bản 1.1.0-beta.2, câu hỏi mã truy cập, hiển thị trong bảng chia sẻ từng ứng dụng, quyền truy cập và lưu vào Ảnh. Kiểm tra codec không phải phát toàn bộ video trên iPhone. Ảnh lỗi beta.1 và metadata VPS xác nhận thiết bị đã nhận link, xác thực và đến bước đọc tệp; chưa xác nhận bước lưu sau bản sửa.
 
 Ảnh/album Facebook chưa đạt trong thử nghiệm; cookie có thể cần nhưng chưa được cung cấp hoặc kiểm tra. Nội dung riêng tư, Stories, livestream, bài bị giới hạn vùng và mọi dạng link rút gọn chưa được xác nhận. Cấu hình giới hạn 100 tệp/512 MiB mỗi bài và thời gian xử lý có thể khiến bài lớn không tải hết. Nguồn tải có thể thay đổi sau thời điểm kiểm tra.

@@ -23,7 +23,7 @@ function buildNativeWorkflow() {
   function action(id, name, parameters = {}) {
     const UUID = uuid(actions.length + ':' + name);
     actions.push({ WFWorkflowActionIdentifier: 'is.workflow.actions.' + id,
-      WFWorkflowActionParameters: { ...parameters, CustomOutputName: name, UUID } });
+      WFWorkflowActionParameters: { ...parameters, ...(parameters.WFControlFlowMode===undefined?{CustomOutputName:name}:{}), UUID } });
     return { Type: 'ActionOutput', OutputUUID: UUID, OutputName: name };
   }
   const asText = (value, name = 'Văn bản') => action('gettext', name, { WFTextActionText:
@@ -32,8 +32,6 @@ function buildNativeWorkflow() {
     action('setvariable', 'Đặt ' + name, { WFVariableName: name, WFInput: token(value) });
     return variable(name);
   };
-  const clear = name => set(name, action('nothing', 'Xóa giá trị ' + name));
-  const append = (name, value) => action('appendvariable', 'Thêm vào ' + name, { WFVariableName: name, WFInput: token(value) });
   const get = (from, key) => action('getvalueforkey', 'Lấy ' + key, { WFInput: token(from), WFDictionaryKey: key, WFGetDictionaryValueType: 'Value' });
   const first = from => action('getitemfromlist', 'Mục đầu tiên', { WFInput: token(from), WFItemSpecifier: 'First Item' });
   const match = (from, pattern) => action('text.match', 'Khớp văn bản', { text: text(from), WFMatchTextPattern: pattern, WFMatchTextCaseSensitive: false });
@@ -47,23 +45,11 @@ function buildNativeWorkflow() {
     if (no) { action('conditional', 'Nếu không', { GroupingIdentifier: group, WFControlFlowMode: 1 }); no(); }
     action('conditional', 'Kết thúc nếu', { GroupingIdentifier: group, WFControlFlowMode: 2 });
   }
-  function each(from, callback) {
-    const group = uuid('repeat:' + actions.length);
-    action('repeat.each', 'Lặp từng mục', { WFInput: token(from), GroupingIdentifier: group, WFControlFlowMode: 0 });
-    callback(variable('Repeat Item'));
-    action('repeat.each', 'Kết thúc lặp', { GroupingIdentifier: group, WFControlFlowMode: 2 });
-  }
   function stop(message) {
     action('alert', 'Không tải được', { WFAlertActionTitle: 'Media Saver', WFAlertActionMessage: message, WFAlertActionCancelButtonShown: false });
     action('exit', 'Dừng phím tắt');
   }
   const requireValue = (value, message) => when(value, 101, () => stop(message));
-  function download(url, referer) {
-    const p = { WFURL: typeof url === 'string' ? url : text(url), WFHTTPMethod: 'GET' };
-    if (referer) p.WFHTTPHeaders = { Value: { WFDictionaryFieldValueItems: [{ WFItemType: 0,
-      WFKey: text('Referer'), WFValue: typeof referer === 'string' ? text(referer) : text(referer) }] }, WFSerializationType: 'WFDictionaryFieldValue' };
-    return action('downloadurl', 'Nội dung URL', p);
-  }
   action('comment', 'Media Saver VPS '+version, {WFCommentActionText:'Chia sẻ bài đăng → Media Saver. VPS tải và xử lý media; iPhone lưu vào Ảnh. Cấu hình một lần bằng mã truy cập riêng. Máy chủ giữ tệp tạm trong một giờ.'});
   const base=asText('https://media-saver.161.118.222.102.sslip.io','Địa chỉ VPS');
   const key=asText('DAN_MA_TRUY_CAP','Mã truy cập VPS');
@@ -92,14 +78,22 @@ function buildNativeWorkflow() {
   const status=asText(get(state,'status'));
   when(status,4,()=>stop(text(get(state,'message'))),undefined,'failed');
   when(match(status,'^(ready|partial)$'),100,()=>{
-    const files=get(state,'files');requireValue(files,'VPS chưa trả về tệp media.');
+    const manifest=asText(get(state,'fileIds'),'Danh sách mã tệp');
+    requireValue(match(manifest,'^[a-f0-9]{32}(?:\\n[a-f0-9]{32}){0,499}$'),'VPS chưa trả về danh sách mã tệp hợp lệ. Hãy cập nhật dịch vụ Media Saver.');
+    const files=set('MediaFileIds',match(manifest,'[a-f0-9]{32}'));
+    const total=count(files);
     when(status,4,()=>action('alert','Kết quả một phần',{WFAlertActionTitle:'Media Saver',WFAlertActionMessage:text(get(state,'message')),WFAlertActionCancelButtonShown:true}),undefined,'partial');
-    each(files,item=>{
-      const id=get(item,'id');requireValue(match(id,'^[a-f0-9]{32}$'),'Mã tệp trả về không hợp lệ.');
+    // Explicit cursor: never depend on the scope/name of Repeat Item in the polling loop.
+    const cursor=set('MediaIndex',action('number','Bắt đầu từ tệp đầu',{WFNumberActionNumber:'1'}));
+    const downloads=uuid('download-files');
+    action('repeat.count','Tải từng tệp',{GroupingIdentifier:downloads,WFControlFlowMode:0,WFRepeatCount:token(total)});
+      const id=asText(action('getitemfromlist','Lấy mã theo vị trí',{WFInput:token(files),WFItemSpecifier:'Item At Index',WFItemIndex:text(cursor)}),'Mã tệp hiện tại');
+      requireValue(match(id,'^[a-f0-9]{32}$'),'Không đọc được mã tệp ở vị trí hiện tại.');
       const file=api(asText(text(base,'/v1/files/',job,'/',id)));
       action('savetocameraroll','Lưu vào Ảnh',{WFInput:token(file),WFCameraRollSelectedGroup:'Recents'});
-    });
-    action('notification','Đã lưu media',{WFNotificationActionTitle:'Media Saver',WFNotificationActionBody:text('Đã lưu ',count(files),' tệp vào Ảnh.'),WFNotificationActionSound:false});
+      set('MediaIndex',action('math','Chuyển sang tệp tiếp theo',{WFInput:text(cursor),WFMathOperation:'+',WFMathOperand:'1'}));
+    action('repeat.count','Kết thúc tải tệp',{GroupingIdentifier:downloads,WFControlFlowMode:2});
+    action('notification','Đã lưu media',{WFNotificationActionTitle:'Media Saver',WFNotificationActionBody:text('Đã lưu ',total,' tệp vào Ảnh.'),WFNotificationActionSound:false});
     action('exit','Hoàn tất');
   });
   action('delay','Đợi hai giây',{WFDelayTime:2});

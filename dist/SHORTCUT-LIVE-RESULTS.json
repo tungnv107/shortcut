@@ -1,0 +1,101 @@
+{
+  "checkedAt": "2026-11-17T02:39:02.110Z",
+  "version": "1.1.0-beta.2",
+  "scope": "Current shortcut action model against live authenticated HTTPS API, full-file hashes checked against VPS cache; not an iPhone Photos test.",
+  "results": [
+    {
+      "case": "Instagram album",
+      "expectedFiles": 5,
+      "downloadedFiles": 5,
+      "status": "passed",
+      "files": [
+        {
+          "name": "1.jpg",
+          "bytes": 125268,
+          "mime": "image/jpeg",
+          "sha256": "e9e9d5034a32edd2174500308fcebf3c2697fe25e032047b67023abe5f072900"
+        },
+        {
+          "name": "2.mp4",
+          "bytes": 1058067,
+          "mime": "video/mp4",
+          "sha256": "ae5a67bbd97ddf3890f9cb8aa0f253b1b796421004f7732a3911e204e5d5290f"
+        },
+        {
+          "name": "3.jpg",
+          "bytes": 160876,
+          "mime": "image/jpeg",
+          "sha256": "aecd5c6e1e22b3776618a26199400ba61aedc5106e3f26b51a36267d08180396"
+        },
+        {
+          "name": "4.jpg",
+          "bytes": 84724,
+          "mime": "image/jpeg",
+          "sha256": "b37c968a4fe878b4bfc41e00c5e64a8ba3cba7e314bdb4fa30900029c57ed919"
+        },
+        {
+          "name": "5.jpg",
+          "bytes": 167306,
+          "mime": "image/jpeg",
+          "sha256": "1d6b4db2d7aa280cbf671895ead513905856b24974a82e15fcc4d62e20532ea6"
+        }
+      ]
+    },
+    {
+      "case": "Instagram album",
+      "expectedFiles": 8,
+      "downloadedFiles": 8,
+      "status": "passed",
+      "files": [
+        {
+          "name": "1.jpg",
+          "bytes": 73877,
+          "mime": "image/jpeg",
+          "sha256": "e3193f93fc5d800881f889ef3536b7c2b428de3d5502df1467e02da9e9c416a2"
+        },
+        {
+          "name": "2.jpg",
+          "bytes": 104250,
+          "mime": "image/jpeg",
+          "sha256": "c12e598b755aa888974481710273c92b9ad56d5ef6a4f6167b22b5dfedc58325"
+        },
+        {
+          "name": "3.jpg",
+          "bytes": 109494,
+          "mime": "image/jpeg",
+          "sha256": "b1bf122b0c7c2bdd319699f10131c61d6457fbda87083ad002ee1b831d2ef644"
+        },
+        {
+          "name": "4.jpg",
+          "bytes": 84500,
+          "mime": "image/jpeg",
+          "sha256": "146228f1855d1e5bfe01faee6b24c92060f1d3625175772d72c061d6c2f61201"
+        },
+        {
+          "name": "5.jpg",
+          "bytes": 98218,
+          "mime": "image/jpeg",
+          "sha256": "368c935e3a9ac19f193e7f3d19ded47e4126559f78e2d745c4643bc818f4d872"
+        },
+        {
+          "name": "6.jpg",
+          "bytes": 87149,
+          "mime": "image/jpeg",
+          "sha256": "98a55f537df69708dc6b4479822fd913f75d22744a28fa3d9b47fe1d6629f1bf"
+        },
+        {
+          "name": "7.jpg",
+          "bytes": 129946,
+          "mime": "image/jpeg",
+          "sha256": "c853f7a7ea357133a712c4372545af0bf8a748280e81c3f9b8a5d51727ca748d"
+        },
+        {
+          "name": "8.jpg",
+          "bytes": 116348,
+          "mime": "image/jpeg",
+          "sha256": "f8a47cb85e270d17914088b6beadb1fa57697cd7b2aec8465b15a7c80bffe772"
+        }
+      ]
+    }
+  ]
+}
